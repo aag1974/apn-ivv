@@ -265,6 +265,13 @@
       min-width: 44px;
     }
     
+    /* OCULTAR APRESENTAÇÃO EM MOBILE */
+    @media (max-width: 768px) {
+      #presentationButton {
+        display: none !important; /* Oculta completamente o botão em mobile */
+      }
+    }
+    
     /* Melhorar legibilidade em telas pequenas */
     @media (max-width: 768px) {
       body {
@@ -486,63 +493,7 @@
       font-size: 16px;
     }
     
-    /* Botão ESC para mobile na apresentação */
-    #mobileExitBtn {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 10001;
-      background: rgba(0,0,0,0.7);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      font-size: 20px;
-      cursor: pointer;
-      display: none; /* Oculto por padrão */
-      backdrop-filter: blur(10px);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-      transition: all 0.3s ease;
-    }
-    
-    #mobileExitBtn:hover {
-      background: rgba(0,0,0,0.9);
-      transform: scale(1.1);
-    }
-    
-    #mobileExitBtn:active {
-      transform: scale(0.95);
-    }
-    
-    /* Mostrar botão ESC apenas em telas touch */
-    @media (max-width: 768px) {
-      #mobileExitBtn {
-        display: block;
-      }
-    }
-    
-    /* Indicador de navegação para mobile */
-    #mobileNavIndicator {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10001;
-      background: rgba(0,0,0,0.7);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 14px;
-      backdrop-filter: blur(10px);
-      display: none; /* Mostrar apenas em mobile */
-    }
-    
-    @media (max-width: 768px) {
-      #mobileNavIndicator {
-        display: block;
-      }
-    }
+    /* Apresentação desabilitada em mobile - elementos ocultos */
   </style>
 </head>
 <body>
@@ -550,11 +501,11 @@
   <div class="header">
     <div class="month-ref">📅 Mês Ref.: Nov/25</div>
     <div class="header-content">
-      <img src="https://raw.githubusercontent.com/aag1974/apn-ivv/main/logo_opiniao.png" alt="Opinião Logo" class="logo">
+      <img src="https://raw.githubusercontent.com/aag1974/apn-ivv/main/logo.png" alt="Opinião Logo" class="logo">
       <div class="header-text">
         <h1>📊 Pesquisa IVV Residencial</h1>
         <p>Índice de Velocidade de Vendas - Análise Executiva</p>
-        <small>Relatório gerado em: 24/12/2025 14:09</small>
+        <small>Relatório gerado em: 24/12/2025 15:09</small>
       </div>
     </div>
   </div>
@@ -584,57 +535,57 @@
       <div class="summary-title">📊 Resumo Executivo - Nov/25</div>
       <div class="metrics-grid">
         <div class="metric-item">
-          <div class="metric-trend">🔴</div>
+          <div class="metric-trend">📉</div>
           <div class="metric-label">IVV</div>
           <div class="metric-value">8,0%</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">🔴</div>
+          <div class="metric-trend">📉</div>
           <div class="metric-label">Unidades Ofertadas</div>
           <div class="metric-value">5.182</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">🔴</div>
+          <div class="metric-trend">📉</div>
           <div class="metric-label">Unidades Vendidas</div>
           <div class="metric-value">416</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">🔴</div>
+          <div class="metric-trend">📉</div>
           <div class="metric-label">Unidades Lançadas</div>
           <div class="metric-value">180</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">🔴</div>
+          <div class="metric-trend">📉</div>
           <div class="metric-label">Oferta em m²</div>
           <div class="metric-value">495.065 m²</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">🔴</div>
+          <div class="metric-trend">📉</div>
           <div class="metric-label">Venda em m²</div>
           <div class="metric-value">30.151 m²</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">🟢</div>
+          <div class="metric-trend">📈</div>
           <div class="metric-label">Preço de Oferta</div>
           <div class="metric-value">R$ 15.679</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">🟢</div>
+          <div class="metric-trend">📈</div>
           <div class="metric-label">Preço de Venda</div>
           <div class="metric-value">R$ 12.544</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">🔴</div>
+          <div class="metric-trend">📉</div>
           <div class="metric-label">VGV</div>
-          <div class="metric-value">R$ 378Mi</div>
+          <div class="metric-value">R$ 378M</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">🔴</div>
+          <div class="metric-trend">📉</div>
           <div class="metric-label">VGL</div>
-          <div class="metric-value">R$ 170Mi</div>
+          <div class="metric-value">R$ 170M</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">🔴</div>
+          <div class="metric-trend">📉</div>
           <div class="metric-label">Distratos</div>
           <div class="metric-value">23</div>
         </div>
@@ -896,10 +847,10 @@
       <div class="insights">
         <h4>💡 Destaques (Empreendimentos):</h4>
         <ul>
-          <li>Variação MoM (empreendimentos): Nov/2025 - Out/2025: -46,9%</li>
-          <li>Variação YoY (empreendimentos): Nov/2025 - Nov/2024: -27,7%</li>
-          <li>Pico: 5 empreendimentos</li>
-          <li>Média anual: 2 empreendimentos</li>
+          <li>Variação MoM (projetos): Nov/2025 - Out/2025: -46,9%</li>
+          <li>Variação YoY (projetos): Nov/2025 - Nov/2024: -27,7%</li>
+          <li>Pico: 5 projetos</li>
+          <li>Média anual: 2 projetos</li>
         </ul>
       </div>
     </div>
@@ -1115,7 +1066,7 @@
         <div class="chart-subtitle">Performance por trimestre (R$ Milhões)</div>
         <div class="chart-wrapper small"><canvas id="vgvQuarterlyChart"></canvas></div>
         <div class="highlight-box">
-          <h3>Melhor trimestre: 2T - R$ 1.182,76Mi</h3>
+          <h3>Melhor trimestre: 2T - R$ 1.182,76M</h3>
           <p>Destaque trimestral (melhor performance)</p>
           <p class="observation"><em>* Trimestre incompleto (dados até Nov/2025)</em></p>
         </div>
@@ -1125,7 +1076,7 @@
         <div class="chart-subtitle">Performance anual consolidada (R$ Milhões)</div>
         <div class="chart-wrapper small"><canvas id="vgvYearlyChart"></canvas></div>
         <div class="highlight-box">
-          <h3>2025 *: R$ 4.147,77Mi (+3,2%)</h3>
+          <h3>2025 *: R$ 4.147,77 (+3,2%)</h3>
           <p>Performance anual</p>
           <p class="observation"><em>* Ano incompleto (dados até Nov/2025)</em></p>
         </div>
@@ -1154,7 +1105,7 @@
         <div class="chart-subtitle">Performance por trimestre (R$ Milhões)</div>
         <div class="chart-wrapper small"><canvas id="vglQuarterlyChart"></canvas></div>
         <div class="highlight-box">
-          <h3>Melhor trimestre: 3T - R$ 1.380,10Mi</h3>
+          <h3>Melhor trimestre: 3T - R$ 1.380,10M</h3>
           <p>Destaque trimestral (melhor performance)</p>
           <p class="observation"><em>* Trimestre incompleto (dados até Nov/2025)</em></p>
         </div>
@@ -1164,7 +1115,7 @@
         <div class="chart-subtitle">Performance anual consolidada (R$ Milhões)</div>
         <div class="chart-wrapper small"><canvas id="vglYearlyChart"></canvas></div>
         <div class="highlight-box">
-          <h3>2025 *: R$ 2.974,27Mi (+18,0%)</h3>
+          <h3>2025 *: R$ 2.974,27 (+18,0%)</h3>
           <p>Performance anual</p>
           <p class="observation"><em>* Ano incompleto (dados até Nov/2025)</em></p>
         </div>
@@ -2252,13 +2203,8 @@ window.addEventListener('load', function() {
 
 </script>
 
-  <!-- Presentation Container for slides -->
-  <div id="presentationContainer">
-    <!-- Botão ESC para mobile -->
-    <button id="mobileExitBtn" title="Sair da apresentação">✕</button>
-    <!-- Indicador de navegação para mobile -->
-    <div id="mobileNavIndicator">← → Navegar • ✕ Sair</div>
-  </div>
+  <!-- Presentation Container for slides (Desktop only) -->
+  <div id="presentationContainer"></div>
 
   <script>
     (function() {
@@ -2491,6 +2437,12 @@ window.addEventListener('load', function() {
         });
       }
       function startPresentation() {
+        // BLOQUEAR APRESENTAÇÃO EM MOBILE
+        if (window.innerWidth <= 768) {
+          console.log('Apresentação desabilitada em dispositivos móveis');
+          return;
+        }
+        
         if (container.style.display === 'block') {
           // finalizar
           container.style.display = 'none';
@@ -2525,58 +2477,8 @@ window.addEventListener('load', function() {
         });
       }
       
-      // Botão ESC para mobile
-      const mobileExitBtn = document.getElementById('mobileExitBtn');
-      if (mobileExitBtn) {
-        mobileExitBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          // Finalizar apresentação
-          if (container.style.display === 'block') {
-            startPresentation();
-          }
-        });
-      }
+      // Apresentação desabilitada em mobile - eventos touch removidos
       
-      // Touch gestures para navegação em mobile
-      let touchStartX = null;
-      let touchStartY = null;
-      
-      container.addEventListener('touchstart', (e) => {
-        if (container.style.display === 'block') {
-          touchStartX = e.touches[0].clientX;
-          touchStartY = e.touches[0].clientY;
-        }
-      });
-      
-      container.addEventListener('touchend', (e) => {
-        if (container.style.display === 'block' && touchStartX !== null && touchStartY !== null) {
-          const touchEndX = e.changedTouches[0].clientX;
-          const touchEndY = e.changedTouches[0].clientY;
-          const diffX = touchStartX - touchEndX;
-          const diffY = touchStartY - touchEndY;
-          
-          // Verificar se foi um swipe horizontal (não vertical)
-          if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
-            if (diffX > 0) {
-              // Swipe left - próximo slide
-              if (current < slides.length - 1) {
-                current++;
-                showSlide(current);
-              }
-            } else {
-              // Swipe right - slide anterior  
-              if (current > 0) {
-                current--;
-                showSlide(current);
-              }
-            }
-          }
-          
-          touchStartX = null;
-          touchStartY = null;
-        }
-      });
       // Monitorar saída do fullscreen para finalizar apresentação automaticamente
       document.addEventListener('fullscreenchange', () => {
         if (container.style.display === 'block' && !document.fullscreenElement) {

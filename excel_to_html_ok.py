@@ -329,7 +329,7 @@ def parse_region_table(df: pd.DataFrame) -> pd.DataFrame:
     df_region = df.copy()
     # Manter somente as 6 primeiras colunas
     df_region = df_region.iloc[:, :6]
-    expected_cols = ['Região', '1 qto', '2 qtos', '3 qtos', '4+ qtos', 'Total']
+    expected_cols = ['Região', '1 qto', '2 qtos', '3 qtos', '4+ qtos', 'Preço Médio']
     # Atribuir nomes de colunas padronizados
     df_region.columns = expected_cols
     # Verificar se a primeira linha contém texto de cabeçalho e descartá-la
@@ -771,16 +771,16 @@ def extract_summary_values(data_dict, highlights):
     def get_trend_arrow(data_key):
         """
         Extrai seta de tendência baseada nos highlights.
-        Se houver setas (📈, 📉 ou ➡️) no texto de trend dos highlights, retorna essa seta.
+        Se houver setas (🟢, 🔴 ou 🟡️) no texto de trend dos highlights, retorna essa seta.
         Caso contrário, retorna string vazia.
         """
         trend = highlights.get(f'{data_key} Trend', '')
-        if '📈' in trend:
-            return '📈'
-        if '📉' in trend:
-            return '📉'
-        if '➡️' in trend:
-            return '➡️'
+        if '🟢' in trend:
+            return '🟢'
+        if '🔴' in trend:
+            return '🔴'
+        if '🟡️' in trend:
+            return '🟡️'
         return ''
 
     def compute_arrow_from_series(series):
@@ -790,9 +790,9 @@ def extract_summary_values(data_dict, highlights):
         seta de tendência comparando o valor mais recente ao anterior.
 
         Retorna:
-          '📈' se o último valor for maior que o penúltimo;
-          '📉' se o último valor for menor que o penúltimo;
-          '➡️' se forem iguais;
+          '🟢' se o último valor for maior que o penúltimo;
+          '🔴' se o último valor for menor que o penúltimo;
+          '🟡️' se forem iguais;
           ''  se não houver dados suficientes.
         """
         # Filtrar valores válidos preservando a ordem (evitar None)
@@ -803,11 +803,11 @@ def extract_summary_values(data_dict, highlights):
         prev = valid[-2]
         try:
             if last > prev:
-                return '📈'
+                return '🟢'
             elif last < prev:
-                return '📉'
+                return '🔴'
             else:
-                return '➡️'
+                return '🟡️'
         except Exception:
             return ''
     
@@ -943,7 +943,7 @@ def extract_summary_values(data_dict, highlights):
             last_dataset = vgv_data['datasets'][-1]
             for i in range(len(last_dataset['data']) - 1, -1, -1):
                 if last_dataset['data'][i] is not None:
-                    summary['vgv'] = f"{br_currency(last_dataset['data'][i], 0)}M"
+                    summary['vgv'] = f"{br_currency(last_dataset['data'][i], 0)}Mi"
                     arrow = compute_arrow_from_series(last_dataset['data'])
                     summary['vgv_trend'] = arrow if arrow else get_trend_arrow('VGV')
                     break
@@ -955,7 +955,7 @@ def extract_summary_values(data_dict, highlights):
             last_dataset = vgl_data['datasets'][-1]
             for i in range(len(last_dataset['data']) - 1, -1, -1):
                 if last_dataset['data'][i] is not None:
-                    summary['vgl'] = f"{br_currency(last_dataset['data'][i], 0)}M"
+                    summary['vgl'] = f"{br_currency(last_dataset['data'][i], 0)}Mi"
                     arrow = compute_arrow_from_series(last_dataset['data'])
                     summary['vgl_trend'] = arrow if arrow else get_trend_arrow('VGL')
                     break
@@ -1548,13 +1548,6 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
       min-width: 44px;
     }}
     
-    /* OCULTAR APRESENTAÇÃO EM MOBILE */
-    @media (max-width: 768px) {{
-      #presentationButton {{
-        display: none !important; /* Oculta completamente o botão em mobile */
-      }}
-    }}
-    
     /* Melhorar legibilidade em telas pequenas */
     @media (max-width: 768px) {{
       body {{
@@ -1776,7 +1769,63 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
       font-size: 16px;
     }}
     
-    /* Apresentação desabilitada em mobile - elementos ocultos */
+    /* Botão ESC para mobile na apresentação */
+    #mobileExitBtn {{
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10001;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 20px;
+      cursor: pointer;
+      display: none; /* Oculto por padrão */
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+    }}
+    
+    #mobileExitBtn:hover {{
+      background: rgba(0,0,0,0.9);
+      transform: scale(1.1);
+    }}
+    
+    #mobileExitBtn:active {{
+      transform: scale(0.95);
+    }}
+    
+    /* Mostrar botão ESC apenas em telas touch */
+    @media (max-width: 768px) {{
+      #mobileExitBtn {{
+        display: block;
+      }}
+    }}
+    
+    /* Indicador de navegação para mobile */
+    #mobileNavIndicator {{
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10001;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      backdrop-filter: blur(10px);
+      display: none; /* Mostrar apenas em mobile */
+    }}
+    
+    @media (max-width: 768px) {{
+      #mobileNavIndicator {{
+        display: block;
+      }}
+    }}
   </style>
 </head>
 <body>
@@ -1784,7 +1833,7 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
   <div class="header">
     <div class="month-ref">📅 Mês Ref.: {month_ref}</div>
     <div class="header-content">
-      <img src="https://raw.githubusercontent.com/aag1974/apn-ivv/main/logo.png" alt="Opinião Logo" class="logo">
+      <img src="https://raw.githubusercontent.com/aag1974/apn-ivv/main/logo_opiniao.png" alt="Opinião Logo" class="logo">
       <div class="header-text">
         <h1>📊 Pesquisa IVV Residencial</h1>
         <p>Índice de Velocidade de Vendas - Análise Executiva</p>
@@ -3442,8 +3491,13 @@ window.addEventListener('load', function() {
 
 </script>
 
-  <!-- Presentation Container for slides (Desktop only) -->
-  <div id="presentationContainer"></div>
+  <!-- Presentation Container for slides -->
+  <div id="presentationContainer">
+    <!-- Botão ESC para mobile -->
+    <button id="mobileExitBtn" title="Sair da apresentação">✕</button>
+    <!-- Indicador de navegação para mobile -->
+    <div id="mobileNavIndicator">← → Navegar • ✕ Sair</div>
+  </div>
 
   <script>
     (function() {
@@ -3676,12 +3730,6 @@ window.addEventListener('load', function() {
         });
       }
       function startPresentation() {
-        // BLOQUEAR APRESENTAÇÃO EM MOBILE
-        if (window.innerWidth <= 768) {
-          console.log('Apresentação desabilitada em dispositivos móveis');
-          return;
-        }
-        
         if (container.style.display === 'block') {
           // finalizar
           container.style.display = 'none';
@@ -3716,8 +3764,58 @@ window.addEventListener('load', function() {
         });
       }
       
-      // Apresentação desabilitada em mobile - eventos touch removidos
+      // Botão ESC para mobile
+      const mobileExitBtn = document.getElementById('mobileExitBtn');
+      if (mobileExitBtn) {
+        mobileExitBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          // Finalizar apresentação
+          if (container.style.display === 'block') {
+            startPresentation();
+          }
+        });
+      }
       
+      // Touch gestures para navegação em mobile
+      let touchStartX = null;
+      let touchStartY = null;
+      
+      container.addEventListener('touchstart', (e) => {
+        if (container.style.display === 'block') {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+        }
+      });
+      
+      container.addEventListener('touchend', (e) => {
+        if (container.style.display === 'block' && touchStartX !== null && touchStartY !== null) {
+          const touchEndX = e.changedTouches[0].clientX;
+          const touchEndY = e.changedTouches[0].clientY;
+          const diffX = touchStartX - touchEndX;
+          const diffY = touchStartY - touchEndY;
+          
+          // Verificar se foi um swipe horizontal (não vertical)
+          if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+            if (diffX > 0) {
+              // Swipe left - próximo slide
+              if (current < slides.length - 1) {
+                current++;
+                showSlide(current);
+              }
+            } else {
+              // Swipe right - slide anterior  
+              if (current > 0) {
+                current--;
+                showSlide(current);
+              }
+            }
+          }
+          
+          touchStartX = null;
+          touchStartY = null;
+        }
+      });
       // Monitorar saída do fullscreen para finalizar apresentação automaticamente
       document.addEventListener('fullscreenchange', () => {
         if (container.style.display === 'block' && !document.fullscreenElement) {
@@ -4105,16 +4203,16 @@ def main():
                 lancproj_insights = format_new_insights(sheets[lanc_month_sheet], data_type='number', month_ref=month_ref)
                 
                 # Adaptar os insights para empreendimentos (projetos)
-                highlights['LancProj MoM'] = lancproj_insights['mom'].replace('Variação MoM:', 'Variação MoM (projetos):')
-                highlights['LancProj YoY'] = lancproj_insights['yoy'].replace('Variação YoY:', 'Variação YoY (projetos):')
+                highlights['LancProj MoM'] = lancproj_insights['mom'].replace('Variação MoM:', 'Variação MoM (empreendimentos):')
+                highlights['LancProj YoY'] = lancproj_insights['yoy'].replace('Variação YoY:', 'Variação YoY (empreendimentos):')
                 
                 # Para pico e média, usar os dados calculados dos valores entre colchetes
                 proj_peak = calc_peak(cur_vals)
-                highlights['LancProj Peak'] = f"Pico: {br_int(proj_peak)} projetos" if proj_peak is not None else "Pico: n/d"
+                highlights['LancProj Peak'] = f"Pico: {br_int(proj_peak)} empreendimentos" if proj_peak is not None else "Pico: n/d"
                 
                 # Calcular média anual dos projetos
                 proj_yearly_avg = sum([v for v in cur_vals if v is not None]) / len([v for v in cur_vals if v is not None]) if cur_vals else None
-                highlights['LancProj Yearly Avg'] = f"Média anual: {br_int(proj_yearly_avg)} projetos" if proj_yearly_avg is not None else "Média anual: n/d"
+                highlights['LancProj Yearly Avg'] = f"Média anual: {br_int(proj_yearly_avg)} empreendimentos" if proj_yearly_avg is not None else "Média anual: n/d"
                 
                 # Manter cálculo de tendência para as setas
                 proj_trend = calc_trend(cur_vals)
@@ -4329,7 +4427,7 @@ def main():
         # Encontrar melhor trimestre (não sempre o último)
         best_value, best_quarter = find_best_quarter_with_performance(sheets['VGV Trimestral (R$ Milhões)'], data_type='currency')
         if best_value is not None and best_quarter:
-            highlights['VGV Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value)}M"
+            highlights['VGV Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value)}Mi"
         
         # Extrair observações sobre dados incompletos
         observation = extract_observation_from_sheet(sheets['VGV Trimestral (R$ Milhões)'])
@@ -4348,7 +4446,7 @@ def main():
                     continue
                 year = str(row.iloc[0])
                 var_str = str(row.iloc[2]) if len(row) > 2 and not pd.isna(row.iloc[2]) else ''
-                highlights['VGV Annual'] = f"{year}: {br_currency(val)} ({var_str})"
+                highlights['VGV Annual'] = f"{year}: {br_currency(val)}Mi ({var_str})"
                 break
 
         # Extrair observações sobre dados incompletos
@@ -4382,7 +4480,7 @@ def main():
         # Encontrar melhor trimestre (não sempre o último)
         best_value, best_quarter = find_best_quarter_with_performance(sheets['VGL Trimestral (R$ Milhões)'], data_type='currency')
         if best_value is not None and best_quarter:
-            highlights['VGL Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value)}M"
+            highlights['VGL Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value)}Mi"
         
         # Extrair observações sobre dados incompletos
         observation = extract_observation_from_sheet(sheets['VGL Trimestral (R$ Milhões)'])
@@ -4401,7 +4499,7 @@ def main():
                     continue
                 year = str(row.iloc[0])
                 var_str = str(row.iloc[2]) if len(row) > 2 and not pd.isna(row.iloc[2]) else ''
-                highlights['VGL Annual'] = f"{year}: {br_currency(val)} ({var_str})"
+                highlights['VGL Annual'] = f"{year}: {br_currency(val)}Mi ({var_str})"
                 break
 
         # Extrair observações sobre dados incompletos
