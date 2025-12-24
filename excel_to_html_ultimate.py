@@ -771,16 +771,16 @@ def extract_summary_values(data_dict, highlights):
     def get_trend_arrow(data_key):
         """
         Extrai seta de tendência baseada nos highlights.
-        Se houver setas (📈, 📉 ou ➡️) no texto de trend dos highlights, retorna essa seta.
+        Se houver setas (🟢, 🔴 ou 🟡️) no texto de trend dos highlights, retorna essa seta.
         Caso contrário, retorna string vazia.
         """
         trend = highlights.get(f'{data_key} Trend', '')
-        if '📈' in trend:
-            return '📈'
-        if '📉' in trend:
-            return '📉'
-        if '➡️' in trend:
-            return '➡️'
+        if '🟢' in trend:
+            return '🟢'
+        if '🔴' in trend:
+            return '🔴'
+        if '🟡️' in trend:
+            return '🟡️'
         return ''
 
     def compute_arrow_from_series(series):
@@ -790,9 +790,9 @@ def extract_summary_values(data_dict, highlights):
         seta de tendência comparando o valor mais recente ao anterior.
 
         Retorna:
-          '📈' se o último valor for maior que o penúltimo;
-          '📉' se o último valor for menor que o penúltimo;
-          '➡️' se forem iguais;
+          '🟢' se o último valor for maior que o penúltimo;
+          '🔴' se o último valor for menor que o penúltimo;
+          '🟡️' se forem iguais;
           ''  se não houver dados suficientes.
         """
         # Filtrar valores válidos preservando a ordem (evitar None)
@@ -803,11 +803,11 @@ def extract_summary_values(data_dict, highlights):
         prev = valid[-2]
         try:
             if last > prev:
-                return '📈'
+                return '🟢'
             elif last < prev:
-                return '📉'
+                return '🔴'
             else:
-                return '➡️'
+                return '🟡️'
         except Exception:
             return ''
     
