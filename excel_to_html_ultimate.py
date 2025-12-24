@@ -431,12 +431,25 @@ def insert_region_tables(html_content: str, region_tables: dict[str, str]) -> st
     A inserção é feita logo antes do início da próxima seção, garantindo
     que cada tabela apareça apenas na sua respectiva view.
     """
-    # Definições de seções e seu próximo id
+    # Definições de seções e seu próximo id  
     insertion_specs = [
         ('ofertas', 'vendas', region_tables.get('ofertas', '')),
         ('vendas', 'lancamentos', region_tables.get('vendas', '')),
-        ('precos', 'vgv', region_tables.get('precos_oferta', '') + region_tables.get('precos_venda', '')),
+        # ORDEM GARANTIDA: Preços de OFERTA sempre antes de VENDA
+        ('precos', 'vgv', ''), # Será preenchido abaixo
     ]
+    
+    # Garantir ordem específica para tabelas de preços
+    precos_content = ""
+    if 'precos_oferta' in region_tables:
+        precos_content += region_tables['precos_oferta']
+    if 'precos_venda' in region_tables:
+        precos_content += region_tables['precos_venda']
+    
+    # Atualizar o insertion_specs com o conteúdo na ordem correta
+    for i, (section_id, next_id, content) in enumerate(insertion_specs):
+        if section_id == 'precos':
+            insertion_specs[i] = (section_id, next_id, precos_content)
     
     new_html = html_content
     
@@ -758,16 +771,16 @@ def extract_summary_values(data_dict, highlights):
     def get_trend_arrow(data_key):
         """
         Extrai seta de tendência baseada nos highlights.
-        Se houver setas (📈, 📉 ou ➡️) no texto de trend dos highlights, retorna essa seta.
+        Se houver setas (🟢, 🔴 ou 🟡️) no texto de trend dos highlights, retorna essa seta.
         Caso contrário, retorna string vazia.
         """
         trend = highlights.get(f'{data_key} Trend', '')
-        if '📈' in trend:
-            return '📈'
-        if '📉' in trend:
-            return '📉'
-        if '➡️' in trend:
-            return '➡️'
+        if '🟢' in trend:
+            return '🟢'
+        if '🔴' in trend:
+            return '🔴'
+        if '🟡️' in trend:
+            return '🟡️'
         return ''
 
     def compute_arrow_from_series(series):
@@ -777,9 +790,9 @@ def extract_summary_values(data_dict, highlights):
         seta de tendência comparando o valor mais recente ao anterior.
 
         Retorna:
-          '📈' se o último valor for maior que o penúltimo;
-          '📉' se o último valor for menor que o penúltimo;
-          '➡️' se forem iguais;
+          '🟢' se o último valor for maior que o penúltimo;
+          '🔴' se o último valor for menor que o penúltimo;
+          '🟡️' se forem iguais;
           ''  se não houver dados suficientes.
         """
         # Filtrar valores válidos preservando a ordem (evitar None)
@@ -790,11 +803,11 @@ def extract_summary_values(data_dict, highlights):
         prev = valid[-2]
         try:
             if last > prev:
-                return '📈'
+                return '🟢'
             elif last < prev:
-                return '📉'
+                return '🔴'
             else:
-                return '➡️'
+                return '🟡️'
         except Exception:
             return ''
     
@@ -1658,15 +1671,24 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
     .region-table td:first-child {{
       position: sticky;
       left: 0;
-      background-color: inherit;
+      background-color: white !important; /* Força fundo branco sempre */
       z-index: 11;
       box-shadow: 2px 0 4px rgba(0,0,0,0.1);
       min-width: 120px; /* Largura adequada para nomes de região */
     }}
     
     .region-table th:first-child {{
-      background-color: #f2f2f2;
+      background-color: #f2f2f2 !important; /* Força fundo do cabeçalho */
       z-index: 12; /* Maior que as células para ficar por cima */
+    }}
+    
+    /* Força fundo branco em linhas alternadas */
+    .region-table tr:nth-child(even) td:first-child {{
+      background-color: white !important;
+    }}
+    
+    .region-table tr:hover td:first-child {{
+      background-color: #f5f5f5 !important;
     }}
 
     /* Slide Presentation Styles */
@@ -1720,6 +1742,19 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
     #presentationContainer .region-table th:first-child,
     #presentationContainer .region-table td:first-child {{
       min-width: 100px;
+      background-color: white !important; /* Força fundo branco no modo apresentação */
+    }}
+    
+    #presentationContainer .region-table th:first-child {{
+      background-color: #f2f2f2 !important; /* Força fundo do cabeçalho na apresentação */
+    }}
+    
+    #presentationContainer .region-table tr:nth-child(even) td:first-child {{
+      background-color: white !important;
+    }}
+    
+    #presentationContainer .region-table tr:hover td:first-child {{
+      background-color: #f5f5f5 !important;
     }}
 
     #presentationControls {{
@@ -1732,6 +1767,64 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
       padding: 10px 20px;
       margin: 5px;
       font-size: 16px;
+    }}
+    
+    /* Botão ESC para mobile na apresentação */
+    #mobileExitBtn {{
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10001;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 20px;
+      cursor: pointer;
+      display: none; /* Oculto por padrão */
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+    }}
+    
+    #mobileExitBtn:hover {{
+      background: rgba(0,0,0,0.9);
+      transform: scale(1.1);
+    }}
+    
+    #mobileExitBtn:active {{
+      transform: scale(0.95);
+    }}
+    
+    /* Mostrar botão ESC apenas em telas touch */
+    @media (max-width: 768px) {{
+      #mobileExitBtn {{
+        display: block;
+      }}
+    }}
+    
+    /* Indicador de navegação para mobile */
+    #mobileNavIndicator {{
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10001;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      backdrop-filter: blur(10px);
+      display: none; /* Mostrar apenas em mobile */
+    }}
+    
+    @media (max-width: 768px) {{
+      #mobileNavIndicator {{
+        display: block;
+      }}
     }}
   </style>
 </head>
@@ -3399,7 +3492,12 @@ window.addEventListener('load', function() {
 </script>
 
   <!-- Presentation Container for slides -->
-  <div id="presentationContainer"></div>
+  <div id="presentationContainer">
+    <!-- Botão ESC para mobile -->
+    <button id="mobileExitBtn" title="Sair da apresentação">✕</button>
+    <!-- Indicador de navegação para mobile -->
+    <div id="mobileNavIndicator">← → Navegar • ✕ Sair</div>
+  </div>
 
   <script>
     (function() {
@@ -3665,6 +3763,59 @@ window.addEventListener('load', function() {
           startPresentation();
         });
       }
+      
+      // Botão ESC para mobile
+      const mobileExitBtn = document.getElementById('mobileExitBtn');
+      if (mobileExitBtn) {
+        mobileExitBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          // Finalizar apresentação
+          if (container.style.display === 'block') {
+            startPresentation();
+          }
+        });
+      }
+      
+      // Touch gestures para navegação em mobile
+      let touchStartX = null;
+      let touchStartY = null;
+      
+      container.addEventListener('touchstart', (e) => {
+        if (container.style.display === 'block') {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+        }
+      });
+      
+      container.addEventListener('touchend', (e) => {
+        if (container.style.display === 'block' && touchStartX !== null && touchStartY !== null) {
+          const touchEndX = e.changedTouches[0].clientX;
+          const touchEndY = e.changedTouches[0].clientY;
+          const diffX = touchStartX - touchEndX;
+          const diffY = touchStartY - touchEndY;
+          
+          // Verificar se foi um swipe horizontal (não vertical)
+          if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+            if (diffX > 0) {
+              // Swipe left - próximo slide
+              if (current < slides.length - 1) {
+                current++;
+                showSlide(current);
+              }
+            } else {
+              // Swipe right - slide anterior  
+              if (current > 0) {
+                current--;
+                showSlide(current);
+              }
+            }
+          }
+          
+          touchStartX = null;
+          touchStartY = null;
+        }
+      });
       // Monitorar saída do fullscreen para finalizar apresentação automaticamente
       document.addEventListener('fullscreenchange', () => {
         if (container.style.display === 'block' && !document.fullscreenElement) {

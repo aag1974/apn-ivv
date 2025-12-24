@@ -388,15 +388,24 @@
     .region-table td:first-child {
       position: sticky;
       left: 0;
-      background-color: inherit;
+      background-color: white !important; /* Força fundo branco sempre */
       z-index: 11;
       box-shadow: 2px 0 4px rgba(0,0,0,0.1);
       min-width: 120px; /* Largura adequada para nomes de região */
     }
     
     .region-table th:first-child {
-      background-color: #f2f2f2;
+      background-color: #f2f2f2 !important; /* Força fundo do cabeçalho */
       z-index: 12; /* Maior que as células para ficar por cima */
+    }
+    
+    /* Força fundo branco em linhas alternadas */
+    .region-table tr:nth-child(even) td:first-child {
+      background-color: white !important;
+    }
+    
+    .region-table tr:hover td:first-child {
+      background-color: #f5f5f5 !important;
     }
 
     /* Slide Presentation Styles */
@@ -450,6 +459,19 @@
     #presentationContainer .region-table th:first-child,
     #presentationContainer .region-table td:first-child {
       min-width: 100px;
+      background-color: white !important; /* Força fundo branco no modo apresentação */
+    }
+    
+    #presentationContainer .region-table th:first-child {
+      background-color: #f2f2f2 !important; /* Força fundo do cabeçalho na apresentação */
+    }
+    
+    #presentationContainer .region-table tr:nth-child(even) td:first-child {
+      background-color: white !important;
+    }
+    
+    #presentationContainer .region-table tr:hover td:first-child {
+      background-color: #f5f5f5 !important;
     }
 
     #presentationControls {
@@ -463,6 +485,64 @@
       margin: 5px;
       font-size: 16px;
     }
+    
+    /* Botão ESC para mobile na apresentação */
+    #mobileExitBtn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10001;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 20px;
+      cursor: pointer;
+      display: none; /* Oculto por padrão */
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+    }
+    
+    #mobileExitBtn:hover {
+      background: rgba(0,0,0,0.9);
+      transform: scale(1.1);
+    }
+    
+    #mobileExitBtn:active {
+      transform: scale(0.95);
+    }
+    
+    /* Mostrar botão ESC apenas em telas touch */
+    @media (max-width: 768px) {
+      #mobileExitBtn {
+        display: block;
+      }
+    }
+    
+    /* Indicador de navegação para mobile */
+    #mobileNavIndicator {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10001;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      backdrop-filter: blur(10px);
+      display: none; /* Mostrar apenas em mobile */
+    }
+    
+    @media (max-width: 768px) {
+      #mobileNavIndicator {
+        display: block;
+      }
+    }
   </style>
 </head>
 <body>
@@ -474,7 +554,7 @@
       <div class="header-text">
         <h1>📊 Pesquisa IVV Residencial</h1>
         <p>Índice de Velocidade de Vendas - Análise Executiva</p>
-        <small>Relatório gerado em: 24/12/2025 13:23</small>
+        <small>Relatório gerado em: 24/12/2025 13:39</small>
       </div>
     </div>
   </div>
@@ -504,57 +584,57 @@
       <div class="summary-title">📊 Resumo Executivo - Nov/25</div>
       <div class="metrics-grid">
         <div class="metric-item">
-          <div class="metric-trend">📉</div>
+          <div class="metric-trend">🔴</div>
           <div class="metric-label">IVV</div>
           <div class="metric-value">8,0%</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">📉</div>
+          <div class="metric-trend">🔴</div>
           <div class="metric-label">Unidades Ofertadas</div>
           <div class="metric-value">5.182</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">📉</div>
+          <div class="metric-trend">🔴</div>
           <div class="metric-label">Unidades Vendidas</div>
           <div class="metric-value">416</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">📉</div>
+          <div class="metric-trend">🔴</div>
           <div class="metric-label">Unidades Lançadas</div>
           <div class="metric-value">180</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">📉</div>
+          <div class="metric-trend">🔴</div>
           <div class="metric-label">Oferta em m²</div>
           <div class="metric-value">495.065 m²</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">📉</div>
+          <div class="metric-trend">🔴</div>
           <div class="metric-label">Venda em m²</div>
           <div class="metric-value">30.151 m²</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">📈</div>
+          <div class="metric-trend">🟢</div>
           <div class="metric-label">Preço de Oferta</div>
           <div class="metric-value">R$ 15.679</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">📈</div>
+          <div class="metric-trend">🟢</div>
           <div class="metric-label">Preço de Venda</div>
           <div class="metric-value">R$ 12.544</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">📉</div>
+          <div class="metric-trend">🔴</div>
           <div class="metric-label">VGV</div>
           <div class="metric-value">R$ 378M</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">📉</div>
+          <div class="metric-trend">🔴</div>
           <div class="metric-label">VGL</div>
           <div class="metric-value">R$ 170M</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">📉</div>
+          <div class="metric-trend">🔴</div>
           <div class="metric-label">Distratos</div>
           <div class="metric-value">23</div>
         </div>
@@ -2173,7 +2253,12 @@ window.addEventListener('load', function() {
 </script>
 
   <!-- Presentation Container for slides -->
-  <div id="presentationContainer"></div>
+  <div id="presentationContainer">
+    <!-- Botão ESC para mobile -->
+    <button id="mobileExitBtn" title="Sair da apresentação">✕</button>
+    <!-- Indicador de navegação para mobile -->
+    <div id="mobileNavIndicator">← → Navegar • ✕ Sair</div>
+  </div>
 
   <script>
     (function() {
@@ -2439,6 +2524,59 @@ window.addEventListener('load', function() {
           startPresentation();
         });
       }
+      
+      // Botão ESC para mobile
+      const mobileExitBtn = document.getElementById('mobileExitBtn');
+      if (mobileExitBtn) {
+        mobileExitBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          // Finalizar apresentação
+          if (container.style.display === 'block') {
+            startPresentation();
+          }
+        });
+      }
+      
+      // Touch gestures para navegação em mobile
+      let touchStartX = null;
+      let touchStartY = null;
+      
+      container.addEventListener('touchstart', (e) => {
+        if (container.style.display === 'block') {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+        }
+      });
+      
+      container.addEventListener('touchend', (e) => {
+        if (container.style.display === 'block' && touchStartX !== null && touchStartY !== null) {
+          const touchEndX = e.changedTouches[0].clientX;
+          const touchEndY = e.changedTouches[0].clientY;
+          const diffX = touchStartX - touchEndX;
+          const diffY = touchStartY - touchEndY;
+          
+          // Verificar se foi um swipe horizontal (não vertical)
+          if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+            if (diffX > 0) {
+              // Swipe left - próximo slide
+              if (current < slides.length - 1) {
+                current++;
+                showSlide(current);
+              }
+            } else {
+              // Swipe right - slide anterior  
+              if (current > 0) {
+                current--;
+                showSlide(current);
+              }
+            }
+          }
+          
+          touchStartX = null;
+          touchStartY = null;
+        }
+      });
       // Monitorar saída do fullscreen para finalizar apresentação automaticamente
       document.addEventListener('fullscreenchange', () => {
         if (container.style.display === 'block' && !document.fullscreenElement) {
