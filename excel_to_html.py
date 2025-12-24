@@ -14,11 +14,6 @@ Melhorias incluídas nesta versão:
 - Destaque automático do ano corrente (última série) em gráficos de linha
 - Consolidações anuais com cores por ano (mesma paleta do template)
 - Insights já injetados no HTML (sem placeholders manuais)
-- MODO RIGOROSO DE OBSERVAÇÕES: Só exibe observações que seguem padrões específicos
-
-CONFIGURAÇÃO DE OBSERVAÇÕES:
-- STRICT_OBSERVATIONS = True: Só aceita observações com padrões específicos (recomendado)
-- STRICT_OBSERVATIONS = False: Aceita qualquer observação encontrada (original)
 
 Formato dos novos insights:
 Para dados em percentual (IVV):
@@ -52,15 +47,9 @@ Para dados monetários em milhões (VGV, VGL):
 Uso:
     python3 excel_to_html_report_final_v2.py <input_excel.xlsx> <output_html.html>
 
-Para ativar debug de observações:
-    export DEBUG_OBSERVATIONS=true
-
 Requisitos:
     pandas, numpy
 """
-
-# CONFIGURAÇÃO: Modo rigoroso de observações
-STRICT_OBSERVATIONS = True  # Mude para False para aceitar qualquer observação
 
 import sys
 import os
@@ -249,6 +238,80 @@ def clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 # -------------------------
 # Regional tables (Ofertas/Vendas/Preços)
 # -------------------------
+def is_regional_data(df: pd.DataFrame) -> bool:
+    """
+    Verifica se uma planilha contém dados regionais (não mensais).
+    
+    Retorna True se a primeira coluna contém nomes de regiões,
+    False se contém meses ou outros dados.
+    """
+    if df.empty or df.shape[1] < 2:
+        return False
+    
+    # Pegar primeira coluna após limpeza básica
+    first_col = df.iloc[:, 0].dropna().astype(str).str.strip().str.lower()
+    
+    # Palavras que indicam dados mensais (não regionais)
+    monthly_indicators = [
+        'jan', 'fev', 'mar', 'abr', 'mai', 'jun',
+        'jul', 'ago', 'set', 'out', 'nov', 'dez',
+        'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+        'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro',
+        '1t', '2t', '3t', '4t',  # trimestres
+        '2021', '2022', '2023', '2024', '2025',  # anos
+        'período', 'periodo', 'mês', 'mes', 'month'
+    ]
+    
+    # Palavras que indicam dados regionais
+    regional_indicators = [
+        'região', 'regiao', 'area', 'área', 'zona', 'setor',
+        'bairro', 'distrito', 'localidade', 'regional',
+        'centro', 'norte', 'sul', 'leste', 'oeste',
+        'brotas', 'asa', 'taguatinga', 'ceilândia', 'sobradinho',
+        'águas claras', 'samambaia', 'planaltina', 'gama', 'santa maria'
+    ]
+    
+    monthly_count = 0
+    regional_count = 0
+    
+    # Analisar primeiras 20 linhas da primeira coluna
+    for value in first_col.head(20):
+        value_lower = str(value).lower()
+        
+        # Contar indicadores mensais
+        if any(indicator in value_lower for indicator in monthly_indicators):
+            monthly_count += 1
+            
+        # Contar indicadores regionais  
+        if any(indicator in value_lower for indicator in regional_indicators):
+            regional_count += 1
+    
+    # Se encontrou mais indicadores mensais que regionais, não é regional
+    if monthly_count > regional_count:
+        return False
+        
+    # Se encontrou pelo menos alguns indicadores regionais, é regional
+    if regional_count > 0:
+        return True
+        
+    # Se não encontrou nenhum indicador claro, verificar padrão de colunas
+    # Dados regionais típicos têm: Região, 1qto, 2qtos, 3qtos, 4+qtos, Total
+    if df.shape[1] >= 6:
+        # Verificar se tem padrão de quartos (1 qto, 2 qtos, etc)
+        col_names = []
+        if df.shape[0] > 0:
+            # Tentar usar primeira linha como cabeçalho
+            col_names = df.iloc[0].astype(str).str.lower()
+        
+        quarters_pattern = ['1', '2', '3', '4', 'total', 'qto', 'qtos']
+        pattern_matches = sum(1 for col in col_names if any(q in str(col) for q in quarters_pattern))
+        
+        if pattern_matches >= 3:  # Se encontrou pelo menos 3 padrões de quartos
+            return True
+    
+    return False
+
+
 def parse_region_table(df: pd.DataFrame) -> pd.DataFrame:
     """
     Prepara tabela de regiões para ordenação e exibição.
@@ -370,22 +433,32 @@ def insert_region_tables(html_content: str, region_tables: dict[str, str]) -> st
     """
     # Definições de seções e seu próximo id
     insertion_specs = [
-        ('precos', 'vgv', region_tables.get('precos_oferta', '') + region_tables.get('precos_venda', '')),
-        ('vendas', 'lancamentos', region_tables.get('vendas', '')),
         ('ofertas', 'vendas', region_tables.get('ofertas', '')),
+        ('vendas', 'lancamentos', region_tables.get('vendas', '')),
+        ('precos', 'vgv', region_tables.get('precos_oferta', '') + region_tables.get('precos_venda', '')),
     ]
+    
     new_html = html_content
+    
     for section_id, next_id, insertion in insertion_specs:
         if not insertion:
+            print(f"⚠️  Nenhuma tabela para inserir na seção '{section_id}'")
             continue
+            
+        print(f"📋 Inserindo tabela na seção '{section_id}' (antes de '{next_id}')...")
+        
         # Localizar início da seção atual
         start_idx = new_html.find(f'<div id="{section_id}"')
         if start_idx == -1:
+            print(f"❌ Seção '{section_id}' não encontrada no HTML!")
             continue
+            
         # Localizar início da próxima seção
         next_idx = new_html.find(f'<div id="{next_id}"', start_idx + 1)
         if next_idx == -1:
+            print(f"⚠️  Próxima seção '{next_id}' não encontrada, inserindo no final da seção")
             next_idx = len(new_html)
+            
         # Procurar o último fechamento de </div> entre a seção atual e a próxima
         closing_idx = new_html.rfind('</div>', start_idx, next_idx)
         if closing_idx == -1:
@@ -393,7 +466,11 @@ def insert_region_tables(html_content: str, region_tables: dict[str, str]) -> st
             insertion_point = next_idx
         else:
             insertion_point = closing_idx
-        new_html = new_html[:insertion_point] + insertion + new_html[insertion_point:]
+            
+        # Inserir a tabela
+        new_html = new_html[:insertion_point] + '\n' + insertion + '\n' + new_html[insertion_point:]
+        print(f"✅ Tabela inserida na seção '{section_id}' na posição {insertion_point}")
+        
     return new_html
 
 
@@ -1038,88 +1115,22 @@ def calculate_averages(df: pd.DataFrame, data_type='number'):
     return quarterly_avg, yearly_avg
 
 
-def extract_observation_from_sheet(df: pd.DataFrame, sheet_name=""):
-    """
-    Extrai observações sobre dados incompletos das planilhas trimestrais/anuais.
-    
-    Versão configurável: usa modo rigoroso se STRICT_OBSERVATIONS = True
-    """
+def extract_observation_from_sheet(df: pd.DataFrame):
+    """Extrai observações sobre dados incompletos das planilhas trimestrais/anuais."""
     if df.empty:
         return None
-    
-    # Debug: Mostrar estrutura do DataFrame
-    debug_mode = os.environ.get('DEBUG_OBSERVATIONS', 'false').lower() == 'true'
-    
-    if debug_mode:
-        mode_text = "STRICT" if STRICT_OBSERVATIONS else "NORMAL"
-        print(f"\n🔍 DEBUG ({mode_text}): Analisando planilha '{sheet_name}'")
-        print(f"📊 Shape: {df.shape}")
-    
-    # Padrões válidos para modo rigoroso
-    valid_observation_patterns = [
-        'trimestre incompleto',
-        'ano incompleto', 
-        'dados até',
-        'período incompleto',
-        'dados parciais',
-        'informações até',
-        'base até'
-    ] if STRICT_OBSERVATIONS else []
     
     # Procurar pela linha "Observação" no DataFrame original
     for idx in range(len(df)):
         row = df.iloc[idx]
-        first_cell = str(row.iloc[0]).strip().lower() if not pd.isna(row.iloc[0]) else ""
+        first_cell = str(row.iloc[0]).lower() if not pd.isna(row.iloc[0]) else ""
         
-        # Padrões de identificação da linha de observação
-        observation_identifiers = ['observação', 'observacao', 'obs:', 'obs.', 'observações']
-        
-        # No modo rigoroso, deve ser exatamente um dos identificadores
-        # No modo normal, pode conter o identificador
-        if STRICT_OBSERVATIONS:
-            is_observation_line = first_cell in observation_identifiers
-        else:
-            is_observation_line = any(identifier in first_cell for identifier in observation_identifiers)
-        
-        if is_observation_line:
+        if 'observação' in first_cell or 'observacao' in first_cell:
             # Extrair o texto da segunda coluna
-            if len(row) > 1:
-                observacao_texto = str(row.iloc[1]).strip() if not pd.isna(row.iloc[1]) else ""
-                
-                if debug_mode:
-                    print(f"✓ Encontrada linha de observação na linha {idx}")
-                    print(f"  Primeira coluna: '{row.iloc[0]}'")
-                    print(f"  Segunda coluna: '{row.iloc[1]}'")
-                
-                # Validações básicas
-                if observacao_texto and observacao_texto.lower() not in ['nan', 'none', '']:
-                    
-                    # Modo rigoroso: verificar padrões válidos
-                    if STRICT_OBSERVATIONS:
-                        observacao_lower = observacao_texto.lower()
-                        has_valid_pattern = any(pattern in observacao_lower for pattern in valid_observation_patterns)
-                        min_length = 10  # Mínimo 10 caracteres
-                        
-                        if has_valid_pattern and len(observacao_texto.strip()) >= min_length:
-                            if debug_mode:
-                                print(f"✅ STRICT: Observação aceita: '{observacao_texto}'")
-                            return observacao_texto
-                        else:
-                            if debug_mode:
-                                print(f"❌ STRICT: Observação rejeitada")
-                                print(f"    Motivo: Não contém padrões válidos ou muito curta")
-                                print(f"    Padrões aceitos: {valid_observation_patterns}")
-                                print(f"    Comprimento mínimo: {min_length} chars")
-                    else:
-                        # Modo normal: aceitar qualquer texto válido
-                        if debug_mode:
-                            print(f"✅ NORMAL: Observação aceita: '{observacao_texto}'")
-                        return observacao_texto
-            break
-    
-    if debug_mode:
-        mode_text = "rigorosas" if STRICT_OBSERVATIONS else "quaisquer"
-        print(f"❌ Nenhuma observação {mode_text} encontrada em '{sheet_name}'")
+            observacao_texto = str(row.iloc[1]) if not pd.isna(row.iloc[1]) else ""
+            
+            if observacao_texto and observacao_texto != 'nan':
+                return observacao_texto
     
     return None
 
@@ -1293,7 +1304,242 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
     .insights li {{ padding:5px 0; color:#555; }}
     .insights li:before {{ content:"▸ "; color:#3498db; font-weight:bold; }}
     .grid {{ display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-bottom:30px; }}
-    @media (max-width:768px) {{ .grid {{ grid-template-columns:1fr; }} .header h1 {{ font-size:2em; }} .chart-container {{ padding:20px; }} }}
+    /* ===== RESPONSIVIDADE MOBILE COMPLETA ===== */
+    
+    /* Tablets e telas médias */
+    @media (max-width: 1024px) {{
+      .container {{ padding: 15px; }}
+      .header h1 {{ font-size: 2.2em; }}
+      .summary-card {{ padding: 30px; }}
+      .metrics-grid {{ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }}
+      .chart-container {{ padding: 25px; }}
+    }}
+    
+    /* Tablets em retrato e smartphones grandes */
+    @media (max-width: 768px) {{
+      .grid {{ grid-template-columns: 1fr; }}
+      .header h1 {{ font-size: 2em; }}
+      .chart-container {{ padding: 20px; }}
+      .nav-buttons {{ gap: 10px; }}
+      .nav-btn {{ 
+        padding: 14px 20px; 
+        font-size: 15px; 
+        min-height: 48px; /* Touch-friendly */ 
+        border-radius: 30px;
+      }}
+      .summary-card {{ 
+        padding: 25px; 
+        border-radius: 15px; 
+      }}
+      .summary-title {{ 
+        font-size: 1.8em; 
+        margin-bottom: 25px; 
+      }}
+      .metrics-grid {{ 
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+        gap: 12px; 
+      }}
+      .metric-item {{ 
+        padding: 15px; 
+        border-radius: 12px; 
+      }}
+      .metric-value {{ 
+        font-size: 1.4em; 
+      }}
+      .metric-label {{ 
+        font-size: 0.8em; 
+      }}
+      .chart-title {{ 
+        font-size: 1.3em; 
+      }}
+      .chart-subtitle {{ 
+        font-size: 0.9em; 
+      }}
+    }}
+    
+    /* Smartphones */
+    @media (max-width: 480px) {{
+      .container {{ 
+        padding: 10px; 
+        margin: 0; 
+      }}
+      .nav-bar {{ 
+        padding: 15px; 
+        margin-bottom: 20px; 
+        border-radius: 12px; 
+      }}
+      .nav-buttons {{ 
+        flex-direction: column; 
+        gap: 8px; 
+      }}
+      .nav-btn {{ 
+        width: 100%; 
+        padding: 16px; 
+        font-size: 16px; 
+        min-height: 52px; /* Ainda mais touch-friendly */
+        border-radius: 25px;
+        text-align: center;
+      }}
+      .header {{ 
+        padding: 20px; 
+        border-radius: 12px; 
+      }}
+      .header h1 {{ 
+        font-size: 1.6em; 
+        line-height: 1.2; 
+      }}
+      .logo {{ 
+        height: 70px; 
+        margin-right: 10px; 
+      }}
+      .summary-card {{ 
+        padding: 20px; 
+        border-radius: 12px; 
+        margin-bottom: 20px; 
+      }}
+      .summary-title {{ 
+        font-size: 1.5em; 
+        margin-bottom: 20px; 
+      }}
+      .metrics-grid {{ 
+        grid-template-columns: 1fr; 
+        gap: 10px; 
+      }}
+      .metric-item {{ 
+        padding: 12px; 
+        border-radius: 10px; 
+      }}
+      .metric-value {{ 
+        font-size: 1.2em; 
+      }}
+      .metric-label {{ 
+        font-size: 0.75em; 
+      }}
+      .chart-container {{ 
+        padding: 15px; 
+        margin-bottom: 20px; 
+        border-radius: 12px; 
+      }}
+      .chart-title {{ 
+        font-size: 1.1em; 
+        margin-bottom: 8px; 
+      }}
+      .chart-subtitle {{ 
+        font-size: 0.8em; 
+      }}
+      .chart-wrapper {{ 
+        height: 280px; /* Altura otimizada para mobile */
+      }}
+      .chart-wrapper.small {{ 
+        height: 220px; 
+      }}
+      .insights {{ 
+        padding: 12px; 
+        border-radius: 8px; 
+      }}
+      .insights h4 {{ 
+        font-size: 1em; 
+        margin-bottom: 8px; 
+      }}
+      .insights ul {{ 
+        font-size: 0.85em; 
+      }}
+      .highlight-box {{ 
+        padding: 12px; 
+        border-radius: 8px; 
+        margin: 15px 0; 
+      }}
+      .highlight-box h3 {{ 
+        font-size: 1.2em; 
+      }}
+      .region-table th, .region-table td {{ 
+        padding: 6px 8px; 
+        font-size: 0.85em; 
+      }}
+    }}
+    
+    /* Smartphones pequenos */
+    @media (max-width: 360px) {{
+      .container {{ padding: 8px; }}
+      .header h1 {{ font-size: 1.4em; }}
+      .nav-btn {{ font-size: 15px; padding: 14px; }}
+      .summary-title {{ font-size: 1.3em; }}
+      .metric-value {{ font-size: 1.1em; }}
+      .chart-wrapper {{ height: 250px; }}
+      .chart-wrapper.small {{ height: 200px; }}
+      .logo {{ height: 60px; }}
+    }}
+    
+    /* ===== OTIMIZAÇÕES PARA APRESENTAÇÃO MOBILE ===== */
+    @media (max-width: 768px) {{
+      #presentationContainer .slide {{
+        padding: 20px 10px;
+      }}
+      
+      #presentationContainer .chart-container {{
+        padding: 15px;
+        margin-bottom: 15px;
+      }}
+      
+      #presentationContainer .chart-title {{
+        font-size: 1.2em;
+        margin-bottom: 8px;
+      }}
+      
+      #presentationContainer .chart-subtitle {{
+        font-size: 0.85em;
+      }}
+      
+      #presentationContainer .chart-wrapper {{
+        height: 60vh; /* Usa viewport height para mobile */
+        max-height: 400px;
+      }}
+      
+      #presentationContainer .highlight-box {{
+        padding: 10px;
+        margin: 10px 0;
+      }}
+      
+      #presentationContainer .insights {{
+        padding: 10px;
+        font-size: 0.9em;
+      }}
+      
+      /* Navegação da apresentação otimizada para touch */
+      #presentationContainer .slide.active {{
+        overflow-y: auto; /* Permite scroll se necessário */
+        -webkit-overflow-scrolling: touch; /* Smooth scroll no iOS */
+      }}
+    }}
+    
+    /* ===== MELHORIAS TOUCH-FRIENDLY ===== */
+    
+    /* Aumentar área de toque para todos os botões */
+    .nav-btn, button {{
+      min-height: 44px; /* Padrão de acessibilidade Apple/Google */
+      min-width: 44px;
+    }}
+    
+    /* Melhorar legibilidade em telas pequenas */
+    @media (max-width: 768px) {{
+      body {{
+        font-size: 16px; /* Evita zoom no iOS */
+        line-height: 1.5;
+      }}
+      
+      /* Evitar zoom em inputs (se houver) */
+      input, select, textarea {{
+        font-size: 16px;
+      }}
+    }}
+    
+    /* ===== ORIENTAÇÃO ===== */
+    @media screen and (orientation: landscape) and (max-height: 500px) {{
+      .header h1 {{ font-size: 1.3em; }}
+      .nav-btn {{ padding: 8px 16px; }}
+      .chart-wrapper {{ height: 250px; }}
+      .summary-card {{ padding: 15px; }}
+    }}
     .highlight-box {{ background:linear-gradient(45deg,#27ae60,#2ecc71); color:white; padding:15px; border-radius:10px; text-align:center; margin:20px 0; }}
     .highlight-box h3 {{ font-size:1.5em; margin-bottom:10px; }}
     
@@ -1393,7 +1639,7 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
   <div class="header">
     <div class="month-ref">📅 Mês Ref.: {month_ref}</div>
     <div class="header-content">
-      <img src="logo.png" alt="Opinião Logo" class="logo">
+      <img src="https://raw.githubusercontent.com/aag1974/apn-ivv/main/logo.png" alt="Opinião Logo" class="logo">
       <div class="header-text">
         <h1>📊 Pesquisa IVV Residencial</h1>
         <p>Índice de Velocidade de Vendas - Análise Executiva</p>
@@ -3289,7 +3535,7 @@ window.addEventListener('load', function() {
           // finalizar
           container.style.display = 'none';
           document.body.style.overflow = '';
-          // sair de tela cheia, se ativo (mantido para casos onde fullscreen foi ativado por outros meios)
+          // sair de tela cheia, se ativo
           if (document.fullscreenElement) {
             const exitFull = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
             if (exitFull) exitFull.call(document);
@@ -3297,21 +3543,16 @@ window.addEventListener('load', function() {
           if (btn) btn.textContent = 'Iniciar Apresentação';
           // remover slides e restaurar elementos
           detachSlides();
-          console.log('Modo apresentação finalizado');
         } else {
           createSlides();
           attachSlides();
           container.style.display = 'block';
           document.body.style.overflow = 'hidden';
-          // solicitar tela cheia, se suportado (DESABILITADO para evitar ESC duplo)
-          // ORIGINAL: 
-          // if (document.fullscreenEnabled) {
-          //   const reqFull = container.requestFullscreen || container.webkitRequestFullscreen || container.mozRequestFullScreen || container.msRequestFullscreen;
-          //   if (reqFull) reqFull.call(container);
-          // }
-          // 
-          // ALTERNATIVA: Manter apresentação sem fullscreen para ESC único
-          console.log('Modo apresentação iniciado (fullscreen desabilitado para ESC único)');
+          // solicitar tela cheia, se suportado
+          if (document.fullscreenEnabled) {
+            const reqFull = container.requestFullscreen || container.webkitRequestFullscreen || container.mozRequestFullScreen || container.msRequestFullscreen;
+            if (reqFull) reqFull.call(container);
+          }
           // current já foi definido em createSlides()
           showSlide(current);
           if (btn) btn.textContent = 'Finalizar Apresentação';
@@ -3323,6 +3564,28 @@ window.addEventListener('load', function() {
           startPresentation();
         });
       }
+      // Monitorar saída do fullscreen para finalizar apresentação automaticamente
+      document.addEventListener('fullscreenchange', () => {
+        if (container.style.display === 'block' && !document.fullscreenElement) {
+          // Usuário saiu do fullscreen (provavelmente via ESC)
+          // Finalizar apresentação automaticamente após delay
+          setTimeout(() => startPresentation(), 100);
+        }
+      });
+      
+      // Compatibilidade cross-browser para fullscreenchange
+      document.addEventListener('webkitfullscreenchange', () => {
+        if (container.style.display === 'block' && !document.webkitFullscreenElement) {
+          setTimeout(() => startPresentation(), 100);
+        }
+      });
+      
+      document.addEventListener('mozfullscreenchange', () => {
+        if (container.style.display === 'block' && !document.mozFullScreenElement) {
+          setTimeout(() => startPresentation(), 100);
+        }
+      });
+
       // Navegação via teclado
       document.addEventListener('keydown', (e) => {
         if (container.style.display === 'block') {
@@ -3339,8 +3602,11 @@ window.addEventListener('load', function() {
             }
             e.preventDefault();
           } else if (e.key === 'Escape') {
-            // ESC sempre finaliza a apresentação (sem fullscreen, sem duplo ESC)
-            startPresentation();
+            // Se não estiver em fullscreen, finalizar diretamente
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement) {
+              startPresentation();
+            }
+            // Se estiver em fullscreen, o evento fullscreenchange cuidará da finalização
           }
         }
       });
@@ -3410,7 +3676,7 @@ def main():
             highlights['IVV Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_percent(best_value)}"
         
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets['IVV Trimestral'], 'IVV Trimestral')
+        observation = extract_observation_from_sheet(sheets['IVV Trimestral'])
         if observation:
             highlights['IVV Quarterly Obs'] = observation
 
@@ -3431,7 +3697,7 @@ def main():
                 break
 
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets['IVV Anual'], 'IVV Anual')
+        observation = extract_observation_from_sheet(sheets['IVV Anual'])
         if observation:
             highlights['IVV Annual Obs'] = observation
 
@@ -3463,7 +3729,7 @@ def main():
             highlights['Ofertas Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_int(best_value)}"
         
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets['Ofertas Trimestrais (Unidades)'], 'Ofertas Trimestrais (Unidades)')
+        observation = extract_observation_from_sheet(sheets['Ofertas Trimestrais (Unidades)'])
         if observation:
             highlights['Ofertas Quarterly Obs'] = observation
 
@@ -3483,7 +3749,7 @@ def main():
                 break
 
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets['Ofertas Anuais (Unidades)'], 'Ofertas Anuais (Unidades)')
+        observation = extract_observation_from_sheet(sheets['Ofertas Anuais (Unidades)'])
         if observation:
             highlights['Ofertas Annual Obs'] = observation
 
@@ -3515,7 +3781,7 @@ def main():
             highlights['Vendas Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_int(best_value)}"
         
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets['Vendas Trimestrais (Unidades)'], 'Vendas Trimestrais (Unidades)')
+        observation = extract_observation_from_sheet(sheets['Vendas Trimestrais (Unidades)'])
         if observation:
             highlights['Vendas Quarterly Obs'] = observation
 
@@ -3535,7 +3801,7 @@ def main():
                 break
 
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets['Vendas Anuais (Unidades)'], 'Vendas Anuais (Unidades)')
+        observation = extract_observation_from_sheet(sheets['Vendas Anuais (Unidades)'])
         if observation:
             highlights['Vendas Annual Obs'] = observation
 
@@ -3568,7 +3834,7 @@ def main():
             highlights['OfertaM2 Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_int(best_value)} m²"
         
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets['Oferta Trimestral (m²)'], 'Oferta Trimestral (m²)')
+        observation = extract_observation_from_sheet(sheets['Oferta Trimestral (m²)'])
         if observation:
             highlights['OfertaM2 Quarterly Obs'] = observation
 
@@ -3588,7 +3854,7 @@ def main():
                 break
 
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets['Oferta Anual (m²)'], 'Oferta Anual (m²)')
+        observation = extract_observation_from_sheet(sheets['Oferta Anual (m²)'])
         if observation:
             highlights['OfertaM2 Annual Obs'] = observation
 
@@ -3621,7 +3887,7 @@ def main():
             highlights['VendaM2 Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_int(best_value)} m²"
         
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets['Venda Trimestral (m²)'], 'Venda Trimestral (m²)')
+        observation = extract_observation_from_sheet(sheets['Venda Trimestral (m²)'])
         if observation:
             highlights['VendaM2 Quarterly Obs'] = observation
 
@@ -3641,7 +3907,7 @@ def main():
                 break
 
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets['Venda Anual (m²)'], 'Venda Anual (m²)')
+        observation = extract_observation_from_sheet(sheets['Venda Anual (m²)'])
         if observation:
             highlights['VendaM2 Annual Obs'] = observation
 
@@ -3713,7 +3979,7 @@ def main():
             highlights['Lanc Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_int(best_value)}"
         
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets[lanc_quart_sheet], lanc_quart_sheet)
+        observation = extract_observation_from_sheet(sheets[lanc_quart_sheet])
         if observation:
             highlights['Lanc Quarterly Obs'] = observation
             highlights['LancProj Quarterly Obs'] = observation  # Mesma observação para projetos
@@ -3762,7 +4028,7 @@ def main():
                 break
 
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets[lanc_year_sheet], lanc_year_sheet)
+        observation = extract_observation_from_sheet(sheets[lanc_year_sheet])
         if observation:
             highlights['Lanc Annual Obs'] = observation
             highlights['LancProj Annual Obs'] = observation  # Mesma observação para projetos
@@ -3803,7 +4069,7 @@ def main():
             highlights['PrecosOferta Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value)}"
         
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets[oferta_price_quart], oferta_price_quart)
+        observation = extract_observation_from_sheet(sheets[oferta_price_quart])
         if observation:
             highlights['PrecosOferta Quarterly Obs'] = observation
 
@@ -3823,7 +4089,7 @@ def main():
                 break
 
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets[oferta_price_year], oferta_price_year)
+        observation = extract_observation_from_sheet(sheets[oferta_price_year])
         if observation:
             highlights['PrecosOferta Annual Obs'] = observation
 
@@ -3858,7 +4124,7 @@ def main():
             highlights['PrecosVenda Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value)}"
         
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets[venda_price_quart], venda_price_quart)
+        observation = extract_observation_from_sheet(sheets[venda_price_quart])
         if observation:
             highlights['PrecosVenda Quarterly Obs'] = observation
 
@@ -3880,7 +4146,7 @@ def main():
                 break
 
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets[venda_price_year], venda_price_year)
+        observation = extract_observation_from_sheet(sheets[venda_price_year])
         if observation:
             highlights['PrecosVenda Annual Obs'] = observation
 
@@ -3912,7 +4178,7 @@ def main():
             highlights['VGV Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value)}M"
         
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets['VGV Trimestral (R$ Milhões)'], 'VGV Trimestral (R$ Milhões)')
+        observation = extract_observation_from_sheet(sheets['VGV Trimestral (R$ Milhões)'])
         if observation:
             highlights['VGV Quarterly Obs'] = observation
 
@@ -3932,7 +4198,7 @@ def main():
                 break
 
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets['VGV Anual (R$ Milhões)'], 'VGV Anual (R$ Milhões)')
+        observation = extract_observation_from_sheet(sheets['VGV Anual (R$ Milhões)'])
         if observation:
             highlights['VGV Annual Obs'] = observation
 
@@ -3965,7 +4231,7 @@ def main():
             highlights['VGL Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value)}M"
         
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets['VGL Trimestral (R$ Milhões)'], 'VGL Trimestral (R$ Milhões)')
+        observation = extract_observation_from_sheet(sheets['VGL Trimestral (R$ Milhões)'])
         if observation:
             highlights['VGL Quarterly Obs'] = observation
 
@@ -3985,7 +4251,7 @@ def main():
                 break
 
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets['VGL Anual (R$ Milhões)'], 'VGL Anual (R$ Milhões)')
+        observation = extract_observation_from_sheet(sheets['VGL Anual (R$ Milhões)'])
         if observation:
             highlights['VGL Annual Obs'] = observation
 
@@ -4020,7 +4286,7 @@ def main():
             highlights['Distratos Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_int(best_value)}"
         
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets[dist_quart_sheet], dist_quart_sheet)
+        observation = extract_observation_from_sheet(sheets[dist_quart_sheet])
         if observation:
             highlights['Distratos Quarterly Obs'] = observation
 
@@ -4040,7 +4306,7 @@ def main():
                 break
 
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets['Distratos Anuais (Unidades)'], 'Distratos Anuais (Unidades)')
+        observation = extract_observation_from_sheet(sheets['Distratos Anuais (Unidades)'])
         if observation:
             highlights['Distratos Annual Obs'] = observation
 
@@ -4059,19 +4325,64 @@ def main():
     precos_oferta_title = "Preços de Oferta por Região (R$)"
     precos_venda_title = "Preços de Venda por Região (R$)"
 
-    # Mapeamento: substring da planilha -> chave -> título
+    # Mapeamento: substring da planilha -> chave -> título (expandido com mais variações)
     region_mapping = [
+        # Ofertas por região
         ('ofertas por região', 'ofertas', 'Ofertas por Região'),
+        ('oferta por região', 'ofertas', 'Ofertas por Região'),
+        ('ofertas região', 'ofertas', 'Ofertas por Região'),
+        ('oferta região', 'ofertas', 'Ofertas por Região'),
+        
+        # Vendas por região  
         ('vendas por região', 'vendas', 'Vendas por Região'),
+        ('venda por região', 'vendas', 'Vendas por Região'),
+        ('vendas região', 'vendas', 'Vendas por Região'),
+        ('venda região', 'vendas', 'Vendas por Região'),
+        
+        # Preços de oferta
         ('oferta valor ponderado', 'precos_oferta', precos_oferta_title),
+        ('ofertas valor ponderado', 'precos_oferta', precos_oferta_title),
+        ('preço oferta região', 'precos_oferta', precos_oferta_title),
+        ('preços oferta região', 'precos_oferta', precos_oferta_title),
+        ('valor ponderado oferta', 'precos_oferta', precos_oferta_title),
+        
+        # Preços de venda
         ('venda valor ponderado', 'precos_venda', precos_venda_title),
+        ('vendas valor ponderado', 'precos_venda', precos_venda_title),
+        ('preço venda região', 'precos_venda', precos_venda_title),
+        ('preços venda região', 'precos_venda', precos_venda_title),
+        ('valor ponderado venda', 'precos_venda', precos_venda_title),
     ]
 
+    # Debug: Mostrar planilhas disponíveis para tabelas regionais
+    print(f"🔍 DEBUG: Procurando planilhas regionais...")
+    print(f"📋 Planilhas disponíveis no Excel:")
+    for sheet_name in sheets.keys():
+        print(f"  - {sheet_name}")
+    print()
+
+    # Busca primária: mapeamento exato com validação de dados regionais
+    found_tables = set()
     for sheet_name, df in sheets.items():
         name_lower = sheet_name.lower()
         for substr, key, title in region_mapping:
-            if substr in name_lower:
+            if substr in name_lower and key not in found_tables:
+                print(f"🔍 Testando planilha: '{sheet_name}' para {key}")
+                
                 cleaned = clean_dataframe(df)
+                if cleaned.empty:
+                    print(f"⚠️  Planilha '{sheet_name}' está vazia após limpeza")
+                    continue
+                
+                # NOVA VALIDAÇÃO: Verificar se contém dados regionais
+                if not is_regional_data(cleaned):
+                    print(f"❌ Planilha '{sheet_name}' contém dados mensais, não regionais")
+                    print(f"   Primeira coluna: {list(cleaned.iloc[:5, 0].astype(str))}")
+                    continue
+                    
+                print(f"✅ Encontrada planilha regional VÁLIDA: '{sheet_name}' -> {key}")
+                print(f"   Primeira coluna (regiões): {list(cleaned.iloc[:5, 0].astype(str))}")
+                    
                 parsed = parse_region_table(cleaned)
                 # Se for tabela de preços, formatar valores com duas casas decimais e zero como '-'
                 if key in ('precos_oferta', 'precos_venda'):
@@ -4090,13 +4401,89 @@ def main():
                     region_tables[key] = html_table
                 else:
                     region_tables[key] = create_region_table_html(parsed, title)
+                found_tables.add(key)
                 break
+
+    # Busca secundária: padrões mais flexíveis se não encontrar algumas tabelas
+    if len(region_tables) < 4:  # Esperamos 4 tabelas
+        print(f"⚠️  Apenas {len(region_tables)}/4 tabelas encontradas. Tentando busca flexível...")
+        
+        # Padrões flexíveis
+        flexible_patterns = [
+            # Para ofertas
+            (lambda name: 'oferta' in name and 'região' in name and 'ponderado' not in name, 
+             'ofertas', 'Ofertas por Região'),
+            # Para vendas
+            (lambda name: 'venda' in name and 'região' in name and 'ponderado' not in name, 
+             'vendas', 'Vendas por Região'),
+            # Para preços de oferta
+            (lambda name: 'oferta' in name and ('ponderado' in name or 'preço' in name),
+             'precos_oferta', precos_oferta_title),
+            # Para preços de venda
+            (lambda name: 'venda' in name and ('ponderado' in name or 'preço' in name),
+             'precos_venda', precos_venda_title),
+        ]
+        
+        for sheet_name, df in sheets.items():
+            name_lower = sheet_name.lower()
+            for pattern_func, key, title in flexible_patterns:
+                if pattern_func(name_lower) and key not in found_tables:
+                    print(f"🔍 Testando padrão flexível: '{sheet_name}' para {key}")
+                    
+                    cleaned = clean_dataframe(df)
+                    if cleaned.empty:
+                        continue
+                    
+                    # VALIDAÇÃO CRÍTICA: Verificar se são dados regionais
+                    if not is_regional_data(cleaned):
+                        print(f"❌ Padrão flexível rejeitado: '{sheet_name}' não contém dados regionais")
+                        print(f"   Primeira coluna detectada: {list(cleaned.iloc[:3, 0].astype(str))}")
+                        continue
+                        
+                    print(f"✅ Padrão flexível aceito: '{sheet_name}' -> {key}")
+                    print(f"   Regiões encontradas: {list(cleaned.iloc[:3, 0].astype(str))}")
+                        
+                    parsed = parse_region_table(cleaned)
+                    if key in ('precos_oferta', 'precos_venda'):
+                        df_price = parsed.copy()
+                        for col in df_price.columns[1:]:
+                            def format_val(val):
+                                num = parse_number(val)
+                                if num is None or abs(num) < 1e-6:
+                                    return '-'
+                                return br_float(num, decimals=2)
+                            df_price[col] = df_price[col].apply(format_val)
+                        html_table = create_region_table_html(df_price, title)
+                        region_tables[key] = html_table
+                    else:
+                        region_tables[key] = create_region_table_html(parsed, title)
+                    found_tables.add(key)
+                    break
+
+    # Debug: Mostrar quantas tabelas regionais foram criadas
+    print(f"📊 Tabelas regionais criadas: {len(region_tables)}")
+    for key, html in region_tables.items():
+        print(f"  ✅ {key}: {len(html)} chars de HTML")
+    print()
 
     # Gera HTML
     html_content = generate_html(data_dict, report_date, month_ref, highlights)
+    
     # Insere as tabelas de região nas seções corretas
     if region_tables:
+        print(f"📋 Inserindo {len(region_tables)} tabelas regionais no HTML...")
+        for key in region_tables:
+            print(f"  - Inserindo tabela: {key}")
         html_content = insert_region_tables(html_content, region_tables)
+        print("✅ Tabelas regionais inseridas com sucesso!")
+    else:
+        print("⚠️  Nenhuma tabela regional encontrada!")
+        print("💡 Verificar se as planilhas têm os nomes esperados:")
+        print("   - Ofertas por Região")
+        print("   - Vendas por Região") 
+        print("   - Oferta Valor Ponderado")
+        print("   - Venda Valor Ponderado")
+    print()
     # Escrever HTML final
     with open(output_html, 'w', encoding='utf-8') as f:
         f.write(html_content)

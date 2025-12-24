@@ -34,7 +34,242 @@
     .insights li { padding:5px 0; color:#555; }
     .insights li:before { content:"▸ "; color:#3498db; font-weight:bold; }
     .grid { display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-bottom:30px; }
-    @media (max-width:768px) { .grid { grid-template-columns:1fr; } .header h1 { font-size:2em; } .chart-container { padding:20px; } }
+    /* ===== RESPONSIVIDADE MOBILE COMPLETA ===== */
+    
+    /* Tablets e telas médias */
+    @media (max-width: 1024px) {
+      .container { padding: 15px; }
+      .header h1 { font-size: 2.2em; }
+      .summary-card { padding: 30px; }
+      .metrics-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+      .chart-container { padding: 25px; }
+    }
+    
+    /* Tablets em retrato e smartphones grandes */
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr; }
+      .header h1 { font-size: 2em; }
+      .chart-container { padding: 20px; }
+      .nav-buttons { gap: 10px; }
+      .nav-btn { 
+        padding: 14px 20px; 
+        font-size: 15px; 
+        min-height: 48px; /* Touch-friendly */ 
+        border-radius: 30px;
+      }
+      .summary-card { 
+        padding: 25px; 
+        border-radius: 15px; 
+      }
+      .summary-title { 
+        font-size: 1.8em; 
+        margin-bottom: 25px; 
+      }
+      .metrics-grid { 
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+        gap: 12px; 
+      }
+      .metric-item { 
+        padding: 15px; 
+        border-radius: 12px; 
+      }
+      .metric-value { 
+        font-size: 1.4em; 
+      }
+      .metric-label { 
+        font-size: 0.8em; 
+      }
+      .chart-title { 
+        font-size: 1.3em; 
+      }
+      .chart-subtitle { 
+        font-size: 0.9em; 
+      }
+    }
+    
+    /* Smartphones */
+    @media (max-width: 480px) {
+      .container { 
+        padding: 10px; 
+        margin: 0; 
+      }
+      .nav-bar { 
+        padding: 15px; 
+        margin-bottom: 20px; 
+        border-radius: 12px; 
+      }
+      .nav-buttons { 
+        flex-direction: column; 
+        gap: 8px; 
+      }
+      .nav-btn { 
+        width: 100%; 
+        padding: 16px; 
+        font-size: 16px; 
+        min-height: 52px; /* Ainda mais touch-friendly */
+        border-radius: 25px;
+        text-align: center;
+      }
+      .header { 
+        padding: 20px; 
+        border-radius: 12px; 
+      }
+      .header h1 { 
+        font-size: 1.6em; 
+        line-height: 1.2; 
+      }
+      .logo { 
+        height: 70px; 
+        margin-right: 10px; 
+      }
+      .summary-card { 
+        padding: 20px; 
+        border-radius: 12px; 
+        margin-bottom: 20px; 
+      }
+      .summary-title { 
+        font-size: 1.5em; 
+        margin-bottom: 20px; 
+      }
+      .metrics-grid { 
+        grid-template-columns: 1fr; 
+        gap: 10px; 
+      }
+      .metric-item { 
+        padding: 12px; 
+        border-radius: 10px; 
+      }
+      .metric-value { 
+        font-size: 1.2em; 
+      }
+      .metric-label { 
+        font-size: 0.75em; 
+      }
+      .chart-container { 
+        padding: 15px; 
+        margin-bottom: 20px; 
+        border-radius: 12px; 
+      }
+      .chart-title { 
+        font-size: 1.1em; 
+        margin-bottom: 8px; 
+      }
+      .chart-subtitle { 
+        font-size: 0.8em; 
+      }
+      .chart-wrapper { 
+        height: 280px; /* Altura otimizada para mobile */
+      }
+      .chart-wrapper.small { 
+        height: 220px; 
+      }
+      .insights { 
+        padding: 12px; 
+        border-radius: 8px; 
+      }
+      .insights h4 { 
+        font-size: 1em; 
+        margin-bottom: 8px; 
+      }
+      .insights ul { 
+        font-size: 0.85em; 
+      }
+      .highlight-box { 
+        padding: 12px; 
+        border-radius: 8px; 
+        margin: 15px 0; 
+      }
+      .highlight-box h3 { 
+        font-size: 1.2em; 
+      }
+      .region-table th, .region-table td { 
+        padding: 6px 8px; 
+        font-size: 0.85em; 
+      }
+    }
+    
+    /* Smartphones pequenos */
+    @media (max-width: 360px) {
+      .container { padding: 8px; }
+      .header h1 { font-size: 1.4em; }
+      .nav-btn { font-size: 15px; padding: 14px; }
+      .summary-title { font-size: 1.3em; }
+      .metric-value { font-size: 1.1em; }
+      .chart-wrapper { height: 250px; }
+      .chart-wrapper.small { height: 200px; }
+      .logo { height: 60px; }
+    }
+    
+    /* ===== OTIMIZAÇÕES PARA APRESENTAÇÃO MOBILE ===== */
+    @media (max-width: 768px) {
+      #presentationContainer .slide {
+        padding: 20px 10px;
+      }
+      
+      #presentationContainer .chart-container {
+        padding: 15px;
+        margin-bottom: 15px;
+      }
+      
+      #presentationContainer .chart-title {
+        font-size: 1.2em;
+        margin-bottom: 8px;
+      }
+      
+      #presentationContainer .chart-subtitle {
+        font-size: 0.85em;
+      }
+      
+      #presentationContainer .chart-wrapper {
+        height: 60vh; /* Usa viewport height para mobile */
+        max-height: 400px;
+      }
+      
+      #presentationContainer .highlight-box {
+        padding: 10px;
+        margin: 10px 0;
+      }
+      
+      #presentationContainer .insights {
+        padding: 10px;
+        font-size: 0.9em;
+      }
+      
+      /* Navegação da apresentação otimizada para touch */
+      #presentationContainer .slide.active {
+        overflow-y: auto; /* Permite scroll se necessário */
+        -webkit-overflow-scrolling: touch; /* Smooth scroll no iOS */
+      }
+    }
+    
+    /* ===== MELHORIAS TOUCH-FRIENDLY ===== */
+    
+    /* Aumentar área de toque para todos os botões */
+    .nav-btn, button {
+      min-height: 44px; /* Padrão de acessibilidade Apple/Google */
+      min-width: 44px;
+    }
+    
+    /* Melhorar legibilidade em telas pequenas */
+    @media (max-width: 768px) {
+      body {
+        font-size: 16px; /* Evita zoom no iOS */
+        line-height: 1.5;
+      }
+      
+      /* Evitar zoom em inputs (se houver) */
+      input, select, textarea {
+        font-size: 16px;
+      }
+    }
+    
+    /* ===== ORIENTAÇÃO ===== */
+    @media screen and (orientation: landscape) and (max-height: 500px) {
+      .header h1 { font-size: 1.3em; }
+      .nav-btn { padding: 8px 16px; }
+      .chart-wrapper { height: 250px; }
+      .summary-card { padding: 15px; }
+    }
     .highlight-box { background:linear-gradient(45deg,#27ae60,#2ecc71); color:white; padding:15px; border-radius:10px; text-align:center; margin:20px 0; }
     .highlight-box h3 { font-size:1.5em; margin-bottom:10px; }
     
@@ -132,20 +367,20 @@
 <body>
 <div class="container">
   <div class="header">
-    <div class="month-ref">📅 Mês Ref.: Set/25</div>
+    <div class="month-ref">📅 Mês Ref.: Nov/25</div>
     <div class="header-content">
-      <img src="logo.png" alt="Opinião Logo" class="logo">
+      <img src="https://raw.githubusercontent.com/aag1974/apn-ivv/main/logo.png" alt="Opinião Logo" class="logo">
       <div class="header-text">
         <h1>📊 Pesquisa IVV Residencial</h1>
         <p>Índice de Velocidade de Vendas - Análise Executiva</p>
-        <small>Relatório gerado em: 24/12/2025 10:44</small>
+        <small>Relatório gerado em: 24/12/2025 13:12</small>
       </div>
     </div>
   </div>
 
   <div class="nav-bar">
     <div class="nav-buttons">
-      <button class="nav-btn active" onclick="showSection('resumo')">📋 Set/25</button>
+      <button class="nav-btn active" onclick="showSection('resumo')">📋 Nov/25</button>
       <button class="nav-btn" onclick="showSection('ivv')">📈 IVV</button>
       <button class="nav-btn" onclick="showSection('ofertas')">🏢 Ofertas</button>
       <button class="nav-btn" onclick="showSection('vendas')">💰 Vendas</button>
@@ -165,62 +400,62 @@
   <!-- Nova seção de resumo -->
   <div id="resumo" class="section active">
     <div class="summary-card">
-      <div class="summary-title">📊 Resumo Executivo - Set/25</div>
+      <div class="summary-title">📊 Resumo Executivo - Nov/25</div>
       <div class="metrics-grid">
         <div class="metric-item">
-          <div class="metric-trend">📈</div>
+          <div class="metric-trend">📉</div>
           <div class="metric-label">IVV</div>
-          <div class="metric-value">8,2%</div>
+          <div class="metric-value">8,0%</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">📈</div>
+          <div class="metric-trend">📉</div>
           <div class="metric-label">Unidades Ofertadas</div>
-          <div class="metric-value">5.491</div>
+          <div class="metric-value">5.182</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">📈</div>
+          <div class="metric-trend">📉</div>
           <div class="metric-label">Unidades Vendidas</div>
-          <div class="metric-value">498</div>
+          <div class="metric-value">416</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">📈</div>
+          <div class="metric-trend">📉</div>
           <div class="metric-label">Unidades Lançadas</div>
-          <div class="metric-value">339</div>
+          <div class="metric-value">180</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">📈</div>
+          <div class="metric-trend">📉</div>
           <div class="metric-label">Oferta em m²</div>
-          <div class="metric-value">528.402 m²</div>
+          <div class="metric-value">495.065 m²</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">📈</div>
+          <div class="metric-trend">📉</div>
           <div class="metric-label">Venda em m²</div>
-          <div class="metric-value">44.089 m²</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-trend">📉</div>
-          <div class="metric-label">Preço de Oferta</div>
-          <div class="metric-value">R$ 15.331</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-trend">📉</div>
-          <div class="metric-label">Preço de Venda</div>
-          <div class="metric-value">R$ 12.143</div>
+          <div class="metric-value">30.151 m²</div>
         </div>
         <div class="metric-item">
           <div class="metric-trend">📈</div>
+          <div class="metric-label">Preço de Oferta</div>
+          <div class="metric-value">R$ 15.679</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-trend">📈</div>
+          <div class="metric-label">Preço de Venda</div>
+          <div class="metric-value">R$ 12.544</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-trend">📉</div>
           <div class="metric-label">VGV</div>
-          <div class="metric-value">R$ 535M</div>
+          <div class="metric-value">R$ 378M</div>
         </div>
         <div class="metric-item">
           <div class="metric-trend">📉</div>
           <div class="metric-label">VGL</div>
-          <div class="metric-value">R$ 254M</div>
+          <div class="metric-value">R$ 170M</div>
         </div>
         <div class="metric-item">
           <div class="metric-trend">📉</div>
           <div class="metric-label">Distratos</div>
-          <div class="metric-value">30</div>
+          <div class="metric-value">23</div>
         </div>
       </div>
     </div>
@@ -234,9 +469,9 @@
       <div class="insights">
         <h4>💡 Destaques:</h4>
         <ul>
-          <li>Variação MoM: Out/2025 - Set/2025: 1,3%</li>
-          <li>Variação YoY: Out/2025 - Out/2024: 48,4%</li>
-          <li>Pico: 10,4% (Jun)</li>          <li>Média anual: 7,2%</li>
+          <li>Variação MoM: Nov/2025 - Out/2025: -11,5%</li>
+          <li>Variação YoY: Nov/2025 - Nov/2024: 8,8%</li>
+          <li>Pico: 10,4% (Jun)</li>          <li>Média anual: 7,6%</li>
         </ul>
       </div>
     </div>
@@ -248,7 +483,7 @@
         <div class="highlight-box">
           <h3>Melhor trimestre: 3T - 8,2%</h3>
           <p>Destaque trimestral (melhor performance)</p>
-          
+          <p class="observation"><em>* Trimestre incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
       <div class="chart-container">
@@ -256,9 +491,9 @@
         <div class="chart-subtitle">Performance anual consolidada (%)</div>
         <div class="chart-wrapper small"><canvas id="ivvYearlyChart"></canvas></div>
         <div class="highlight-box">
-          <h3>2025: 7,6% (+9,1%)</h3>
+          <h3>2025 *: 7,6% (+9,7%)</h3>
           <p>Performance anual</p>
-          
+          <p class="observation"><em>* Ano incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
     </div>
@@ -272,9 +507,9 @@
       <div class="insights">
         <h4>💡 Destaques:</h4>
         <ul>
-          <li>Variação MoM: Out/2025 - Set/2025: 5,5%</li>
-          <li>Variação YoY: Out/2025 - Out/2024: -4,4%</li>
-          <li>Pico: 5.509 (Jan)</li>          <li>Média anual: 5.071</li>
+          <li>Variação MoM: Nov/2025 - Out/2025: -5,6%</li>
+          <li>Variação YoY: Nov/2025 - Nov/2024: -9,8%</li>
+          <li>Pico: 5.509 (Jan)</li>          <li>Média anual: 5.081</li>
         </ul>
       </div>
     </div>
@@ -286,7 +521,7 @@
         <div class="highlight-box">
           <h3>Melhor trimestre: 1T - 5.277</h3>
           <p>Destaque trimestral (melhor performance)</p>
-          <p class="observation"><em>* Trimestre incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Trimestre incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
       <div class="chart-container">
@@ -294,9 +529,9 @@
         <div class="chart-subtitle">Performance anual consolidada (Unidades)</div>
         <div class="chart-wrapper small"><canvas id="ofertasYearlyChart"></canvas></div>
         <div class="highlight-box">
-          <h3>2025 *: 5.071 (-20,3%)</h3>
+          <h3>2025 *: 5.081 (-20,2%)</h3>
           <p>Performance anual</p>
-          <p class="observation"><em>* Ano incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Ano incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
     </div>
@@ -308,9 +543,9 @@
       <div class="insights">
         <h4>💡 Destaques:</h4>
         <ul>
-          <li>Variação MoM: Out/2025 - Set/2025: 6,4%</li>
-          <li>Variação YoY: Out/2025 - Out/2024: 9,5%</li>
-          <li>Pico: 488.966 (Dez)</li>          <li>Média anual: 394.750</li>
+          <li>Variação MoM: Nov/2025 - Out/2025: -6,3%</li>
+          <li>Variação YoY: Nov/2025 - Nov/2024: -3,6%</li>
+          <li>Pico: 530.844 (Jun)</li>          <li>Média anual: 489.739</li>
         </ul>
       </div>
     </div>
@@ -322,7 +557,7 @@
         <div class="highlight-box">
           <h3>Melhor trimestre: 2T - 510.068 m²</h3>
           <p>Destaque trimestral (melhor performance)</p>
-          <p class="observation"><em>* Trimestre incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Trimestre incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
       <div class="chart-container">
@@ -330,40 +565,42 @@
         <div class="chart-subtitle">Performance anual consolidada (m²)</div>
         <div class="chart-wrapper small"><canvas id="ofertaM2YearlyChart"></canvas></div>
         <div class="highlight-box">
-          <h3>2025 *: 489.207 (-6,8%)</h3>
+          <h3>2025 *: 489.739 (-6,7%)</h3>
           <p>Performance anual</p>
-          <p class="observation"><em>* Ano incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Ano incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
     </div>
-  <div class="chart-container">
+  
+<div class="chart-container">
   <div class="chart-title">Ofertas por Região</div>
   <div class="chart-subtitle">Distribuição por número de quartos</div>
   <div class="table-wrapper">
     <table class="region-table">
       <tr><th>Região</th><th>1 qto</th><th>2 qtos</th><th>3 qtos</th><th>4+ qtos</th><th>Total</th></tr>
-      <tr><td>Águas Claras</td><td>103</td><td>494</td><td>757</td><td>220</td><td>1.574</td></tr>
-      <tr><td>Noroeste</td><td>184</td><td>310</td><td>319</td><td>238</td><td>1.051</td></tr>
-      <tr><td>Samambaia</td><td>82</td><td>129</td><td>113</td><td>46</td><td>370</td></tr>
-      <tr><td>Sobradinho</td><td>0</td><td>117</td><td>192</td><td>32</td><td>341</td></tr>
-      <tr><td>Ceilândia</td><td>0</td><td>261</td><td>9</td><td>0</td><td>270</td></tr>
-      <tr><td>Park Sul</td><td>81</td><td>42</td><td>82</td><td>57</td><td>262</td></tr>
-      <tr><td>Sudoeste</td><td>0</td><td>40</td><td>72</td><td>121</td><td>233</td></tr>
-      <tr><td>Asa Sul</td><td>59</td><td>94</td><td>58</td><td>0</td><td>211</td></tr>
-      <tr><td>Planaltina</td><td>0</td><td>174</td><td>0</td><td>0</td><td>174</td></tr>
-      <tr><td>Guará</td><td>0</td><td>11</td><td>101</td><td>46</td><td>158</td></tr>
-      <tr><td>Sobradinho II</td><td>0</td><td>17</td><td>129</td><td>0</td><td>146</td></tr>
-      <tr><td>Santa Maria</td><td>0</td><td>141</td><td>0</td><td>0</td><td>141</td></tr>
-      <tr><td>Taguatinga</td><td>1</td><td>67</td><td>28</td><td>36</td><td>132</td></tr>
-      <tr><td>Jardim Botânico</td><td>0</td><td>0</td><td>12</td><td>93</td><td>105</td></tr>
-      <tr><td>Asa Norte</td><td>11</td><td>0</td><td>47</td><td>37</td><td>95</td></tr>
-      <tr><td>Recanto das Emas</td><td>0</td><td>85</td><td>0</td><td>0</td><td>85</td></tr>
-      <tr><td>Gama</td><td>4</td><td>57</td><td>16</td><td>0</td><td>77</td></tr>
-      <tr><td>Lago Norte</td><td>0</td><td>0</td><td>32</td><td>34</td><td>66</td></tr>
-      <tr><td>Total Geral</td><td>525</td><td>2.039</td><td>1.967</td><td>960</td><td>5.491</td></tr>
+      <tr><td>Águas Claras</td><td>90</td><td>474</td><td>744</td><td>216</td><td>1.524</td></tr>
+      <tr><td>Noroeste</td><td>177</td><td>398</td><td>309</td><td>230</td><td>1.114</td></tr>
+      <tr><td>Samambaia</td><td>80</td><td>110</td><td>110</td><td>46</td><td>346</td></tr>
+      <tr><td>Park Sul</td><td>170</td><td>25</td><td>58</td><td>47</td><td>300</td></tr>
+      <tr><td>Ceilândia</td><td>0</td><td>272</td><td>12</td><td>0</td><td>284</td></tr>
+      <tr><td>Sudoeste</td><td>0</td><td>35</td><td>69</td><td>113</td><td>217</td></tr>
+      <tr><td>Asa Sul</td><td>59</td><td>93</td><td>56</td><td>0</td><td>208</td></tr>
+      <tr><td>Sobradinho</td><td>0</td><td>45</td><td>95</td><td>19</td><td>159</td></tr>
+      <tr><td>Planaltina</td><td>0</td><td>158</td><td>0</td><td>0</td><td>158</td></tr>
+      <tr><td>Guará</td><td>0</td><td>8</td><td>96</td><td>41</td><td>145</td></tr>
+      <tr><td>Santa Maria</td><td>0</td><td>135</td><td>0</td><td>0</td><td>135</td></tr>
+      <tr><td>Sobradinho II</td><td>0</td><td>29</td><td>103</td><td>0</td><td>132</td></tr>
+      <tr><td>Taguatinga</td><td>1</td><td>66</td><td>28</td><td>36</td><td>131</td></tr>
+      <tr><td>Jardim Botânico</td><td>0</td><td>0</td><td>10</td><td>85</td><td>95</td></tr>
+      <tr><td>Asa Norte</td><td>10</td><td>0</td><td>46</td><td>36</td><td>92</td></tr>
+      <tr><td>Gama</td><td>3</td><td>55</td><td>15</td><td>0</td><td>73</td></tr>
+      <tr><td>Lago Norte</td><td>0</td><td>0</td><td>30</td><td>33</td><td>63</td></tr>
+      <tr><td>Recanto das Emas</td><td>0</td><td>6</td><td>0</td><td>0</td><td>6</td></tr>
+      <tr><td>Total Geral</td><td>590</td><td>1.909</td><td>1.781</td><td>902</td><td>5.182</td></tr>
     </table>
   </div>
-</div></div>
+</div>
+</div>
 
   <div id="vendas" class="section">
     <div class="chart-container">
@@ -373,9 +610,9 @@
       <div class="insights">
         <h4>💡 Destaques:</h4>
         <ul>
-          <li>Variação MoM: Out/2025 - Set/2025: 6,9%</li>
-          <li>Variação YoY: Out/2025 - Out/2024: 41,9%</li>
-          <li>Pico: 542 (Jun)</li>          <li>Média anual: 383</li>
+          <li>Variação MoM: Nov/2025 - Out/2025: -16,5%</li>
+          <li>Variação YoY: Nov/2025 - Nov/2024: -1,9%</li>
+          <li>Pico: 542 (Jun)</li>          <li>Média anual: 386</li>
         </ul>
       </div>
     </div>
@@ -387,7 +624,7 @@
         <div class="highlight-box">
           <h3>Melhor trimestre: 3T - 1.179</h3>
           <p>Destaque trimestral (melhor performance)</p>
-          <p class="observation"><em>* Trimestre incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Trimestre incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
       <div class="chart-container">
@@ -395,9 +632,9 @@
         <div class="chart-subtitle">Performance anual consolidada (Unidades)</div>
         <div class="chart-wrapper small"><canvas id="vendasYearlyChart"></canvas></div>
         <div class="highlight-box">
-          <h3>2025 *: 3.834 (-26,9%)</h3>
+          <h3>2025 *: 4.250 (-19,0%)</h3>
           <p>Performance anual</p>
-          <p class="observation"><em>* Ano incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Ano incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
     </div>
@@ -410,9 +647,9 @@
       <div class="insights">
         <h4>💡 Destaques:</h4>
         <ul>
-          <li>Variação MoM: Out/2025 - Set/2025: 19,9%</li>
-          <li>Variação YoY: Out/2025 - Out/2024: 91,6%</li>
-          <li>Pico: 44.089 (Out)</li>          <li>Média anual: 30.482</li>
+          <li>Variação MoM: Nov/2025 - Out/2025: -31,6%</li>
+          <li>Variação YoY: Nov/2025 - Nov/2024: -31,1%</li>
+          <li>Pico: 44.089 (Out)</li>          <li>Média anual: 30.452</li>
         </ul>
       </div>
     </div>
@@ -424,7 +661,7 @@
         <div class="highlight-box">
           <h3>Melhor trimestre: 2T - 92.298 m²</h3>
           <p>Destaque trimestral (melhor performance)</p>
-          <p class="observation"><em>* Trimestre incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Trimestre incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
       <div class="chart-container">
@@ -432,40 +669,42 @@
         <div class="chart-subtitle">Performance anual consolidada (m²)</div>
         <div class="chart-wrapper small"><canvas id="vendaM2YearlyChart"></canvas></div>
         <div class="highlight-box">
-          <h3>2025 *: 304.821 (-18,3%)</h3>
+          <h3>2025 *: 334.972 (-10,3%)</h3>
           <p>Performance anual</p>
-          <p class="observation"><em>* Ano incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Ano incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
     </div>
-  <div class="chart-container">
+  
+<div class="chart-container">
   <div class="chart-title">Vendas por Região</div>
   <div class="chart-subtitle">Distribuição por número de quartos</div>
   <div class="table-wrapper">
     <table class="region-table">
       <tr><th>Região</th><th>1 qto</th><th>2 qtos</th><th>3 qtos</th><th>4+ qtos</th><th>Total</th></tr>
-      <tr><td>Sobradinho</td><td>0</td><td>72</td><td>93</td><td>13</td><td>178</td></tr>
-      <tr><td>Park Sul</td><td>1</td><td>17</td><td>24</td><td>10</td><td>52</td></tr>
-      <tr><td>Águas Claras</td><td>6</td><td>20</td><td>16</td><td>4</td><td>46</td></tr>
-      <tr><td>Noroeste</td><td>7</td><td>15</td><td>12</td><td>9</td><td>43</td></tr>
-      <tr><td>Ceilândia</td><td>0</td><td>29</td><td>4</td><td>0</td><td>33</td></tr>
-      <tr><td>Planaltina</td><td>0</td><td>27</td><td>0</td><td>0</td><td>27</td></tr>
-      <tr><td>Recanto das Emas</td><td>0</td><td>22</td><td>0</td><td>0</td><td>22</td></tr>
-      <tr><td>Samambaia</td><td>1</td><td>18</td><td>2</td><td>0</td><td>21</td></tr>
-      <tr><td>Guará</td><td>0</td><td>2</td><td>7</td><td>5</td><td>14</td></tr>
-      <tr><td>Santa Maria</td><td>0</td><td>12</td><td>0</td><td>0</td><td>12</td></tr>
-      <tr><td>Jardim Botânico</td><td>0</td><td>0</td><td>2</td><td>8</td><td>10</td></tr>
-      <tr><td>Sudoeste</td><td>0</td><td>3</td><td>2</td><td>5</td><td>10</td></tr>
-      <tr><td>Sobradinho II</td><td>0</td><td>2</td><td>7</td><td>0</td><td>9</td></tr>
-      <tr><td>Taguatinga</td><td>0</td><td>3</td><td>3</td><td>1</td><td>7</td></tr>
-      <tr><td>Gama</td><td>1</td><td>3</td><td>1</td><td>0</td><td>5</td></tr>
-      <tr><td>Asa Norte</td><td>1</td><td>0</td><td>2</td><td>1</td><td>4</td></tr>
-      <tr><td>Lago Norte</td><td>0</td><td>0</td><td>2</td><td>1</td><td>3</td></tr>
-      <tr><td>Asa Sul</td><td>0</td><td>0</td><td>2</td><td>0</td><td>2</td></tr>
-      <tr><td>Total Geral</td><td>17</td><td>245</td><td>179</td><td>57</td><td>498</td></tr>
+      <tr><td>Noroeste</td><td>10</td><td>75</td><td>12</td><td>7</td><td>104</td></tr>
+      <tr><td>Planaltina</td><td>0</td><td>48</td><td>0</td><td>0</td><td>48</td></tr>
+      <tr><td>Sobradinho</td><td>0</td><td>19</td><td>18</td><td>6</td><td>43</td></tr>
+      <tr><td>Ceilândia</td><td>0</td><td>30</td><td>9</td><td>0</td><td>39</td></tr>
+      <tr><td>Park Sul</td><td>28</td><td>6</td><td>1</td><td>3</td><td>38</td></tr>
+      <tr><td>Águas Claras</td><td>2</td><td>17</td><td>15</td><td>1</td><td>35</td></tr>
+      <tr><td>Samambaia</td><td>2</td><td>14</td><td>5</td><td>0</td><td>21</td></tr>
+      <tr><td>Recanto das Emas</td><td>0</td><td>20</td><td>0</td><td>0</td><td>20</td></tr>
+      <tr><td>Santa Maria</td><td>0</td><td>20</td><td>0</td><td>0</td><td>20</td></tr>
+      <tr><td>Sobradinho II</td><td>0</td><td>1</td><td>12</td><td>0</td><td>13</td></tr>
+      <tr><td>Guará</td><td>0</td><td>1</td><td>7</td><td>4</td><td>12</td></tr>
+      <tr><td>Lago Norte</td><td>0</td><td>0</td><td>3</td><td>2</td><td>5</td></tr>
+      <tr><td>Gama</td><td>0</td><td>4</td><td>1</td><td>0</td><td>5</td></tr>
+      <tr><td>Sudoeste</td><td>0</td><td>0</td><td>1</td><td>3</td><td>4</td></tr>
+      <tr><td>Taguatinga</td><td>1</td><td>2</td><td>1</td><td>0</td><td>4</td></tr>
+      <tr><td>Asa Sul</td><td>0</td><td>2</td><td>1</td><td>0</td><td>3</td></tr>
+      <tr><td>Jardim Botânico</td><td>0</td><td>0</td><td>1</td><td>1</td><td>2</td></tr>
+      <tr><td>Asa Norte</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+      <tr><td>Total Geral</td><td>43</td><td>259</td><td>87</td><td>27</td><td>416</td></tr>
     </table>
   </div>
-</div></div>
+</div>
+</div>
 
   <div id="lancamentos" class="section">
     <!-- Gráficos de empreendimentos (projetos) -->
@@ -476,8 +715,8 @@
       <div class="insights">
         <h4>💡 Destaques (Empreendimentos):</h4>
         <ul>
-          <li>Variação MoM (projetos): Out/2025 - Set/2025: 15,3%</li>
-          <li>Variação YoY (projetos): Out/2025 - Out/2024: 182,5%</li>
+          <li>Variação MoM (projetos): Nov/2025 - Out/2025: -46,9%</li>
+          <li>Variação YoY (projetos): Nov/2025 - Nov/2024: -27,7%</li>
           <li>Pico: 5 projetos</li>
           <li>Média anual: 2 projetos</li>
         </ul>
@@ -491,7 +730,7 @@
         <div class="highlight-box">
           <h3>Melhor trimestre (projetos): 3T - 8</h3>
           <p>Destaque trimestral (melhor performance)</p>
-          <p class="observation"><em>* Trimestre incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Trimestre incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
       <div class="chart-container">
@@ -499,9 +738,9 @@
         <div class="chart-subtitle">Performance anual consolidada (Empreendimentos)</div>
         <div class="chart-wrapper small"><canvas id="lancProjYearlyChart"></canvas></div>
         <div class="highlight-box">
-          <h3>2025 *: 17 (-33,7%)</h3>
+          <h3>2025 *: 18 (-26,1%)</h3>
           <p>Performance anual</p>
-          <p class="observation"><em>* Ano incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Ano incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
     </div>
@@ -514,10 +753,10 @@
       <div class="insights">
         <h4>💡 Destaques (Unidades):</h4>
         <ul>
-          <li>Variação MoM: Out/2025 - Set/2025: 15,3%</li>
-          <li>Variação YoY: Out/2025 - Out/2024: 182,5%</li>
+          <li>Variação MoM: Nov/2025 - Out/2025: -46,9%</li>
+          <li>Variação YoY: Nov/2025 - Nov/2024: -27,7%</li>
           <li>Pico: 456 (Jun)</li>
-          <li>Média anual: 195</li>
+          <li>Média anual: 193</li>
         </ul>
       </div>
     </div>
@@ -529,7 +768,7 @@
         <div class="highlight-box">
           <h3>Melhor trimestre: 2T - 607</h3>
           <p>Destaque trimestral (melhor performance)</p>
-          <p class="observation"><em>* Trimestre incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Trimestre incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
       <div class="chart-container">
@@ -537,9 +776,9 @@
         <div class="chart-subtitle">Performance anual consolidada (Unidades)</div>
         <div class="chart-wrapper small"><canvas id="lancYearlyChart"></canvas></div>
         <div class="highlight-box">
-          <h3>2025 *: 1.560 (-33,7%)</h3>
+          <h3>2025 *: 1.740 (-26,1%)</h3>
           <p>Performance anual</p>
-          <p class="observation"><em>* Ano incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Ano incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
     </div>
@@ -553,9 +792,9 @@
       <div class="insights">
         <h4>💡 Destaques:</h4>
         <ul>
-          <li>Variação MoM: Out/2025 - Set/2025: -2,5%</li>
-          <li>Variação YoY: Out/2025 - Out/2024: 11,5%</li>
-          <li>Pico: R$ 15.725 (Set)</li>          <li>Média anual: R$ 14.859</li>
+          <li>Variação MoM: Nov/2025 - Out/2025: 2,3%</li>
+          <li>Variação YoY: Nov/2025 - Nov/2024: 12,1%</li>
+          <li>Pico: R$ 15.725 (Set)</li>          <li>Média anual: R$ 14.934</li>
         </ul>
       </div>
     </div>
@@ -567,7 +806,7 @@
         <div class="highlight-box">
           <h3>Melhor trimestre: 3T - R$ 15.495,17</h3>
           <p>Destaque trimestral (melhor performance)</p>
-          <p class="observation"><em>* Trimestre incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Trimestre incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
       <div class="chart-container">
@@ -575,9 +814,9 @@
         <div class="chart-subtitle">Performance anual consolidada (R$)</div>
         <div class="chart-wrapper small"><canvas id="precosOfertaYearlyChart"></canvas></div>
         <div class="highlight-box">
-          <h3>2025 *: R$ 14.860,40 (+12,3%)</h3>
+          <h3>2025 *: R$ 14.935,61 (+12,8%)</h3>
           <p>Performance anual</p>
-          <p class="observation"><em>* Ano incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Ano incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
     </div>
@@ -589,9 +828,9 @@
       <div class="insights">
         <h4>💡 Destaques:</h4>
         <ul>
-          <li>Variação MoM: Out/2025 - Set/2025: -5,9%</li>
-          <li>Variação YoY: Out/2025 - Out/2024: 13,6%</li>
-          <li>Pico: R$ 13.191 (Abr)</li>          <li>Média anual: R$ 12.279</li>
+          <li>Variação MoM: Nov/2025 - Out/2025: 3,3%</li>
+          <li>Variação YoY: Nov/2025 - Nov/2024: -9,5%</li>
+          <li>Pico: R$ 13.191 (Abr)</li>          <li>Média anual: R$ 12.303</li>
         </ul>
       </div>
     </div>
@@ -603,7 +842,7 @@
         <div class="highlight-box">
           <h3>Melhor trimestre: 2T - R$ 12.814,56</h3>
           <p>Destaque trimestral (melhor performance)</p>
-          <p class="observation"><em>* Trimestre incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Trimestre incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
       <div class="chart-container">
@@ -611,37 +850,38 @@
         <div class="chart-subtitle">Performance anual consolidada (R$)</div>
         <div class="chart-wrapper small"><canvas id="precosVendaYearlyChart"></canvas></div>
         <div class="highlight-box">
-          <h3>2025 *: R$ 12.366,48 (+14,8%)</h3>
+          <h3>2025 *: R$ 12.382,42 (+15,0%)</h3>
           <p>Performance anual</p>
-          <p class="observation"><em>* Ano incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Ano incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
     </div>
-  <div class="chart-container">
+  
+<div class="chart-container">
   <div class="chart-title">Preços de Oferta por Região (R$)</div>
   <div class="chart-subtitle">Distribuição por número de quartos</div>
   <div class="table-wrapper">
     <table class="region-table">
       <tr><th>Região</th><th>1 qto</th><th>2 qtos</th><th>3 qtos</th><th>4+ qtos</th><th>Total</th></tr>
-      <tr><td>Sudoeste</td><td>-</td><td>27.407,14</td><td>24.799,49</td><td>26.545,16</td><td>26.216,34</td></tr>
-      <tr><td>Asa Sul</td><td>23.532,94</td><td>17.248,75</td><td>29.721,92</td><td>-</td><td>24.044,12</td></tr>
-      <tr><td>Asa Norte</td><td>24.736,00</td><td>-</td><td>24.365,16</td><td>18.818,94</td><td>21.200,80</td></tr>
-      <tr><td>Jardim Botânico</td><td>-</td><td>-</td><td>16.642,99</td><td>19.341,48</td><td>19.118,16</td></tr>
-      <tr><td>Noroeste</td><td>17.896,34</td><td>17.941,42</td><td>18.360,07</td><td>19.117,42</td><td>18.530,19</td></tr>
-      <tr><td>Lago Norte</td><td>-</td><td>-</td><td>18.196,15</td><td>14.921,60</td><td>16.082,77</td></tr>
-      <tr><td>Park Sul</td><td>15.688,60</td><td>16.360,25</td><td>15.846,83</td><td>15.577,85</td><td>15.788,55</td></tr>
-      <tr><td>Guará</td><td>-</td><td>14.304,59</td><td>13.978,07</td><td>11.819,12</td><td>13.179,23</td></tr>
-      <tr><td>Águas Claras</td><td>14.159,16</td><td>12.162,46</td><td>11.636,60</td><td>12.642,85</td><td>12.060,84</td></tr>
-      <tr><td>Sobradinho II</td><td>-</td><td>9.200,00</td><td>9.500,00</td><td>-</td><td>9.470,67</td></tr>
-      <tr><td>Taguatinga</td><td>5.500,00</td><td>9.341,73</td><td>8.718,34</td><td>8.800,00</td><td>8.974,46</td></tr>
-      <tr><td>Sobradinho</td><td>-</td><td>8.884,65</td><td>8.900,00</td><td>8.900,00</td><td>8.896,05</td></tr>
-      <tr><td>Samambaia</td><td>7.835,43</td><td>7.369,16</td><td>8.901,59</td><td>10.438,45</td><td>8.741,81</td></tr>
+      <tr><td>Sudoeste</td><td>-</td><td>27.340,71</td><td>24.870,42</td><td>26.262,14</td><td>26.020,02</td></tr>
+      <tr><td>Asa Sul</td><td>23.532,94</td><td>17.386,36</td><td>30.264,03</td><td>-</td><td>24.233,46</td></tr>
+      <tr><td>Asa Norte</td><td>24.736,00</td><td>-</td><td>24.368,05</td><td>19.128,90</td><td>21.428,54</td></tr>
+      <tr><td>Jardim Botânico</td><td>-</td><td>-</td><td>16.438,86</td><td>19.172,94</td><td>18.955,63</td></tr>
+      <tr><td>Noroeste</td><td>18.436,84</td><td>18.206,01</td><td>18.352,52</td><td>19.231,07</td><td>18.633,19</td></tr>
+      <tr><td>Lago Norte</td><td>-</td><td>-</td><td>18.184,30</td><td>14.842,14</td><td>15.998,20</td></tr>
+      <tr><td>Park Sul</td><td>15.908,58</td><td>16.159,65</td><td>15.686,06</td><td>15.406,35</td><td>15.683,46</td></tr>
+      <tr><td>Guará</td><td>-</td><td>15.107,43</td><td>14.111,72</td><td>12.525,01</td><td>13.569,08</td></tr>
+      <tr><td>Águas Claras</td><td>14.585,45</td><td>12.320,73</td><td>11.783,84</td><td>12.785,73</td><td>12.209,53</td></tr>
+      <tr><td>Sobradinho II</td><td>-</td><td>9.860,00</td><td>9.664,00</td><td>-</td><td>9.700,85</td></tr>
+      <tr><td>Taguatinga</td><td>5.500,00</td><td>9.335,01</td><td>9.194,36</td><td>8.800,00</td><td>9.069,61</td></tr>
+      <tr><td>Sobradinho</td><td>-</td><td>8.860,14</td><td>8.890,01</td><td>8.900,00</td><td>8.885,39</td></tr>
+      <tr><td>Samambaia</td><td>7.947,66</td><td>7.493,31</td><td>8.963,63</td><td>10.438,45</td><td>8.859,80</td></tr>
+      <tr><td>Recanto das Emas</td><td>-</td><td>8.398,00</td><td>-</td><td>-</td><td>8.398,00</td></tr>
+      <tr><td>Gama</td><td>7.106,25</td><td>6.777,94</td><td>6.500,00</td><td>-</td><td>6.712,85</td></tr>
       <tr><td>Santa Maria</td><td>-</td><td>6.650,00</td><td>-</td><td>-</td><td>6.650,00</td></tr>
-      <tr><td>Gama</td><td>7.106,25</td><td>6.768,08</td><td>6.000,00</td><td>-</td><td>6.572,01</td></tr>
-      <tr><td>Ceilândia</td><td>-</td><td>6.373,90</td><td>6.500,00</td><td>-</td><td>6.380,66</td></tr>
-      <tr><td>Planaltina</td><td>-</td><td>5.600,00</td><td>-</td><td>-</td><td>5.600,00</td></tr>
-      <tr><td>Recanto das Emas</td><td>-</td><td>5.477,31</td><td>-</td><td>-</td><td>5.477,31</td></tr>
-      <tr><td>Total Geral</td><td>16.810,49</td><td>12.018,58</td><td>14.901,62</td><td>17.938,06</td><td>15.330,71</td></tr>
+      <tr><td>Ceilândia</td><td>-</td><td>6.422,40</td><td>6.500,00</td><td>-</td><td>6.427,65</td></tr>
+      <tr><td>Planaltina</td><td>-</td><td>5.698,00</td><td>-</td><td>-</td><td>5.698,00</td></tr>
+      <tr><td>Total Geral</td><td>17.016,28</td><td>12.783,40</td><td>15.240,17</td><td>17.992,25</td><td>15.678,84</td></tr>
     </table>
   </div>
 </div><div class="chart-container">
@@ -650,28 +890,29 @@
   <div class="table-wrapper">
     <table class="region-table">
       <tr><th>Região</th><th>1 qto</th><th>2 qtos</th><th>3 qtos</th><th>4+ qtos</th><th>Total</th></tr>
-      <tr><td>Sudoeste</td><td>-</td><td>28.707,15</td><td>20.724,41</td><td>22.195,83</td><td>22.959,87</td></tr>
-      <tr><td>Asa Sul</td><td>-</td><td>-</td><td>22.145,00</td><td>-</td><td>22.145,00</td></tr>
-      <tr><td>Jardim Botânico</td><td>-</td><td>-</td><td>17.460,87</td><td>19.583,26</td><td>19.323,40</td></tr>
-      <tr><td>Asa Norte</td><td>22.547,80</td><td>-</td><td>21.966,03</td><td>14.507,07</td><td>17.700,85</td></tr>
-      <tr><td>Noroeste</td><td>15.969,70</td><td>16.658,28</td><td>19.413,81</td><td>14.534,68</td><td>16.945,01</td></tr>
-      <tr><td>Lago Norte</td><td>-</td><td>-</td><td>17.475,74</td><td>15.295,30</td><td>16.584,56</td></tr>
-      <tr><td>Park Sul</td><td>15.797,55</td><td>15.503,28</td><td>14.994,44</td><td>15.571,26</td><td>15.263,90</td></tr>
-      <tr><td>Guará</td><td>-</td><td>11.294,29</td><td>13.841,00</td><td>11.770,31</td><td>12.674,89</td></tr>
-      <tr><td>Águas Claras</td><td>12.366,76</td><td>11.603,37</td><td>10.510,07</td><td>10.129,65</td><td>10.933,82</td></tr>
-      <tr><td>Sobradinho II</td><td>-</td><td>8.635,00</td><td>9.000,00</td><td>-</td><td>8.930,56</td></tr>
-      <tr><td>Sobradinho</td><td>-</td><td>8.900,00</td><td>8.900,00</td><td>8.900,00</td><td>8.900,00</td></tr>
-      <tr><td>Taguatinga</td><td>-</td><td>7.940,07</td><td>7.413,90</td><td>8.731,89</td><td>7.821,77</td></tr>
-      <tr><td>Samambaia</td><td>6.048,00</td><td>7.021,96</td><td>7.309,33</td><td>-</td><td>7.034,32</td></tr>
-      <tr><td>Santa Maria</td><td>-</td><td>6.650,00</td><td>-</td><td>-</td><td>6.650,00</td></tr>
-      <tr><td>Recanto das Emas</td><td>-</td><td>6.403,49</td><td>-</td><td>-</td><td>6.403,49</td></tr>
-      <tr><td>Ceilândia</td><td>-</td><td>6.325,56</td><td>6.500,00</td><td>-</td><td>6.357,74</td></tr>
-      <tr><td>Gama</td><td>6.479,08</td><td>6.066,50</td><td>5.780,56</td><td>-</td><td>6.048,13</td></tr>
-      <tr><td>Planaltina</td><td>-</td><td>5.400,00</td><td>-</td><td>-</td><td>5.400,00</td></tr>
-      <tr><td>Total Geral</td><td>13.961,45</td><td>9.806,62</td><td>12.304,63</td><td>14.901,05</td><td>12.142,82</td></tr>
+      <tr><td>Sudoeste</td><td>-</td><td>-</td><td>23.010,39</td><td>25.728,88</td><td>25.311,32</td></tr>
+      <tr><td>Asa Sul</td><td>-</td><td>13.820,68</td><td>28.466,43</td><td>-</td><td>20.843,65</td></tr>
+      <tr><td>Jardim Botânico</td><td>-</td><td>-</td><td>18.340,56</td><td>20.213,31</td><td>19.525,66</td></tr>
+      <tr><td>Noroeste</td><td>15.701,33</td><td>17.958,08</td><td>18.682,74</td><td>16.242,74</td><td>17.718,60</td></tr>
+      <tr><td>Park Sul</td><td>14.766,68</td><td>15.145,06</td><td>16.783,99</td><td>12.560,42</td><td>14.216,58</td></tr>
+      <tr><td>Lago Norte</td><td>-</td><td>-</td><td>15.589,68</td><td>11.172,75</td><td>12.992,43</td></tr>
+      <tr><td>Guará</td><td>-</td><td>16.223,00</td><td>13.326,54</td><td>10.854,25</td><td>12.419,07</td></tr>
+      <tr><td>Águas Claras</td><td>44.474,47</td><td>10.945,32</td><td>10.823,16</td><td>10.707,51</td><td>11.862,20</td></tr>
+      <tr><td>Sobradinho</td><td>-</td><td>8.805,95</td><td>8.900,00</td><td>8.900,00</td><td>8.870,46</td></tr>
+      <tr><td>Sobradinho II</td><td>-</td><td>9.225,00</td><td>8.750,00</td><td>-</td><td>8.780,46</td></tr>
+      <tr><td>Taguatinga</td><td>5.500,00</td><td>8.335,00</td><td>9.270,00</td><td>-</td><td>7.978,70</td></tr>
+      <tr><td>Samambaia</td><td>6.048,00</td><td>7.118,35</td><td>7.267,69</td><td>-</td><td>7.108,74</td></tr>
+      <tr><td>Ceilândia</td><td>-</td><td>6.466,27</td><td>6.500,00</td><td>-</td><td>6.477,40</td></tr>
+      <tr><td>Recanto das Emas</td><td>-</td><td>5.800,00</td><td>-</td><td>-</td><td>5.800,00</td></tr>
+      <tr><td>Santa Maria</td><td>-</td><td>5.745,00</td><td>-</td><td>-</td><td>5.745,00</td></tr>
+      <tr><td>Planaltina</td><td>-</td><td>5.620,00</td><td>-</td><td>-</td><td>5.620,00</td></tr>
+      <tr><td>Gama</td><td>-</td><td>5.418,90</td><td>5.585,23</td><td>-</td><td>5.461,94</td></tr>
+      <tr><td>Asa Norte</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+      <tr><td>Total Geral</td><td>15.659,79</td><td>11.449,35</td><td>12.435,59</td><td>14.855,93</td><td>12.543,58</td></tr>
     </table>
   </div>
-</div></div>
+</div>
+</div>
 
   <div id="vgv" class="section">
     <div class="chart-container">
@@ -681,8 +922,8 @@
       <div class="insights">
         <h4>💡 Destaques:</h4>
         <ul>
-          <li>Variação MoM: Out/2025 - Set/2025: 12,8%</li>
-          <li>Variação YoY: Out/2025 - Out/2024: 117,6%</li>
+          <li>Variação MoM: Nov/2025 - Out/2025: -29,4%</li>
+          <li>Variação YoY: Nov/2025 - Nov/2024: -37,6%</li>
           <li>Pico (R$ Mi): R$ 535 (Out)</li>          <li>Média anual (R$ Mi): R$ 377</li>
         </ul>
       </div>
@@ -695,7 +936,7 @@
         <div class="highlight-box">
           <h3>Melhor trimestre: 2T - R$ 1.182,76M</h3>
           <p>Destaque trimestral (melhor performance)</p>
-          <p class="observation"><em>* Trimestre incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Trimestre incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
       <div class="chart-container">
@@ -703,9 +944,9 @@
         <div class="chart-subtitle">Performance anual consolidada (R$ Milhões)</div>
         <div class="chart-wrapper small"><canvas id="vgvYearlyChart"></canvas></div>
         <div class="highlight-box">
-          <h3>2025 *: R$ 3.769,57 (-6,2%)</h3>
+          <h3>2025 *: R$ 4.147,77 (+3,2%)</h3>
           <p>Performance anual</p>
-          <p class="observation"><em>* Ano incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Ano incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
     </div>
@@ -720,9 +961,9 @@
       <div class="insights">
         <h4>💡 Destaques:</h4>
         <ul>
-          <li>Variação MoM: Out/2025 - Set/2025: -78,8%</li>
-          <li>Variação YoY: Out/2025 - Out/2024: 325,7%</li>
-          <li>Pico (R$ Mi): R$ 1.200 (Set)</li>          <li>Média anual (R$ Mi): R$ 350</li>
+          <li>Variação MoM: Nov/2025 - Out/2025: -33,0%</li>
+          <li>Variação YoY: Nov/2025 - Nov/2024: -76,8%</li>
+          <li>Pico (R$ Mi): R$ 1.200 (Set)</li>          <li>Média anual (R$ Mi): R$ 330</li>
         </ul>
       </div>
     </div>
@@ -734,7 +975,7 @@
         <div class="highlight-box">
           <h3>Melhor trimestre: 3T - R$ 1.380,10M</h3>
           <p>Destaque trimestral (melhor performance)</p>
-          <p class="observation"><em>* Trimestre incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Trimestre incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
       <div class="chart-container">
@@ -742,9 +983,9 @@
         <div class="chart-subtitle">Performance anual consolidada (R$ Milhões)</div>
         <div class="chart-wrapper small"><canvas id="vglYearlyChart"></canvas></div>
         <div class="highlight-box">
-          <h3>2025 *: R$ 2.803,79 (+11,2%)</h3>
+          <h3>2025 *: R$ 2.974,27 (+18,0%)</h3>
           <p>Performance anual</p>
-          <p class="observation"><em>* Ano incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Ano incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
     </div>
@@ -759,9 +1000,9 @@
       <div class="insights">
         <h4>💡 Destaques:</h4>
         <ul>
-          <li>Variação MoM: Out/2025 - Set/2025: -14,3%</li>
-          <li>Variação YoY: Out/2025 - Out/2024: -58,3%</li>
-          <li>Pico: 229 (Mar)</li>          <li>Média anual: 63</li>
+          <li>Variação MoM: Nov/2025 - Out/2025: -23,3%</li>
+          <li>Variação YoY: Nov/2025 - Nov/2024: -67,1%</li>
+          <li>Pico: 229 (Mar)</li>          <li>Média anual: 60</li>
         </ul>
       </div>
     </div>
@@ -773,7 +1014,7 @@
         <div class="highlight-box">
           <h3>Melhor trimestre: 1T - 319</h3>
           <p>Destaque trimestral (melhor performance)</p>
-          <p class="observation"><em>* Trimestre incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Trimestre incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
       <div class="chart-container">
@@ -781,9 +1022,9 @@
         <div class="chart-subtitle">Performance anual consolidada (Unidades)</div>
         <div class="chart-wrapper small"><canvas id="distratosYearlyChart"></canvas></div>
         <div class="highlight-box">
-          <h3>2025 *: 634 (+36,1%)</h3>
+          <h3>2025 *: 657 (+41,0%)</h3>
           <p>Performance anual</p>
-          <p class="observation"><em>* Ano incompleto (dados até Out/2025)</em></p>
+          <p class="observation"><em>* Ano incompleto (dados até Nov/2025)</em></p>
         </div>
       </div>
     </div>
@@ -835,54 +1076,54 @@ function showSection(sectionId) {
   }
 }
 // ---------- Datasets (injetados pelo Python)
-  const ivvMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [8.6, 10.5, 10.9, 8.5, 8.1, 9.0, 7.7, 7.5, 8.8, 7.6, 6.5, 8.4], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [5.2, 9.0, 10.1, 8.3, 8.5, 7.2, 7.6, 10.4, 7.0, 8.4, 7.4, 7.9], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [5.7, 5.6, 7.4, 7.4, 7.9, 7.3, 5.4, 6.9, 5.6, 4.9, 5.1, 5.4], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [3.8, 4.2, 5.8, 6.3, 12.7, 7.2, 7.0, 7.6, 8.7, 6.1, 7.4, 6.4], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [5.9, 6.2, 6.6, 5.6, 7.3, 10.4, 7.3, 8.2, null, null, null, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
-  const ivvQuarterlyData = {"labels": ["1T", "2T", "3T", "4T"], "datasets": [{"label": "2021", "data": [10.0, 8.5, 8.0, 7.5], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [8.1, 8.0, 8.3, 7.9], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [6.2, 7.5, 6.0, 5.1], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [4.6, 8.7, 7.8, 6.6], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025", "data": [6.2, 7.8, 8.2, null], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
-  const ivvYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025"], "datasets": [{"label": "Valor", "data": [8.5, 8.1, 6.2, 6.9, 7.6], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
-  const ivvYearlyVar = ["-", "-5,1%", "-23,1%", "+11,5%", "+9,1%"];
-  const ofertasMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [3319.0, 3782.0, 4319.0, 4047.0, 4690.0, 4492.0, 4268.0, 4263.0, 4582.0, 4496.0, 4762.0, 5074.0], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [4693.0, 5174.0, 4761.0, 4718.0, 5026.0, 4752.0, 4322.0, 4512.0, 4273.0, 4803.0, 5028.0, 4695.0], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [4726.0, 4615.0, 4425.0, 4539.0, 5394.0, 5599.0, 5425.0, 5704.0, 6473.0, 6818.0, 6533.0, 7121.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [7533.0, 7285.0, 7014.0, 6757.0, 6908.0, 6191.0, 5866.0, 5943.0, 5784.0, 5745.0, 5746.0, 5623.0], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [5509.0, 5167.0, 5155.0, 4964.0, 4846.0, 5194.0, 4764.0, 4417.0, 5206.0, 5491.0, null, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
-  const ofertasQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [3807.0, 4410.0, 4371.0, 4777.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [4876.0, 4832.0, 4369.0, 4842.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [4589.0, 5177.0, 5867.0, 6824.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [7277.0, 6619.0, 5864.0, 5705.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [5277.0, 5001.0, 4796.0, 5491.0], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
-  const ofertasYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [4341.0, 4730.0, 5614.0, 6366.0, 5071.0], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
-  const ofertasYearlyVar = ["-", "+9,0%", "+18,7%", "+13,4%", "-20,3%"];
-  const vendasMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [285.0, 397.0, 472.0, 343.0, 378.0, 404.0, 327.0, 320.0, 405.0, 343.0, 309.0, 427.0], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [244.0, 468.0, 479.0, 392.0, 425.0, 343.0, 327.0, 468.0, 297.0, 404.0, 371.0, 372.0], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [271.0, 257.0, 327.0, 334.0, 424.0, 408.0, 291.0, 396.0, 365.0, 337.0, 334.0, 381.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [288.0, 303.0, 410.0, 423.0, 879.0, 445.0, 409.0, 449.0, 505.0, 351.0, 424.0, 360.0], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [324.0, 320.0, 340.0, 277.0, 354.0, 542.0, 350.0, 363.0, 466.0, 498.0, null, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
-  const vendasQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [1154.0, 1125.0, 1052.0, 1079.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [1191.0, 1.16, 1092.0, 1147.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [855.0, 1166.0, 1052.0, 1052.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [1001.0, 1747.0, 1363.0, 1135.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [984.0, 1173.0, 1179.0, 498.0], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
-  const vendasYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [4410.0, 4590.0, 4125.0, 5246.0, 3834.0], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
-  const vendasYearlyVar = ["-", "+4,1%", "-10,1%", "+27,2%", "-26,9%"];
-  const ofertaM2MonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [328584.0, 348984.0, 365049.0, 332963.0, 395864.0, 391709.0, 364548.0, 384584.0, 417360.0, 435837.0, 482553.0, 488966.0], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [450299.0, 490458.0, 462974.0, 478250.0, 488157.0, 464450.0, 436719.0, 450954.0, 435009.0, 447730.0, 450044.0, 412271.0], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [421845.0, 413126.0, 401872.0, 411145.0, 479159.0, 479267.0, 471729.0, 499935.0, 533566.0, 569440.0, 546701.0, 574454.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [591100.0, 571358.0, 557375.0, 545977.0, 554341.0, 515059.0, 490734.0, 494771.0, 487517.0, 482654.0, 513551.0, 491979.0], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [493384.0, 468083.0, 466911.0, 505165.0, 494195.0, 530844.0, 491861.0, 416677.0, 496544.0, 528402.0, null, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
-  const ofertaM2QuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [347539.0, 373512.0, 388831.0, 469119.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [467910.0, 476952.0, 440894.0, 436682.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [412281.0, 456524.0, 501743.0, 563532.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [573278.0, 538459.0, 491007.0, 496061.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [476126.0, 510068.0, 468361.0, 528402.0], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
-  const ofertaM2YearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [394750.0, 455610.0, 483520.0, 524701.0, 489207.0], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
-  const ofertaM2YearlyVar = ["-", "+15,4%", "+6,1%", "+8,5%", "-6,8%"];
-  const vendaM2MonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [22151.0, 31038.0, 36324.0, 30346.0, 29931.0, 34113.0, 25285.0, 27914.0, 36619.0, 28549.0, 24141.0, 36319.0], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [17917.0, 33278.0, 38601.0, 30923.0, 31381.0, 26366.0, 21857.0, 35833.0, 23644.0, 27466.0, 27350.0, 26727.0], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [19187.0, 19147.0, 26795.0, 25785.0, 34638.0, 30925.0, 20686.0, 31555.0, 27314.0, 28338.0, 25952.0, 25999.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [20525.0, 21340.0, 28584.0, 31522.0, 59294.0, 33723.0, 28054.0, 28300.0, 32090.0, 23016.0, 43754.0, 23125.0], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [22432.0, 22917.0, 30854.0, 24349.0, 27281.0, 40668.0, 26642.0, 28813.0, 36775.0, 44089.0, null, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
-  const vendaM2QuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [89513.0, 94390.0, 89818.0, 89009.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [89796.0, 88670.0, 81334.0, 81543.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [65128.0, 91348.0, 79555.0, 80289.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [70449.0, 124538.0, 88445.0, 89895.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [76204.0, 92298.0, 92231.0, 44089.0], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
-  const vendaM2YearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [362730.0, 341344.0, 316320.0, 373327.0, 304821.0], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
-  const vendaM2YearlyVar = ["-", "-5,9%", "-7,3%", "+18,0%", "-18,3%"];
-  const lancMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [230.0, 662.0, 1021.0, 130.0, 852.0, 164.0, 56.0, 216.0, 248.0, 499.0, 382.0, 401.0], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [null, 550.0, 204.0, 300.0, 732.0, 40.0, 72.0, 441.0, null, 516.0, 368.0, 48.0], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [418.0, 175.0, 74.0, 407.0, 1029.0, 550.0, 108.0, 462.0, 1022.0, 644.0, null, 920.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [496.0, null, 30.0, 82.0, 607.0, 221.0, 94.0, 221.0, 233.0, 120.0, 249.0, null], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [105.0, null, 72.0, 90.0, 61.0, 456.0, 143.0, null, 294.0, 339.0, null, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
-  const lancQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [1913.0, 1146.0, 520.0, 1282.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [754.0, 1072.0, 513.0, 932.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [667.0, 1986.0, 1592.0, 1564.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [526.0, 910.0, 548.0, 369.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [177.0, 607.0, 437.0, 339.0], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
-  const lancYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [4861.0, 3271.0, 5809.0, 2353.0, 1560.0], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
-  const lancYearlyVar = ["-", "-32,7%", "+77,6%", "-59,5%", "-33,7%"];
-  const lancProjMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [3.0, 4.0, 3.0, 2.0, 6.0, 2.0, 1.0, 3.0, 3.0, 8.0, 3.0, 2.0], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [null, 4.0, 2.0, 5.0, 2.0, 1.0, 1.0, 3.0, null, 3.0, 1.0, 1.0], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [2.0, 2.0, 2.0, 4.0, 5.0, 1.0, 1.0, 4.0, 2.0, 6.0, null, 3.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [0.0, null, 1.0, 2.0, 3.0, 3.0, 1.0, 1.0, 3.0, 1.0, 3.0, null], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [1.0, null, 1.0, 1.0, 1.0, 4.0, 3.0, null, 5.0, 1.0, null, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
-  const lancProjQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [10.0, 10.0, 7.0, 13.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [6.0, 8.0, 4.0, 5.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [6.0, 10.0, 7.0, 9.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [1.0, 8.0, 5.0, 4.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [2.0, 6.0, 8.0, 1.0], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
-  const lancProjYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [40.0, 23.0, 32.0, 18.0, 17.0], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
-  const lancProjYearlyVar = ["-", "-32,7%", "+77,6%", "-59,5%", "-33,7%"];
-  const precosOfertaMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [10653.99, 10225.1, 9777.49, 9978.39, 10151.1, 10278.28, 10272.69, 10767.22, 10748.44, 11690.89, 11467.53, 11387.28], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [11565.08, 11689.47, 11703.49, 12085.85, 11909.77, 12202.24, 12705.77, 12808.19, 12832.52, 13096.8, 12716.95, 13085.96], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [12888.35, 12736.58, 13001.12, 13027.63, 12525.64, 12963.9, 12738.99, 13660.92, 12628.09, 12906.53, 12964.07, 12699.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [12466.25, 12533.79, 12656.19, 12730.81, 12684.01, 13510.6, 13668.6, 13665.8, 13733.35, 13747.78, 13991.32, 13890.92], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [14098.31, 14149.45, 14215.4, 14530.82, 14846.53, 14941.14, 15268.11, 15489.37, 15724.96, 15330.71, null, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
-  const precosOfertaQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [10203.55, 10144.24, 10605.91, 11508.82], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [11654.19, 12063.56, 12782.37, 12962.9], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [12874.3, 12829.7, 13005.88, 12854.62], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [12550.25, 12963.38, 13689.09, 13879.14], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [14153.34, 14775.13, 15495.17, 15330.71], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
-  const precosOfertaYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [10676.4, 12347.85, 12892.17, 13236.76, 14860.4], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
-  const precosOfertaYearlyVar = ["-", "+15,7%", "+4,4%", "+2,7%", "+12,3%"];
-  const precosVendaMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [8903.12, 8455.14, 8566.54, 9342.42, 9805.78, 9353.8, 8745.32, 10025.74, 10270.28, 9664.48, 9456.05, 9161.32], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [9407.76, 8577.41, 9606.06, 10149.81, 9730.34, 10051.57, 8257.61, 10573.48, 10032.95, 9478.14, 9757.73, 9793.82], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [9340.64, 9595.4, 11315.16, 10801.85, 10929.12, 12017.97, 11201.39, 14003.52, 11444.01, 12129.04, 11262.98, 9840.28], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [10073.22, 10488.36, 10650.14, 11116.6, 8684.12, 11787.72, 10657.8, 9891.16, 10838.99, 10689.33, 13860.85, 10539.77], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [10555.3, 10870.21, 12965.37, 13191.24, 12369.73, 12887.42, 12319.68, 12582.47, 12909.5, 12142.82, null, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
-  const precosVendaQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [8611.21, 9493.47, 9764.98, 9402.64], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [9185.28, 9972.15, 9793.99, 9675.39], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [10227.88, 11261.82, 12396.12, 11107.96], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [10433.05, 10140.21, 10478.23, 12194.49], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [11625.82, 12814.56, 12636.95, 12142.82], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
-  const precosVendaYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [9320.69, 9651.81, 11295.16, 10770.21, 12366.48], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
-  const precosVendaYearlyVar = ["-", "+3,6%", "+17,0%", "-4,6%", "+14,8%"];
-  const vgvMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [197.21, 262.43, 311.17, 283.51, 293.5, 319.09, 221.13, 279.86, 376.09, 275.91, 228.28, 332.73], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [168.56, 285.44, 370.8, 313.86, 305.35, 265.02, 180.49, 378.88, 237.22, 260.33, 266.87, 261.76], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [179.22, 183.72, 303.19, 278.53, 378.56, 371.66, 231.72, 441.88, 312.58, 343.71, 292.3, 255.84], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [206.76, 223.82, 304.42, 350.41, 514.91, 397.52, 299.0, 279.92, 347.82, 246.03, 606.46, 243.73], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [236.78, 249.11, 400.03, 321.2, 337.45, 524.11, 328.22, 362.54, 474.75, 535.37, null, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
-  const vgvQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [770.81, 896.09, 877.07, 836.92], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [824.8, 884.23, 796.59, 788.96], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [666.12, 1028.75, 986.17, 891.84], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [735.0, 1262.85, 926.74, 1096.22], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [885.93, 1182.76, 1165.52, 535.37], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
-  const vgvYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [3380.89, 3294.58, 3572.89, 4020.81, 3769.57], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
-  const vgvYearlyVar = ["-", "-2,6%", "+8,4%", "+12,5%", "-6,2%"];
-  const vglMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [316.95, 334.24, 240.72, 147.33, 732.04, 134.08, 99.19, 397.16, 399.09, 1082.19, 618.59, 193.82], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [null, 405.65, 121.27, 469.21, 445.18, 6.51, 96.0, 267.36, null, 443.67, 79.28, 18.23], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [114.06, 46.21, 157.85, 392.32, 765.56, 576.31, 104.32, 961.62, 319.99, 838.42, null, 385.96], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [94.56, null, 87.38, 198.66, 336.85, 474.98, 106.0, 223.64, 204.25, 59.73, 735.03, null], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [263.25, null, 129.08, 131.95, 158.47, 486.64, 180.34, null, 1199.77, 254.3, null, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
-  const vglQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [891.91, 1013.45, 895.44, 1894.59], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [526.92, 920.9, 363.36, 541.18], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [318.12, 1734.19, 1385.92, 1224.37], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [181.93, 1010.49, 533.88, 794.77], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [392.33, 777.06, 1380.1, 254.3], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
-  const vglYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [4695.39, 2352.36, 4662.61, 2521.07, 2803.79], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
-  const vglYearlyVar = ["-", "-49,9%", "+98,2%", "-45,9%", "+11,2%"];
-  const distratosMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2022", "data": [null, null, null, null, null, null, null, null, null, 47.0, 40.0, 34.0], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [34.0, 34.0, 34.0, 34.0, 31.0, 15.0, 54.0, 53.0, 43.0, 29.0, 26.0, 9.0], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [23.0, 27.0, 16.0, 13.0, 36.0, 45.0, 40.0, 27.0, 56.0, 72.0, 70.0, 41.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [29.0, 61.0, 229.0, 44.0, 21.0, 46.0, 43.0, 96.0, 35.0, 30.0, null, null], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
-  const distratosQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2022", "data": [null, null, null, 121.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [102.0, 80.0, 150.0, 64.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [66.0, 94.0, 123.0, 183.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [319.0, 111.0, 174.0, 30.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}]};
-  const distratosYearlyData = {"labels": ["2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [121.0, 396.0, 466.0, 634.0], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db"], "borderWidth": 1, "pointStyle": "circle"}]};
-  const distratosYearlyVar = ["-", "+227,3%", "+17,7%", "+36,1%"];
+  const ivvMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [8.6, 10.5, 10.9, 8.5, 8.1, 9.0, 7.7, 7.5, 8.8, 7.6, 6.5, 8.4], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [5.2, 9.0, 10.1, 8.3, 8.5, 7.2, 7.6, 10.4, 7.0, 8.4, 7.4, 7.9], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [5.7, 5.6, 7.4, 7.4, 7.9, 7.3, 5.4, 6.9, 5.6, 4.9, 5.1, 5.4], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [3.8, 4.2, 5.8, 6.3, 12.7, 7.2, 7.0, 7.6, 8.7, 6.1, 7.4, 6.4], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [5.9, 6.2, 6.6, 5.6, 7.3, 10.4, 7.3, 8.2, 9.0, 9.1, 8.0, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
+  const ivvQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [10.0, 8.5, 8.0, 7.5], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [8.1, 8.0, 8.3, 7.9], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [6.2, 7.5, 6.0, 5.1], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [4.6, 8.7, 7.8, 6.6], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [6.2, 7.8, 8.2, 8.5], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
+  const ivvYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [8.5, 8.1, 6.2, 6.9, 7.6], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
+  const ivvYearlyVar = ["-", "-5,1%", "-23,1%", "+11,5%", "+9,7%"];
+  const ofertasMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [3319.0, 3782.0, 4319.0, 4047.0, 4690.0, 4492.0, 4268.0, 4263.0, 4582.0, 4496.0, 4762.0, 5074.0], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [4693.0, 5174.0, 4761.0, 4718.0, 5026.0, 4752.0, 4322.0, 4512.0, 4273.0, 4803.0, 5028.0, 4695.0], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [4726.0, 4615.0, 4425.0, 4539.0, 5394.0, 5599.0, 5425.0, 5704.0, 6473.0, 6818.0, 6533.0, 7121.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [7533.0, 7285.0, 7014.0, 6757.0, 6908.0, 6191.0, 5866.0, 5943.0, 5784.0, 5745.0, 5746.0, 5623.0], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [5509.0, 5167.0, 5155.0, 4964.0, 4846.0, 5194.0, 4764.0, 4417.0, 5206.0, 5491.0, 5182.0, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
+  const ofertasQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [3807.0, 4410.0, 4371.0, 4777.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [4876.0, 4832.0, 4369.0, 4842.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [4589.0, 5177.0, 5867.0, 6824.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [7277.0, 6619.0, 5864.0, 5705.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [5277.0, 5001.0, 4796.0, 5337.0], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
+  const ofertasYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [4341.0, 4730.0, 5614.0, 6366.0, 5081.0], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
+  const ofertasYearlyVar = ["-", "+9,0%", "+18,7%", "+13,4%", "-20,2%"];
+  const vendasMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [285.0, 397.0, 472.0, 343.0, 378.0, 404.0, 327.0, 320.0, 405.0, 343.0, 309.0, 427.0], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [244.0, 468.0, 479.0, 392.0, 425.0, 343.0, 327.0, 468.0, 297.0, 404.0, 371.0, 372.0], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [271.0, 257.0, 327.0, 334.0, 424.0, 408.0, 291.0, 396.0, 365.0, 337.0, 334.0, 381.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [288.0, 303.0, 410.0, 423.0, 879.0, 445.0, 409.0, 449.0, 505.0, 351.0, 424.0, 360.0], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [324.0, 320.0, 340.0, 277.0, 354.0, 542.0, 350.0, 363.0, 466.0, 498.0, 416.0, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
+  const vendasQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [1154.0, 1125.0, 1052.0, 1079.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [1191.0, 1.16, 1092.0, 1147.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [855.0, 1166.0, 1052.0, 1052.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [1001.0, 1747.0, 1363.0, 1135.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [984.0, 1173.0, 1179.0, 914.0], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
+  const vendasYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [4410.0, 4590.0, 4125.0, 5246.0, 4250.0], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
+  const vendasYearlyVar = ["-", "+4,1%", "-10,1%", "+27,2%", "-19,0%"];
+  const ofertaM2MonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [328584.0, 348984.0, 365049.0, 332963.0, 395864.0, 391709.0, 364548.0, 384584.0, 417360.0, 435837.0, 482553.0, 488966.0], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [450299.0, 490458.0, 462974.0, 478250.0, 488157.0, 464450.0, 436719.0, 450954.0, 435009.0, 447730.0, 450044.0, 412271.0], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [421845.0, 413126.0, 401872.0, 411145.0, 479159.0, 479267.0, 471729.0, 499935.0, 533566.0, 569440.0, 546701.0, 574454.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [591100.0, 571358.0, 557375.0, 545977.0, 554341.0, 515059.0, 490734.0, 494771.0, 487517.0, 482654.0, 513551.0, 491979.0], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [493384.0, 468083.0, 466911.0, 505165.0, 494195.0, 530844.0, 491861.0, 416677.0, 496544.0, 528402.0, 495065.0, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
+  const ofertaM2QuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [347539.0, 373512.0, 388831.0, 469119.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [467910.0, 476952.0, 440894.0, 436682.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [412281.0, 456524.0, 501743.0, 563532.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [573278.0, 538459.0, 491007.0, 496061.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [476126.0, 510068.0, 468361.0, 511734.0], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
+  const ofertaM2YearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [394750.0, 455610.0, 483520.0, 524701.0, 489739.0], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
+  const ofertaM2YearlyVar = ["-", "+15,4%", "+6,1%", "+8,5%", "-6,7%"];
+  const vendaM2MonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [22151.0, 31038.0, 36324.0, 30346.0, 29931.0, 34113.0, 25285.0, 27914.0, 36619.0, 28549.0, 24141.0, 36319.0], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [17917.0, 33278.0, 38601.0, 30923.0, 31381.0, 26366.0, 21857.0, 35833.0, 23644.0, 27466.0, 27350.0, 26727.0], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [19187.0, 19147.0, 26795.0, 25785.0, 34638.0, 30925.0, 20686.0, 31555.0, 27314.0, 28338.0, 25952.0, 25999.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [20525.0, 21340.0, 28584.0, 31522.0, 59294.0, 33723.0, 28054.0, 28300.0, 32090.0, 23016.0, 43754.0, 23125.0], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [22432.0, 22917.0, 30854.0, 24349.0, 27281.0, 40668.0, 26642.0, 28813.0, 36775.0, 44089.0, 30151.0, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
+  const vendaM2QuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [89513.0, 94390.0, 89818.0, 89009.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [89796.0, 88670.0, 81334.0, 81543.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [65128.0, 91348.0, 79555.0, 80289.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [70449.0, 124538.0, 88445.0, 89895.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [76204.0, 92298.0, 92231.0, 74240.0], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
+  const vendaM2YearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [362730.0, 341344.0, 316320.0, 373327.0, 334972.0], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
+  const vendaM2YearlyVar = ["-", "-5,9%", "-7,3%", "+18,0%", "-10,3%"];
+  const lancMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [230.0, 662.0, 1021.0, 130.0, 852.0, 164.0, 56.0, 216.0, 248.0, 499.0, 382.0, 401.0], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [null, 550.0, 204.0, 300.0, 732.0, 40.0, 72.0, 441.0, null, 516.0, 368.0, 48.0], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [418.0, 175.0, 74.0, 407.0, 1029.0, 550.0, 108.0, 462.0, 1022.0, 644.0, null, 920.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [496.0, null, 30.0, 82.0, 607.0, 221.0, 94.0, 221.0, 233.0, 120.0, 249.0, null], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [105.0, null, 72.0, 90.0, 61.0, 456.0, 143.0, null, 294.0, 339.0, 180.0, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
+  const lancQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [1913.0, 1146.0, 520.0, 1282.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [754.0, 1072.0, 513.0, 932.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [667.0, 1986.0, 1592.0, 1564.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [526.0, 910.0, 548.0, 369.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [177.0, 607.0, 437.0, 519.0], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
+  const lancYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [4861.0, 3271.0, 5809.0, 2353.0, 1740.0], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
+  const lancYearlyVar = ["-", "-32,7%", "+77,6%", "-59,5%", "-26,1%"];
+  const lancProjMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [3.0, 4.0, 3.0, 2.0, 6.0, 2.0, 1.0, 3.0, 3.0, 8.0, 3.0, 2.0], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [null, 4.0, 2.0, 5.0, 2.0, 1.0, 1.0, 3.0, null, 3.0, 1.0, 1.0], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [2.0, 2.0, 2.0, 4.0, 5.0, 1.0, 1.0, 4.0, 2.0, 6.0, null, 3.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [0.0, null, 1.0, 2.0, 3.0, 3.0, 1.0, 1.0, 3.0, 1.0, 3.0, null], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [1.0, null, 1.0, 1.0, 1.0, 4.0, 3.0, null, 5.0, 1.0, 1.0, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
+  const lancProjQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [10.0, 10.0, 7.0, 13.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [6.0, 8.0, 4.0, 5.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [6.0, 10.0, 7.0, 9.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [1.0, 8.0, 5.0, 4.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [2.0, 6.0, 8.0, 2.0], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
+  const lancProjYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [40.0, 23.0, 32.0, 18.0, 18.0], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
+  const lancProjYearlyVar = ["-", "-32,7%", "+77,6%", "-59,5%", "-26,1%"];
+  const precosOfertaMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [10653.99, 10225.1, 9777.49, 9978.39, 10151.1, 10278.28, 10272.69, 10767.22, 10748.44, 11690.89, 11467.53, 11387.28], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [11565.08, 11689.47, 11703.49, 12085.85, 11909.77, 12202.24, 12705.77, 12808.19, 12832.52, 13096.8, 12716.95, 13085.96], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [12888.35, 12736.58, 13001.12, 13027.63, 12525.64, 12963.9, 12738.99, 13660.92, 12628.09, 12906.53, 12964.07, 12699.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [12466.25, 12533.79, 12656.19, 12730.81, 12684.01, 13510.6, 13668.6, 13665.8, 13733.35, 13747.78, 13991.32, 13890.92], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [14098.31, 14149.45, 14215.4, 14530.82, 14846.53, 14941.14, 15268.11, 15489.37, 15724.96, 15330.71, 15678.84, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
+  const precosOfertaQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [10203.55, 10144.24, 10605.91, 11508.82], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [11654.19, 12063.56, 12782.37, 12962.9], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [12874.3, 12829.7, 13005.88, 12854.62], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [12550.25, 12963.38, 13689.09, 13879.14], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [14153.34, 14775.13, 15495.17, 15499.1], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
+  const precosOfertaYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [10676.4, 12347.85, 12892.17, 13236.76, 14935.61], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
+  const precosOfertaYearlyVar = ["-", "+15,7%", "+4,4%", "+2,7%", "+12,8%"];
+  const precosVendaMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [8903.12, 8455.14, 8566.54, 9342.42, 9805.78, 9353.8, 8745.32, 10025.74, 10270.28, 9664.48, 9456.05, 9161.32], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [9407.76, 8577.41, 9606.06, 10149.81, 9730.34, 10051.57, 8257.61, 10573.48, 10032.95, 9478.14, 9757.73, 9793.82], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [9340.64, 9595.4, 11315.16, 10801.85, 10929.12, 12017.97, 11201.39, 14003.52, 11444.01, 12129.04, 11262.98, 9840.28], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [10073.22, 10488.36, 10650.14, 11116.6, 8684.12, 11787.72, 10657.8, 9891.16, 10838.99, 10689.33, 13860.85, 10539.77], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [10555.3, 10870.21, 12965.37, 13191.24, 12369.73, 12887.42, 12319.68, 12582.47, 12909.5, 12142.82, 12543.58, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
+  const precosVendaQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [8611.21, 9493.47, 9764.98, 9402.64], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [9185.28, 9972.15, 9793.99, 9675.39], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [10227.88, 11261.82, 12396.12, 11107.96], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [10433.05, 10140.21, 10478.23, 12194.49], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [11625.82, 12814.56, 12636.95, 12305.58], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
+  const precosVendaYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [9320.69, 9651.81, 11295.16, 10770.21, 12382.42], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
+  const precosVendaYearlyVar = ["-", "+3,6%", "+17,0%", "-4,6%", "+15,0%"];
+  const vgvMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [197.21, 262.43, 311.17, 283.51, 293.5, 319.09, 221.13, 279.86, 376.09, 275.91, 228.28, 332.73], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [168.56, 285.44, 370.8, 313.86, 305.35, 265.02, 180.49, 378.88, 237.22, 260.33, 266.87, 261.76], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [179.22, 183.72, 303.19, 278.53, 378.56, 371.66, 231.72, 441.88, 312.58, 343.71, 292.3, 255.84], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [206.76, 223.82, 304.42, 350.41, 514.91, 397.52, 299.0, 279.92, 347.82, 246.03, 606.46, 243.73], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [236.78, 249.11, 400.03, 321.2, 337.45, 524.11, 328.22, 362.54, 474.75, 535.37, 378.2, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
+  const vgvQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [770.81, 896.09, 877.07, 836.92], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [824.8, 884.23, 796.59, 788.96], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [666.12, 1028.75, 986.17, 891.84], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [735.0, 1262.85, 926.74, 1096.22], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [885.93, 1182.76, 1165.52, 913.57], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
+  const vgvYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [3380.89, 3294.58, 3572.89, 4020.81, 4147.77], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
+  const vgvYearlyVar = ["-", "-2,6%", "+8,4%", "+12,5%", "+3,2%"];
+  const vglMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [316.95, 334.24, 240.72, 147.33, 732.04, 134.08, 99.19, 397.16, 399.09, 1082.19, 618.59, 193.82], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [null, 405.65, 121.27, 469.21, 445.18, 6.51, 96.0, 267.36, null, 443.67, 79.28, 18.23], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [114.06, 46.21, 157.85, 392.32, 765.56, 576.31, 104.32, 961.62, 319.99, 838.42, null, 385.96], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [94.56, null, 87.38, 198.66, 336.85, 474.98, 106.0, 223.64, 204.25, 59.73, 735.03, null], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [263.25, null, 129.08, 131.95, 158.47, 486.64, 180.34, null, 1199.77, 254.3, 170.48, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
+  const vglQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [891.91, 1013.45, 895.44, 1894.59], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [526.92, 920.9, 363.36, 541.18], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [318.12, 1734.19, 1385.92, 1224.37], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [181.93, 1010.49, 533.88, 794.77], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [392.33, 777.06, 1380.1, 424.78], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
+  const vglYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [4695.39, 2352.36, 4662.61, 2521.07, 2974.27], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
+  const vglYearlyVar = ["-", "-49,9%", "+98,2%", "-45,9%", "+18,0%"];
+  const distratosMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2022", "data": [null, null, null, null, null, null, null, null, null, 47.0, 40.0, 34.0], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [34.0, 34.0, 34.0, 34.0, 31.0, 15.0, 54.0, 53.0, 43.0, 29.0, 26.0, 9.0], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [23.0, 27.0, 16.0, 13.0, 36.0, 45.0, 40.0, 27.0, 56.0, 72.0, 70.0, 41.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [29.0, 61.0, 229.0, 44.0, 21.0, 46.0, 43.0, 96.0, 35.0, 30.0, 23.0, null], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
+  const distratosQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2022", "data": [null, null, null, 121.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [102.0, 80.0, 150.0, 64.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [66.0, 94.0, 123.0, 183.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [319.0, 111.0, 174.0, 53.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}]};
+  const distratosYearlyData = {"labels": ["2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [121.0, 396.0, 466.0, 657.0], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db"], "borderWidth": 1, "pointStyle": "circle"}]};
+  const distratosYearlyVar = ["-", "+227,3%", "+17,7%", "+41,0%"];
 
 
 // ---------- Config base (legenda com bolinhas)
@@ -2068,7 +2309,7 @@ window.addEventListener('load', function() {
           // finalizar
           container.style.display = 'none';
           document.body.style.overflow = '';
-          // sair de tela cheia, se ativo (mantido para casos onde fullscreen foi ativado por outros meios)
+          // sair de tela cheia, se ativo
           if (document.fullscreenElement) {
             const exitFull = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
             if (exitFull) exitFull.call(document);
@@ -2076,21 +2317,16 @@ window.addEventListener('load', function() {
           if (btn) btn.textContent = 'Iniciar Apresentação';
           // remover slides e restaurar elementos
           detachSlides();
-          console.log('Modo apresentação finalizado');
         } else {
           createSlides();
           attachSlides();
           container.style.display = 'block';
           document.body.style.overflow = 'hidden';
-          // solicitar tela cheia, se suportado (DESABILITADO para evitar ESC duplo)
-          // ORIGINAL: 
-          // if (document.fullscreenEnabled) {
-          //   const reqFull = container.requestFullscreen || container.webkitRequestFullscreen || container.mozRequestFullScreen || container.msRequestFullscreen;
-          //   if (reqFull) reqFull.call(container);
-          // }
-          // 
-          // ALTERNATIVA: Manter apresentação sem fullscreen para ESC único
-          console.log('Modo apresentação iniciado (fullscreen desabilitado para ESC único)');
+          // solicitar tela cheia, se suportado
+          if (document.fullscreenEnabled) {
+            const reqFull = container.requestFullscreen || container.webkitRequestFullscreen || container.mozRequestFullScreen || container.msRequestFullscreen;
+            if (reqFull) reqFull.call(container);
+          }
           // current já foi definido em createSlides()
           showSlide(current);
           if (btn) btn.textContent = 'Finalizar Apresentação';
@@ -2102,6 +2338,28 @@ window.addEventListener('load', function() {
           startPresentation();
         });
       }
+      // Monitorar saída do fullscreen para finalizar apresentação automaticamente
+      document.addEventListener('fullscreenchange', () => {
+        if (container.style.display === 'block' && !document.fullscreenElement) {
+          // Usuário saiu do fullscreen (provavelmente via ESC)
+          // Finalizar apresentação automaticamente após delay
+          setTimeout(() => startPresentation(), 100);
+        }
+      });
+      
+      // Compatibilidade cross-browser para fullscreenchange
+      document.addEventListener('webkitfullscreenchange', () => {
+        if (container.style.display === 'block' && !document.webkitFullscreenElement) {
+          setTimeout(() => startPresentation(), 100);
+        }
+      });
+      
+      document.addEventListener('mozfullscreenchange', () => {
+        if (container.style.display === 'block' && !document.mozFullScreenElement) {
+          setTimeout(() => startPresentation(), 100);
+        }
+      });
+
       // Navegação via teclado
       document.addEventListener('keydown', (e) => {
         if (container.style.display === 'block') {
@@ -2118,8 +2376,11 @@ window.addEventListener('load', function() {
             }
             e.preventDefault();
           } else if (e.key === 'Escape') {
-            // ESC sempre finaliza a apresentação (sem fullscreen, sem duplo ESC)
-            startPresentation();
+            // Se não estiver em fullscreen, finalizar diretamente
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement) {
+              startPresentation();
+            }
+            // Se estiver em fullscreen, o evento fullscreenchange cuidará da finalização
           }
         }
       });
