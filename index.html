@@ -138,7 +138,7 @@
       <div class="header-text">
         <h1>📊 Pesquisa IVV Residencial</h1>
         <p>Índice de Velocidade de Vendas - Análise Executiva</p>
-        <small>Relatório gerado em: 24/12/2025 10:02</small>
+        <small>Relatório gerado em: 24/12/2025 10:44</small>
       </div>
     </div>
   </div>
@@ -248,7 +248,7 @@
         <div class="highlight-box">
           <h3>Melhor trimestre: 3T - 8,2%</h3>
           <p>Destaque trimestral (melhor performance)</p>
-          <p class="observation"><em>* Trimestre incompleto (dados até Out/2025)</em></p>
+          
         </div>
       </div>
       <div class="chart-container">
@@ -256,9 +256,9 @@
         <div class="chart-subtitle">Performance anual consolidada (%)</div>
         <div class="chart-wrapper small"><canvas id="ivvYearlyChart"></canvas></div>
         <div class="highlight-box">
-          <h3>2025 *: 7,6% (+9,1%)</h3>
+          <h3>2025: 7,6% (+9,1%)</h3>
           <p>Performance anual</p>
-          <p class="observation"><em>* Ano incompleto (dados até Set/2025)</em></p>
+          
         </div>
       </div>
     </div>
@@ -837,7 +837,7 @@ function showSection(sectionId) {
 // ---------- Datasets (injetados pelo Python)
   const ivvMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [8.6, 10.5, 10.9, 8.5, 8.1, 9.0, 7.7, 7.5, 8.8, 7.6, 6.5, 8.4], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [5.2, 9.0, 10.1, 8.3, 8.5, 7.2, 7.6, 10.4, 7.0, 8.4, 7.4, 7.9], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [5.7, 5.6, 7.4, 7.4, 7.9, 7.3, 5.4, 6.9, 5.6, 4.9, 5.1, 5.4], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [3.8, 4.2, 5.8, 6.3, 12.7, 7.2, 7.0, 7.6, 8.7, 6.1, 7.4, 6.4], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [5.9, 6.2, 6.6, 5.6, 7.3, 10.4, 7.3, 8.2, null, null, null, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
   const ivvQuarterlyData = {"labels": ["1T", "2T", "3T", "4T"], "datasets": [{"label": "2021", "data": [10.0, 8.5, 8.0, 7.5], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [8.1, 8.0, 8.3, 7.9], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [6.2, 7.5, 6.0, 5.1], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [4.6, 8.7, 7.8, 6.6], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025", "data": [6.2, 7.8, 8.2, null], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
-  const ivvYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [8.5, 8.1, 6.2, 6.9, 7.6], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
+  const ivvYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025"], "datasets": [{"label": "Valor", "data": [8.5, 8.1, 6.2, 6.9, 7.6], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
   const ivvYearlyVar = ["-", "-5,1%", "-23,1%", "+11,5%", "+9,1%"];
   const ofertasMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [3319.0, 3782.0, 4319.0, 4047.0, 4690.0, 4492.0, 4268.0, 4263.0, 4582.0, 4496.0, 4762.0, 5074.0], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [4693.0, 5174.0, 4761.0, 4718.0, 5026.0, 4752.0, 4322.0, 4512.0, 4273.0, 4803.0, 5028.0, 4695.0], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [4726.0, 4615.0, 4425.0, 4539.0, 5394.0, 5599.0, 5425.0, 5704.0, 6473.0, 6818.0, 6533.0, 7121.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [7533.0, 7285.0, 7014.0, 6757.0, 6908.0, 6191.0, 5866.0, 5943.0, 5784.0, 5745.0, 5746.0, 5623.0], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [5509.0, 5167.0, 5155.0, 4964.0, 4846.0, 5194.0, 4764.0, 4417.0, 5206.0, 5491.0, null, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
   const ofertasQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [3807.0, 4410.0, 4371.0, 4777.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [4876.0, 4832.0, 4369.0, 4842.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [4589.0, 5177.0, 5867.0, 6824.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [7277.0, 6619.0, 5864.0, 5705.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [5277.0, 5001.0, 4796.0, 5491.0], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
@@ -2068,7 +2068,7 @@ window.addEventListener('load', function() {
           // finalizar
           container.style.display = 'none';
           document.body.style.overflow = '';
-          // sair de tela cheia, se ativo
+          // sair de tela cheia, se ativo (mantido para casos onde fullscreen foi ativado por outros meios)
           if (document.fullscreenElement) {
             const exitFull = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
             if (exitFull) exitFull.call(document);
@@ -2076,16 +2076,21 @@ window.addEventListener('load', function() {
           if (btn) btn.textContent = 'Iniciar Apresentação';
           // remover slides e restaurar elementos
           detachSlides();
+          console.log('Modo apresentação finalizado');
         } else {
           createSlides();
           attachSlides();
           container.style.display = 'block';
           document.body.style.overflow = 'hidden';
-          // solicitar tela cheia, se suportado
-          if (document.fullscreenEnabled) {
-            const reqFull = container.requestFullscreen || container.webkitRequestFullscreen || container.mozRequestFullScreen || container.msRequestFullscreen;
-            if (reqFull) reqFull.call(container);
-          }
+          // solicitar tela cheia, se suportado (DESABILITADO para evitar ESC duplo)
+          // ORIGINAL: 
+          // if (document.fullscreenEnabled) {
+          //   const reqFull = container.requestFullscreen || container.webkitRequestFullscreen || container.mozRequestFullScreen || container.msRequestFullscreen;
+          //   if (reqFull) reqFull.call(container);
+          // }
+          // 
+          // ALTERNATIVA: Manter apresentação sem fullscreen para ESC único
+          console.log('Modo apresentação iniciado (fullscreen desabilitado para ESC único)');
           // current já foi definido em createSlides()
           showSlide(current);
           if (btn) btn.textContent = 'Finalizar Apresentação';
@@ -2113,6 +2118,7 @@ window.addEventListener('load', function() {
             }
             e.preventDefault();
           } else if (e.key === 'Escape') {
+            // ESC sempre finaliza a apresentação (sem fullscreen, sem duplo ESC)
             startPresentation();
           }
         }
