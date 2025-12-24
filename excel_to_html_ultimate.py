@@ -943,7 +943,7 @@ def extract_summary_values(data_dict, highlights):
             last_dataset = vgv_data['datasets'][-1]
             for i in range(len(last_dataset['data']) - 1, -1, -1):
                 if last_dataset['data'][i] is not None:
-                    summary['vgv'] = f"{br_currency(last_dataset['data'][i], 0)}M"
+                    summary['vgv'] = f"{br_currency(last_dataset['data'][i], 0)}Mi"
                     arrow = compute_arrow_from_series(last_dataset['data'])
                     summary['vgv_trend'] = arrow if arrow else get_trend_arrow('VGV')
                     break
@@ -955,7 +955,7 @@ def extract_summary_values(data_dict, highlights):
             last_dataset = vgl_data['datasets'][-1]
             for i in range(len(last_dataset['data']) - 1, -1, -1):
                 if last_dataset['data'][i] is not None:
-                    summary['vgl'] = f"{br_currency(last_dataset['data'][i], 0)}M"
+                    summary['vgl'] = f"{br_currency(last_dataset['data'][i], 0)}Mi"
                     arrow = compute_arrow_from_series(last_dataset['data'])
                     summary['vgl_trend'] = arrow if arrow else get_trend_arrow('VGL')
                     break
@@ -4203,16 +4203,16 @@ def main():
                 lancproj_insights = format_new_insights(sheets[lanc_month_sheet], data_type='number', month_ref=month_ref)
                 
                 # Adaptar os insights para empreendimentos (projetos)
-                highlights['LancProj MoM'] = lancproj_insights['mom'].replace('Variação MoM:', 'Variação MoM (projetos):')
-                highlights['LancProj YoY'] = lancproj_insights['yoy'].replace('Variação YoY:', 'Variação YoY (projetos):')
+                highlights['LancProj MoM'] = lancproj_insights['mom'].replace('Variação MoM:', 'Variação MoM (empreendimentos):')
+                highlights['LancProj YoY'] = lancproj_insights['yoy'].replace('Variação YoY:', 'Variação YoY (empreendimentos):')
                 
                 # Para pico e média, usar os dados calculados dos valores entre colchetes
                 proj_peak = calc_peak(cur_vals)
-                highlights['LancProj Peak'] = f"Pico: {br_int(proj_peak)} projetos" if proj_peak is not None else "Pico: n/d"
+                highlights['LancProj Peak'] = f"Pico: {br_int(proj_peak)} empreendimentos" if proj_peak is not None else "Pico: n/d"
                 
                 # Calcular média anual dos projetos
                 proj_yearly_avg = sum([v for v in cur_vals if v is not None]) / len([v for v in cur_vals if v is not None]) if cur_vals else None
-                highlights['LancProj Yearly Avg'] = f"Média anual: {br_int(proj_yearly_avg)} projetos" if proj_yearly_avg is not None else "Média anual: n/d"
+                highlights['LancProj Yearly Avg'] = f"Média anual: {br_int(proj_yearly_avg)} empreendimentos" if proj_yearly_avg is not None else "Média anual: n/d"
                 
                 # Manter cálculo de tendência para as setas
                 proj_trend = calc_trend(cur_vals)
@@ -4427,7 +4427,7 @@ def main():
         # Encontrar melhor trimestre (não sempre o último)
         best_value, best_quarter = find_best_quarter_with_performance(sheets['VGV Trimestral (R$ Milhões)'], data_type='currency')
         if best_value is not None and best_quarter:
-            highlights['VGV Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value)}M"
+            highlights['VGV Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value)}Mi"
         
         # Extrair observações sobre dados incompletos
         observation = extract_observation_from_sheet(sheets['VGV Trimestral (R$ Milhões)'])
@@ -4446,7 +4446,7 @@ def main():
                     continue
                 year = str(row.iloc[0])
                 var_str = str(row.iloc[2]) if len(row) > 2 and not pd.isna(row.iloc[2]) else ''
-                highlights['VGV Annual'] = f"{year}: {br_currency(val)} ({var_str})"
+                highlights['VGV Annual'] = f"{year}: {br_currency(val)}Mi ({var_str})"
                 break
 
         # Extrair observações sobre dados incompletos
@@ -4480,7 +4480,7 @@ def main():
         # Encontrar melhor trimestre (não sempre o último)
         best_value, best_quarter = find_best_quarter_with_performance(sheets['VGL Trimestral (R$ Milhões)'], data_type='currency')
         if best_value is not None and best_quarter:
-            highlights['VGL Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value)}M"
+            highlights['VGL Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value)}Mi"
         
         # Extrair observações sobre dados incompletos
         observation = extract_observation_from_sheet(sheets['VGL Trimestral (R$ Milhões)'])
@@ -4499,7 +4499,7 @@ def main():
                     continue
                 year = str(row.iloc[0])
                 var_str = str(row.iloc[2]) if len(row) > 2 and not pd.isna(row.iloc[2]) else ''
-                highlights['VGL Annual'] = f"{year}: {br_currency(val)} ({var_str})"
+                highlights['VGL Annual'] = f"{year}: {br_currency(val)}Mi ({var_str})"
                 break
 
         # Extrair observações sobre dados incompletos
