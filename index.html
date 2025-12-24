@@ -185,6 +185,21 @@
       .region-table th, .region-table td { 
         padding: 6px 8px; 
         font-size: 0.85em; 
+        min-width: 60px; /* Reduzir largura mínima em mobile */
+      }
+      
+      .region-table th:first-child,
+      .region-table td:first-child {
+        min-width: 90px; /* Largura reduzida para região em mobile */
+      }
+      
+      .table-wrapper {
+        border-radius: 6px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      }
+      
+      .region-table {
+        min-width: 500px; /* Largura mínima reduzida para mobile */
       }
     }
     
@@ -294,26 +309,94 @@
     .metric-item:nth-child(10) { border-left-color:#8e44ad; }
     .metric-item:nth-child(11) { border-left-color:#d35400; }
     /* Estilos para as tabelas regionais */
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch; /* Smooth scrolling no iOS */
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-top: 15px;
+      position: relative;
+    }
+    
+    /* Indicador visual de scroll horizontal */
+    .table-wrapper::-webkit-scrollbar {
+      height: 6px;
+    }
+    
+    .table-wrapper::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+    
+    .table-wrapper::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 3px;
+    }
+    
+    .table-wrapper::-webkit-scrollbar-thumb:hover {
+      background: #a1a1a1;
+    }
+    
+    /* Sombra para indicar mais conteúdo à direita */
+    .table-wrapper::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 6px; /* Espaço para scrollbar */
+      width: 20px;
+      background: linear-gradient(to left, rgba(255,255,255,0.8), transparent);
+      pointer-events: none;
+      border-radius: 0 8px 8px 0;
+    }
+    
     .region-table {
       width: 100%;
+      min-width: 600px; /* Garante largura mínima para não comprimir */
       border-collapse: collapse;
-      margin-top: 15px;
+      margin: 0; /* Remove margin para ficar dentro do wrapper */
+      background: white;
     }
+    
     .region-table th, .region-table td {
       padding: 8px 12px;
       border: 1px solid #ddd;
       text-align: center;
-      white-space: nowrap;
+      white-space: nowrap; /* Evita quebra de linha */
+      min-width: 80px; /* Largura mínima das colunas */
     }
+    
     .region-table th {
       background-color: #f2f2f2;
       font-weight: 600;
+      position: sticky; /* Cabeçalho fixo no scroll horizontal */
+      top: 0;
+      z-index: 10;
     }
+    
     .region-table tr:nth-child(even) {
       background-color: #f9f9f9;
     }
+    
     .region-table tr:hover {
       background-color: #f5f5f5;
+    }
+    
+    /* Primeira coluna (Região) fixa no scroll horizontal */
+    .region-table th:first-child,
+    .region-table td:first-child {
+      position: sticky;
+      left: 0;
+      background-color: inherit;
+      z-index: 11;
+      box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+      min-width: 120px; /* Largura adequada para nomes de região */
+    }
+    
+    .region-table th:first-child {
+      background-color: #f2f2f2;
+      z-index: 12; /* Maior que as células para ficar por cima */
     }
 
     /* Slide Presentation Styles */
@@ -342,13 +425,31 @@
     }
 
     /* Ajuste para tabelas em modo apresentação */
-    #presentationContainer .region-table {
-      max-height: 80vh;
+    #presentationContainer .table-wrapper {
+      max-height: 70vh;
       overflow-y: auto;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 6px;
+      background: white;
     }
-    #presentationContainer .region-table table {
+    
+    #presentationContainer .region-table {
+      max-height: none;
+      min-width: 500px;
       font-size: 14px;
-      margin-bottom: 0;
+      margin: 0;
+    }
+    
+    #presentationContainer .region-table th,
+    #presentationContainer .region-table td {
+      padding: 6px 10px;
+      font-size: 13px;
+    }
+    
+    #presentationContainer .region-table th:first-child,
+    #presentationContainer .region-table td:first-child {
+      min-width: 100px;
     }
 
     #presentationControls {
@@ -373,7 +474,7 @@
       <div class="header-text">
         <h1>📊 Pesquisa IVV Residencial</h1>
         <p>Índice de Velocidade de Vendas - Análise Executiva</p>
-        <small>Relatório gerado em: 24/12/2025 13:12</small>
+        <small>Relatório gerado em: 24/12/2025 13:23</small>
       </div>
     </div>
   </div>
