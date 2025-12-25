@@ -477,6 +477,9 @@ def parse_region_table(df: pd.DataFrame) -> pd.DataFrame:
     # Remover linhas sem região
     df_region = df_region[df_region['Região'].notna()].copy()
 
+    # Renomear "Total Geral" para "Preço Médio" nas tabelas de preços
+    df_region['Região'] = df_region['Região'].astype(str).str.replace('Total Geral', 'Preço Médio', regex=False)
+
     # Conversão numérica para ordenação
     def to_float(val: any) -> float:
         v = parse_number(val)
@@ -714,6 +717,71 @@ def calc_yoy(current_values: list, prev_values: list, is_percent: bool) -> str:
 # -------------------------
 # Datasets Chart.js
 # -------------------------
+def sanitize_and_validate_data(data_list: list, data_type: str = 'number', context: str = '') -> list:
+    """
+    Sanitiza e valida robustamente uma lista de dados para gráficos.
+    Previne erros de parsing e garante dados consistentes.
+    
+    Args:
+        data_list: Lista de valores para sanitizar
+        data_type: 'number', 'percent', ou 'currency'
+        context: Nome do contexto para logging (ex: 'Distratos Quarterly')
+    
+    Returns:
+        Lista sanitizada com valores válidos ou None
+    """
+    sanitized = []
+    invalid_count = 0
+    
+    for i, val in enumerate(data_list):
+        try:
+            if data_type == 'percent':
+                parsed = parse_percentage(val)
+            else:
+                parsed = parse_number(val)
+            
+            # Validações específicas por tipo
+            if parsed is not None:
+                # Para valores não percentuais, detectar possíveis problemas de escala
+                if data_type != 'percent':
+                    # CORREÇÃO ROBUSTA: valores suspeitos em formato decimal
+                    # EXCEÇÃO: Distratos podem ter valores baixos naturalmente
+                    if 0.001 <= parsed < 100 and 'distratos' not in context.lower():
+                        # Muito provável que seja valor em milhares (ex: 1.16 → 1160)
+                        original_parsed = parsed
+                        parsed = parsed * 1000
+                        print(f"   🔧 {context}: Corrigido valor suspeito {original_parsed} → {parsed} (posição {i})")
+                    
+                    # Detectar valores negativos inesperados em métricas que devem ser positivas
+                    if parsed < 0 and context and any(x in context.lower() for x in ['ofertas', 'vendas', 'lançamentos']):
+                        print(f"   ⚠️  {context}: Valor negativo suspeito detectado: {parsed} (posição {i}) - mantido como 0")
+                        parsed = 0
+                
+                # Validação de ranges sensatos
+                if data_type == 'percent':
+                    if not (-100 <= parsed <= 1000):  # Percentuais fora de range normal
+                        print(f"   ⚠️  {context}: Percentual fora de range: {parsed}% (posição {i}) - limitado")
+                        parsed = max(-100, min(1000, parsed))
+                elif data_type in ['number', 'currency']:
+                    if parsed > 10**12:  # Valores muito grandes - possível erro
+                        print(f"   ⚠️  {context}: Valor muito grande: {parsed} (posição {i}) - tratado como None")
+                        parsed = None
+            
+            sanitized.append(parsed)
+            
+        except Exception as e:
+            print(f"   ❌ {context}: Erro ao processar valor '{val}' (posição {i}): {e}")
+            sanitized.append(None)
+            invalid_count += 1
+    
+    # Log de estatísticas
+    valid_count = len([x for x in sanitized if x is not None])
+    if context and (invalid_count > 0 or any('corrigido' in str(x).lower() for x in sanitized if x)):
+        print(f"   📊 {context}: {valid_count}/{len(sanitized)} valores válidos, {invalid_count} erros tratados")
+    
+    return sanitized
+
+
 def build_monthly_dataset(df: pd.DataFrame, is_percent: bool = False) -> dict:
     df_clean = clean_dataframe(df)
     if df_clean.empty:
@@ -756,55 +824,101 @@ def build_monthly_dataset(df: pd.DataFrame, is_percent: bool = False) -> dict:
     return {'labels': labels, 'datasets': datasets}
 
 
-def build_quarterly_dataset(df: pd.DataFrame, is_percent: bool = False) -> dict:
+def build_quarterly_dataset(df: pd.DataFrame, is_percent: bool = False, context_prefix: str = "") -> dict:
+    """Build quarterly dataset with robust data validation"""
     df_clean = clean_dataframe(df)
     if df_clean.empty:
+        print("   ⚠️  DataFrame vazio para dataset trimestral")
         return {'labels': [], 'datasets': []}
 
-    labels = df_clean.iloc[:, 0].astype(str).tolist()
+    # Extract labels (quarters) with validation
+    labels = []
+    for val in df_clean.iloc[:, 0]:
+        if pd.isna(val):
+            continue
+        str_val = str(val).strip()
+        if str_val and str_val.lower() not in ['nan', 'none', '']:
+            labels.append(str_val)
+    
+    if not labels:
+        print("   ⚠️  Nenhum rótulo trimestral válido encontrado")
+        return {'labels': [], 'datasets': []}
+
     datasets = []
     for idx, year in enumerate(df_clean.columns[1:]):
-        colour = COLOURS[idx % len(COLOURS)]
-        data = []
-        for val in df_clean[year]:
-            parsed = parse_percentage(val) if is_percent else parse_number(val)
+        if year is None or pd.isna(year):
+            continue
             
-            # CORREÇÃO: Detectar valores suspeitos em formato decimal
-            if parsed is not None and not is_percent and 0.1 <= parsed < 100:
-                # Provável valor em milhares (ex: 1.16 → 1160)
-                parsed = parsed * 1000
-                
-            data.append(parsed)
+        year_str = str(year).strip()
+        if not year_str or year_str.lower() in ['nan', 'none', '']:
+            continue
+            
+        # Usar context_prefix se fornecido, senão usar padrão
+        if context_prefix:
+            context = f"{context_prefix} Quarterly {year_str}"
+        else:
+            context = f"Quarterly {year_str}"
+        data_type = 'percent' if is_percent else 'number'
+        
+        # Extrair dados brutos e sanitizar
+        raw_data = df_clean[year].tolist()[:len(labels)]  # Limitar ao número de labels
+        data = sanitize_and_validate_data(raw_data, data_type, context)
+        
+        # Ajustar tamanho se necessário
+        while len(data) < len(labels):
+            data.append(None)
+        data = data[:len(labels)]
+
+        colour = COLOURS[idx % len(COLOURS)]
 
         datasets.append({
-            'label': str(year).strip(),
+            'label': year_str,
             'data': data,
             'backgroundColor': f"rgba({int(colour[1:3],16)}, {int(colour[3:5],16)}, {int(colour[5:7],16)}, 0.80)",
             'borderColor': colour,
             'borderWidth': 2,
             'pointStyle': 'circle',
         })
+    
     return {'labels': labels, 'datasets': datasets}
 
 
 def build_yearly_dataset(df: pd.DataFrame, is_percent: bool = False) -> tuple:
+    """Build yearly dataset with robust data validation"""
     df_clean = clean_dataframe(df)
     if df_clean.empty:
+        print("   ⚠️  DataFrame vazio para dataset anual")
         return ({'labels': [], 'datasets': []}, [])
 
     labels, values, variations = [], [], []
 
     for _, row in df_clean.iterrows():
+        if pd.isna(row.iloc[0]):
+            continue
+            
         year = str(row.iloc[0]).strip()
+        if not year or year.lower() in ['nan', 'none', '']:
+            continue
+            
         labels.append(year)
 
-        val = parse_percentage(row.iloc[1]) if is_percent else parse_number(row.iloc[1])
+        # Sanitizar valor principal
+        raw_value = row.iloc[1] if len(row) > 1 else None
+        data_type = 'percent' if is_percent else 'number'
+        context = f"Annual {year}"
+        sanitized_values = sanitize_and_validate_data([raw_value], data_type, context)
+        val = sanitized_values[0] if sanitized_values else None
         values.append(val)
 
+        # Variação
         if len(row) > 2 and not pd.isna(row.iloc[2]):
             variations.append(str(row.iloc[2]).strip())
         else:
             variations.append('-')
+
+    if not labels:
+        print("   ⚠️  Nenhum dado anual válido encontrado")
+        return ({'labels': [], 'datasets': []}, [])
 
     colors = [COLOURS[i % len(COLOURS)] for i in range(len(values))]
 
@@ -825,23 +939,71 @@ def build_yearly_dataset(df: pd.DataFrame, is_percent: bool = False) -> tuple:
 def build_monthly_dataset_bracket(df: pd.DataFrame) -> dict:
     """
     Constrói dataset mensal para valores de empreendimentos (números entre colchetes).
-    O DataFrame deve ter a primeira coluna com labels (meses) e as demais com anos.
+    Versão robusta com sanitização de dados.
     """
     df_clean = clean_dataframe(df)
     if df_clean.empty:
+        print("   ⚠️  DataFrame vazio para dataset mensal bracket")
         return {'labels': [], 'datasets': []}
 
-    labels = [str(v).strip() for v in df_clean.iloc[:, 0]]
+    # Labels com validação
+    labels = []
+    for v in df_clean.iloc[:, 0]:
+        if pd.isna(v):
+            continue
+        str_val = str(v).strip()
+        if str_val and str_val.lower() not in ['nan', 'none', '']:
+            labels.append(str_val)
+    
+    if not labels:
+        print("   ⚠️  Nenhum rótulo válido para bracket dataset")
+        return {'labels': [], 'datasets': []}
+
     datasets = []
     for idx, col in enumerate(df_clean.columns[1:]):
-        values = [parse_bracket_number(v) for v in df_clean[col]]
+        if col is None or pd.isna(col):
+            continue
+            
+        col_str = str(col).strip()
+        if not col_str or col_str.lower() in ['nan', 'none', '']:
+            continue
+        
+        context = f"Monthly Bracket {col_str}"
+        
+        # Extrair valores com parse_bracket_number
+        raw_data = df_clean[col].tolist()[:len(labels)]
+        values = []
+        invalid_count = 0
+        
+        for i, val in enumerate(raw_data):
+            try:
+                parsed = parse_bracket_number(val)
+                # Validação de range para números de empreendimentos
+                if parsed is not None and parsed < 0:
+                    print(f"   ⚠️  {context}: Número de empreendimentos negativo: {parsed} (posição {i}) - tratado como None")
+                    parsed = None
+                elif parsed is not None and parsed > 1000:  # Muito improvável ter >1000 empreendimentos/mês
+                    print(f"   ⚠️  {context}: Número de empreendimentos muito alto: {parsed} (posição {i}) - mantido mas suspeito")
+                values.append(parsed)
+            except Exception as e:
+                print(f"   ❌ {context}: Erro ao processar valor bracket '{val}' (posição {i}): {e}")
+                values.append(None)
+                invalid_count += 1
+        
+        # Ajustar tamanho
+        while len(values) < len(labels):
+            values.append(None)
+        values = values[:len(labels)]
+        
+        valid_count = len([x for x in values if x is not None])
+        if invalid_count > 0:
+            print(f"   📊 {context}: {valid_count}/{len(values)} valores válidos, {invalid_count} erros tratados")
+        
         color = COLOURS[idx % len(COLOURS)]
-        # Definir propriedades semelhantes aos demais gráficos de linha
         dataset = {
-            'label': str(col),
+            'label': col_str,
             'data': values,
             'borderColor': color,
-            # utilizar leve transparência para área preenchida
             'backgroundColor': f"rgba({int(color[1:3],16)}, {int(color[3:5],16)}, {int(color[5:7],16)}, 0.10)",
             'borderWidth': 2,
             'tension': 0.4,
@@ -2049,7 +2211,7 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
   <div class="header">
     <div class="month-ref">📅 Mês Ref.: {month_ref}</div>
     <div class="header-content">
-      <img src="https://raw.githubusercontent.com/aag1974/apn-ivv/main/logo_opiniao.png" alt="Opinião Logo" class="logo">
+      <img src="https://raw.githubusercontent.com/aag1974/apn-ivv/main/logo.png" alt="Opinião Logo" class="logo">
       <div class="header-text">
         <h1>📊 Pesquisa IVV Residencial</h1>
         <p>Índice de Velocidade de Vendas - Análise Executiva</p>
@@ -3791,6 +3953,7 @@ window.addEventListener('load', function() {
     });
   }
   if (typeof distratosQuarterlyData !== 'undefined') {
+    // Configuração específica para distratos trimestrais - valores baixos (dezenas/centenas)
     new Chart(document.getElementById('distratosQuarterlyChart'), {
       type: 'bar',
       data: distratosQuarterlyData,
@@ -3801,15 +3964,17 @@ window.addEventListener('load', function() {
           legend: legendCircle,
           tooltip: {
             callbacks: {
-              label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`
+              label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y} unidades`
             }
           }
         },
         scales: {
           y: {
-            beginAtZero: false,
+            beginAtZero: true,
+            max: 400, // Força escala máxima apropriada para distratos
             ticks: {
-              callback: (v) => v.toLocaleString('pt-BR', { maximumFractionDigits: 0 })
+              stepSize: 50,
+              callback: (v) => v // Apenas o número, sem "un."
             }
           }
         },
@@ -4153,6 +4318,70 @@ window.addEventListener('load', function() {
         }
       });
     })();
+  </script>
+
+  <!-- 🎨 COLORAÇÃO CONDICIONAL DOS DESTAQUES DOS GRÁFICOS MENSAIS -->
+  <script>
+    function colorizeInsights() {
+      console.log('🎨 Aplicando coloração condicional nos destaques...');
+      
+      // Procurar todas as seções de insights dos gráficos mensais
+      const insightSections = document.querySelectorAll('.insights ul li');
+      let coloredCount = 0;
+      
+      insightSections.forEach(item => {
+        const text = item.textContent;
+        
+        // Melhor detecção de valores positivos e negativos
+        // Procurar por padrões como: "-12,4%", "7,6%", "+8,8%", "-R$ 123M"
+        const negativePattern = /-\s*(\d+[,.]?\d*%?|\d+[,.]?\d*[MK]?|R\$\s*\d+[,.]?\d*[MK]?)/;
+        const explicitPositivePattern = /\+\s*(\d+[,.]?\d*%?|\d+[,.]?\d*[MK]?|R\$\s*\d+[,.]?\d*[MK]?)/;
+        
+        // Para valores sem sinal explícito, considerar contexto
+        // Se contém "MoM" ou "YoY" e não tem sinal negativo, verificar se é positivo
+        const hasVariationContext = /\b(MoM|YoY|Variação)\b/i.test(text);
+        const percentPattern = /(\d+[,.]?\d*%)/;
+        
+        let hasNegative = negativePattern.test(text);
+        let hasExplicitPositive = explicitPositivePattern.test(text);
+        
+        // Para variações sem sinal explícito, assumir positivo se não for negativo
+        let hasImplicitPositive = false;
+        if (hasVariationContext && !hasNegative && !hasExplicitPositive && percentPattern.test(text)) {
+          hasImplicitPositive = true;
+        }
+        
+        if (hasNegative || hasExplicitPositive || hasImplicitPositive) {
+          // Aplicar APENAS COR - sem qualquer formatação adicional
+          if ((hasExplicitPositive || hasImplicitPositive) && !hasNegative) {
+            item.style.color = '#27ae60'; // Verde para positivo
+            coloredCount++;
+          } else if (hasNegative) {
+            item.style.color = '#e74c3c'; // Vermelho para negativo
+            coloredCount++;
+          }
+          
+          // REMOVIDO: Qualquer padding, margin, background, border, etc.
+          // Aplicar APENAS a cor para não interferir no layout
+        }
+      });
+      
+      console.log(`🎨 Coloração concluída: ${coloredCount} itens coloridos`);
+    }
+    
+    // Aplicar colorização após carregamento da página
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', colorizeInsights);
+    } else {
+      colorizeInsights();
+    }
+    
+    // Também aplicar quando trocar de seção (caso lazy loading)
+    window.addEventListener('load', () => {
+      setTimeout(colorizeInsights, 500);
+    });
+    
+    console.log('🎨 Sistema de colorização de insights ativado!');
   </script>
 
 </body>
@@ -4944,7 +5173,7 @@ def main():
         # Encontrar melhor trimestre (não sempre o último)
         best_value, best_quarter = find_best_quarter_with_performance(sheets[vgv_ofertas_quart], data_type='currency')
         if best_value is not None and best_quarter:
-            highlights['VGVOfertas Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value)}M"
+            highlights['VGVOfertas Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value, 0)}M"
         
         # Extrair observações sobre dados incompletos
         observation = extract_observation_from_sheet(sheets[vgv_ofertas_quart])
@@ -4964,7 +5193,7 @@ def main():
                     continue
                 year = str(row.iloc[0])
                 var_str = str(row.iloc[2]) if len(row) > 2 and not pd.isna(row.iloc[2]) else ''
-                highlights['VGVOfertas Annual'] = f"{year}: {br_currency(val)}M ({var_str})"
+                highlights['VGVOfertas Annual'] = f"{year}: {br_currency(val, 0)}M ({var_str})"
                 break
 
         # Extrair observações sobre dados incompletos
@@ -5008,7 +5237,7 @@ def main():
         # Encontrar melhor trimestre (não sempre o último)
         best_value, best_quarter = find_best_quarter_with_performance(sheets[vgv_vendas_quart], data_type='currency')
         if best_value is not None and best_quarter:
-            highlights['VGVVendas Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value)}M"
+            highlights['VGVVendas Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value, 0)}M"
         
         # Extrair observações sobre dados incompletos
         observation = extract_observation_from_sheet(sheets[vgv_vendas_quart])
@@ -5028,7 +5257,7 @@ def main():
                     continue
                 year = str(row.iloc[0])
                 var_str = str(row.iloc[2]) if len(row) > 2 and not pd.isna(row.iloc[2]) else ''
-                highlights['VGVVendas Annual'] = f"{year}: {br_currency(val)}M ({var_str})"
+                highlights['VGVVendas Annual'] = f"{year}: {br_currency(val, 0)}M ({var_str})"
                 break
 
         # Extrair observações sobre dados incompletos
@@ -5062,7 +5291,7 @@ def main():
         # Encontrar melhor trimestre (não sempre o último)
         best_value, best_quarter = find_best_quarter_with_performance(sheets['VGL Trimestral (R$ Milhões)'], data_type='currency')
         if best_value is not None and best_quarter:
-            highlights['VGL Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value)}M"
+            highlights['VGL Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value, 0)}M"
         
         # Extrair observações sobre dados incompletos
         observation = extract_observation_from_sheet(sheets['VGL Trimestral (R$ Milhões)'])
@@ -5081,7 +5310,7 @@ def main():
                     continue
                 year = str(row.iloc[0])
                 var_str = str(row.iloc[2]) if len(row) > 2 and not pd.isna(row.iloc[2]) else ''
-                highlights['VGL Annual'] = f"{year}: {br_currency(val)}M ({var_str})"
+                highlights['VGL Annual'] = f"{year}: {br_currency(val, 0)}M ({var_str})"
                 break
 
         # Extrair observações sobre dados incompletos
@@ -5112,7 +5341,7 @@ def main():
     # Procurar planilha trimestral de distratos (nome pode estar truncado)
     dist_quart_sheet = next((n for n in sheets if n.startswith('Distratos Trimestrais')), None)
     if dist_quart_sheet:
-        data_dict['Distratos Quarterly'] = build_quarterly_dataset(sheets[dist_quart_sheet], is_percent=False)
+        data_dict['Distratos Quarterly'] = build_quarterly_dataset(sheets[dist_quart_sheet], is_percent=False, context_prefix="Distratos")
         
         # Encontrar melhor trimestre (não sempre o último)
         best_value, best_quarter = find_best_quarter_with_performance(sheets[dist_quart_sheet], data_type='number')
