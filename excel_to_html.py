@@ -1,4 +1,4 @@
-g"""
+"""
 excel_to_html_report_final_v2.py
 
 Gera um dashboard HTML executivo (Chart.js) a partir de um Excel exportado do relatório.
