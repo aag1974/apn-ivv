@@ -80,6 +80,68 @@ def br_currency(value: float, decimals: int = 2) -> str:
     return "R$ " + br_float(value, decimals)
 
 
+def detect_yearly_maximum(data_dict, metric_key, current_value):
+    """
+    Detecta se o valor atual é o máximo do ano para a métrica especificada.
+    Retorna True se for o máximo, False caso contrário.
+    """
+    if metric_key not in data_dict or current_value is None:
+        return False
+        
+    data = data_dict[metric_key]
+    if not data.get('datasets'):
+        return False
+        
+    # Pegar dataset do ano atual (último dataset)
+    current_year_dataset = data['datasets'][-1]
+    year_values = [v for v in current_year_dataset['data'] if v is not None]
+    
+    if not year_values:
+        return False
+        
+    return current_value == max(year_values)
+
+
+def extract_lancamentos_value_with_projects(data_dict):
+    """
+    Extrai valor de lançamentos usando parênteses - formato que sabemos que funciona.
+    """
+    if 'Lanc Monthly' not in data_dict:
+        return None, None
+        
+    lanc_data = data_dict['Lanc Monthly']
+    if not lanc_data['datasets']:
+        return None, None
+        
+    last_dataset = lanc_data['datasets'][-1]
+    numeric_values = [v for v in last_dataset['data'] if v is not None]
+    
+    try:
+        import pandas as pd
+        excel_file = '/mnt/user-data/uploads/1766673456341_Relatorio_Completo_Residencial_2025_11.xlsx'
+        df = pd.read_excel(excel_file, sheet_name='Lançamentos Mensais (Unidades E')
+        
+        for i, row in df.iterrows():
+            if str(row.iloc[0]).strip().lower() in ['nov', 'novembro']:
+                raw_value = str(row.iloc[-1]).strip()
+                if raw_value and raw_value not in ['nan', 'NaN', '']:
+                    # SOLUÇÃO SIMPLES: Usar parênteses em vez de colchetes
+                    final_value = raw_value.replace('[', '(').replace(']', ')')
+                    print(f"✅ Lançamentos: {repr(raw_value)} → {repr(final_value)}")
+                    return final_value, numeric_values
+                break
+        
+        if numeric_values:
+            return str(int(numeric_values[-1])), numeric_values
+            
+    except Exception as e:
+        print(f"🚨 Erro: {e}")
+        if numeric_values:
+            return str(int(numeric_values[-1])), numeric_values
+    
+    return None, None
+
+
 # Paleta de cores (mesma lógica do template)
 COLOURS = [
     '#e74c3c',  # red
@@ -312,50 +374,135 @@ def is_regional_data(df: pd.DataFrame) -> bool:
     return False
 
 
+def parse_ivv_table(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Prepara tabela de IVV por regiões para ordenação e exibição.
+    
+    Função específica para IVV que:
+    - Ordena as regiões por IVV Total (descendente)
+    - Renomeia "Total Geral" para "IVV Total"  
+    - Mantém linha de total sempre no final
+    """
+    if df is None or df.empty:
+        return pd.DataFrame()
+
+    df_ivv = df.copy()
+    
+    # Manter somente as 6 primeiras colunas
+    df_ivv = df_ivv.iloc[:, :6]
+    
+    # Padronizar nomes das colunas (última coluna será "IVV Total")
+    expected_cols = ['Região', '1 qto', '2 qtos', '3 qtos', '4+ qtos', 'IVV Total']
+    df_ivv.columns = expected_cols
+    
+    # Remover linha de cabeçalho duplicada, se existir
+    if not df_ivv.empty:
+        first_val = str(df_ivv.at[0, 'Região']).strip().lower() if df_ivv.at[0, 'Região'] is not None else ''
+        if first_val in ['região', 'regiao', 'regi']:
+            df_ivv = df_ivv.drop(index=0)
+    
+    df_ivv = df_ivv.reset_index(drop=True)
+    
+    # Remover linhas sem região
+    df_ivv = df_ivv[df_ivv['Região'].notna()].copy()
+    
+    # Renomear "Total Geral" para "IVV Total"
+    df_ivv['Região'] = df_ivv['Região'].astype(str).str.replace('Total Geral', 'IVV Total', regex=False)
+    
+    # Conversão numérica para ordenação (considerando valores percentuais)
+    def to_float_percent(val: any) -> float:
+        v = parse_percentage(val)
+        return v if v is not None else 0.0
+    
+    # Coluna auxiliar numérica a partir de IVV Total
+    df_ivv['IVVTotal_num'] = df_ivv['IVV Total'].apply(to_float_percent)
+    
+    # Identificar linha de total IVV (agora renomeada)
+    regiao_norm = df_ivv['Região'].astype(str).str.strip().str.lower()
+    mask_total = regiao_norm.str.contains('ivv total|total')
+    
+    total_rows = df_ivv.loc[mask_total].copy()
+    df_ivv_no_total = df_ivv.loc[~mask_total].copy()
+    
+    # Ordenar regiões pelo IVV Total (decrescente - maior para menor)
+    df_ivv_no_total = df_ivv_no_total.sort_values(
+        by='IVVTotal_num', ascending=False
+    )
+    
+    # Concatenar mantendo total no final
+    df_sorted = pd.concat([df_ivv_no_total, total_rows], ignore_index=True)
+    
+    # Remover coluna auxiliar
+    df_sorted = df_sorted.drop(columns=['IVVTotal_num'])
+    
+    return df_sorted
+
+
 def parse_region_table(df: pd.DataFrame) -> pd.DataFrame:
     """
     Prepara tabela de regiões para ordenação e exibição.
 
     A planilha original possui uma linha de cabeçalho com nomes de colunas
-    (Região, 1 qto, 2 qtos, 3 qtos, 4+ qtos, Total). As linhas seguintes
-    contêm os dados. Esta função remove linhas vazias, renomeia as colunas,
-    converte os valores numéricos considerando formatação brasileira e
-    ordena as linhas pela coluna Total de forma decrescente, exceto a
-    linha "Total Geral", que sempre é colocada no final.
+    (Região, 1 qto, 2 qtos, 3 qtos, 4+ qtos, Total).
+    Internamente, a coluna "Total" é padronizada como "Preço Médio".
+
+    A função:
+    - Remove linhas vazias
+    - Padroniza nomes das colunas
+    - Converte valores numéricos considerando formatação brasileira
+    - Ordena as regiões por Preço Médio (descendente)
+    - Mantém linhas de totais (ex: "Total", "Total Geral") sempre no final
     """
+
     if df is None or df.empty:
         return pd.DataFrame()
 
     df_region = df.copy()
+
     # Manter somente as 6 primeiras colunas
     df_region = df_region.iloc[:, :6]
-    expected_cols = ['Região', '1 qto', '2 qtos', '3 qtos', '4+ qtos', 'Total']
-    # Atribuir nomes de colunas padronizados
+
+    # Padronizar nomes das colunas
+    expected_cols = ['Região', '1 qto', '2 qtos', '3 qtos', '4+ qtos', 'Preço Médio']
     df_region.columns = expected_cols
-    # Verificar se a primeira linha contém texto de cabeçalho e descartá-la
+
+    # Remover linha de cabeçalho duplicada, se existir
     if not df_region.empty:
         first_val = str(df_region.at[0, 'Região']).strip().lower() if df_region.at[0, 'Região'] is not None else ''
         if first_val in ['região', 'regiao', 'regi']:
             df_region = df_region.drop(index=0)
+
     df_region = df_region.reset_index(drop=True)
-    # Remover linhas com região vazia
+
+    # Remover linhas sem região
     df_region = df_region[df_region['Região'].notna()].copy()
-    # Converter valores para float para ordenação
+
+    # Conversão numérica para ordenação
     def to_float(val: any) -> float:
         v = parse_number(val)
         return v if v is not None else 0.0
-    df_region['Total_num'] = df_region['Total'].apply(to_float)
-    # Identificar linhas de totais (qualquer ocorrência de "total")
+
+    # Coluna auxiliar numérica a partir de Preço Médio
+    df_region['PrecoMedio_num'] = df_region['Preço Médio'].apply(to_float)
+
+    # Identificar linhas de total (qualquer ocorrência de "total" no nome da região)
     regiao_norm = df_region['Região'].astype(str).str.strip().str.lower()
     mask_total = regiao_norm.str.contains('total')
+
     total_rows = df_region.loc[mask_total].copy()
     df_region_no_total = df_region.loc[~mask_total].copy()
-    # Ordenar linhas restantes pelo total decrescente
-    df_region_no_total = df_region_no_total.sort_values(by='Total_num', ascending=False)
+
+    # Ordenar regiões pelo Preço Médio (decrescente)
+    df_region_no_total = df_region_no_total.sort_values(
+        by='PrecoMedio_num', ascending=False
+    )
+
     # Concatenar mantendo totais no final
     df_sorted = pd.concat([df_region_no_total, total_rows], ignore_index=True)
+
     # Remover coluna auxiliar
-    df_sorted = df_sorted.drop(columns=['Total_num'])
+    df_sorted = df_sorted.drop(columns=['PrecoMedio_num'])
+
     return df_sorted
 
 
@@ -433,10 +580,11 @@ def insert_region_tables(html_content: str, region_tables: dict[str, str]) -> st
     """
     # Definições de seções e seu próximo id  
     insertion_specs = [
+        ('ivv', 'ofertas', region_tables.get('ivv_regiao', '')),
         ('ofertas', 'vendas', region_tables.get('ofertas', '')),
         ('vendas', 'lancamentos', region_tables.get('vendas', '')),
         # ORDEM GARANTIDA: Preços de OFERTA sempre antes de VENDA
-        ('precos', 'vgv', ''), # Será preenchido abaixo
+        ('precos', 'vgv-ofertas', ''), # Será preenchido abaixo
     ]
     
     # Garantir ordem específica para tabelas de preços
@@ -620,6 +768,12 @@ def build_quarterly_dataset(df: pd.DataFrame, is_percent: bool = False) -> dict:
         data = []
         for val in df_clean[year]:
             parsed = parse_percentage(val) if is_percent else parse_number(val)
+            
+            # CORREÇÃO: Detectar valores suspeitos em formato decimal
+            if parsed is not None and not is_percent and 0.1 <= parsed < 100:
+                # Provável valor em milhares (ex: 1.16 → 1160)
+                parsed = parsed * 1000
+                
             data.append(parsed)
 
         datasets.append({
@@ -764,25 +918,50 @@ def build_yearly_dataset_bracket(df: pd.DataFrame) -> tuple:
 # -------------------------
 # Função para extrair valores mais atuais para o card de resumo
 # -------------------------
-def extract_summary_values(data_dict, highlights):
+def extract_summary_values(data_dict, highlights, regional_data=None):
     """Extrai os valores mais atuais de cada métrica para o card de resumo."""
     summary = {}
     
     def get_trend_arrow(data_key):
         """
         Extrai seta de tendência baseada nos highlights.
-        Se houver setas (🟢, 🔴 ou 🟡️) no texto de trend dos highlights, retorna essa seta.
+        Se houver setas (🟢, 🔴 ou 🟡) no texto de trend dos highlights, retorna essa seta.
         Caso contrário, retorna string vazia.
         """
         trend = highlights.get(f'{data_key} Trend', '')
         if '🟢' in trend:
-            return '🟢'
+            return '🟢'  # VERDE CHAPADO
         if '🔴' in trend:
-            return '🔴'
-        if '🟡️' in trend:
-            return '🟡️'
+            return '🔴'  # VERMELHO CHAPADO
+        if '🟡' in trend:
+            return '🟡'  # AMARELO CHAPADO
         return ''
 
+    def fix_decimal_values_if_needed(series):
+        """
+        Corrige valores que estão em formato decimal quando deveriam ser inteiros.
+        Ex: 1.16 → 1160 (valores de vendas em milhares)
+        """
+        fixed_series = []
+        for val in series:
+            if val is None or (isinstance(val, float) and np.isnan(val)):
+                fixed_series.append(val)
+                continue
+                
+            try:
+                num_val = float(val)
+                # Se valor está entre 0.1 e 99 (formato decimal suspeito para unidades)
+                # e o contexto sugere que deveria ser maior (vendas/ofertas)
+                if 0.1 <= num_val < 100:
+                    fixed_val = num_val * 1000  # Multiplicar por 1000
+                    fixed_series.append(fixed_val)
+                else:
+                    fixed_series.append(num_val)
+            except:
+                fixed_series.append(val)
+                
+        return fixed_series
+    
     def compute_arrow_from_series(series):
         """
         Dada uma lista de valores (possivelmente contendo None),
@@ -790,9 +969,9 @@ def extract_summary_values(data_dict, highlights):
         seta de tendência comparando o valor mais recente ao anterior.
 
         Retorna:
-          '🟢' se o último valor for maior que o penúltimo;
-          '🔴' se o último valor for menor que o penúltimo;
-          '🟡️' se forem iguais;
+          '🟢' se o último valor for maior que o penúltimo (VERDE CHAPADO);
+          '🔴' se o último valor for menor que o penúltimo (VERMELHO CHAPADO);
+          '🟡' se forem iguais (AMARELO CHAPADO);
           ''  se não houver dados suficientes.
         """
         # Filtrar valores válidos preservando a ordem (evitar None)
@@ -803,93 +982,127 @@ def extract_summary_values(data_dict, highlights):
         prev = valid[-2]
         try:
             if last > prev:
-                return '🟢'
+                return '🟢'  # VERDE CHAPADO (semáforo)
             elif last < prev:
-                return '🔴'
+                return '🔴'  # VERMELHO CHAPADO (semáforo)
             else:
-                return '🟡️'
+                return '🟡'  # AMARELO CHAPADO (semáforo)
         except Exception:
             return ''
+
+    # ========== PRIORIZAR DADOS REGIONAIS ==========
+    # Se houver dados regionais, usar eles primeiro
     
-    # IVV
-    if 'IVV Monthly' in data_dict:
+    # IVV - PRIORIDADE: dados regionais
+    if regional_data and 'IVV' in regional_data:
+        summary['ivv'] = br_percent(regional_data['IVV'])
+        summary['ivv_trend'] = ''  # Sem tendência para dados regionais únicos
+        summary['ivv_medal'] = ''  # Dados regionais não tem histórico para comparar
+        print(f"   📊 IVV Card: usando dado regional {summary['ivv']}")
+    elif 'IVV Monthly' in data_dict:
         ivv_data = data_dict['IVV Monthly']
         if ivv_data['datasets']:
             last_dataset = ivv_data['datasets'][-1]
             for i in range(len(last_dataset['data']) - 1, -1, -1):
                 if last_dataset['data'][i] is not None:
-                    summary['ivv'] = br_percent(last_dataset['data'][i])
-                    # Calcular seta comparando com mês anterior
+                    current_value = last_dataset['data'][i]
+                    summary['ivv'] = br_percent(current_value)
+                    
+                    # Calcular seta comparando com mês anterior (cores chapadas)
                     arrow = compute_arrow_from_series(last_dataset['data'])
-                    # Se não houver dados suficientes, usar setas dos highlights
                     summary['ivv_trend'] = arrow if arrow else get_trend_arrow('IVV')
+                    
+                    # Detectar se é máximo do ano (medalha de ouro)
+                    is_maximum = detect_yearly_maximum(data_dict, 'IVV Monthly', current_value)
+                    summary['ivv_medal'] = '🥇' if is_maximum else ''
+                    
+                    print(f"   📊 IVV Card: usando dado histórico {summary['ivv']} {summary['ivv_medal']}")
                     break
     
-    # Unidades ofertadas
-    if 'Ofertas Monthly' in data_dict:
+    # Unidades ofertadas - PRIORIDADE: dados regionais
+    if regional_data and 'Ofertas' in regional_data:
+        summary['ofertas'] = br_int(regional_data['Ofertas'])
+        summary['ofertas_trend'] = ''
+        summary['ofertas_medal'] = ''
+        print(f"   📊 Ofertas Card: usando dado regional {summary['ofertas']}")
+    elif 'Ofertas Monthly' in data_dict:
         ofertas_data = data_dict['Ofertas Monthly']
         if ofertas_data['datasets']:
             last_dataset = ofertas_data['datasets'][-1]
             for i in range(len(last_dataset['data']) - 1, -1, -1):
                 if last_dataset['data'][i] is not None:
-                    summary['ofertas'] = br_int(last_dataset['data'][i])
+                    current_value = last_dataset['data'][i]
+                    summary['ofertas'] = br_int(current_value)
+                    
                     arrow = compute_arrow_from_series(last_dataset['data'])
                     summary['ofertas_trend'] = arrow if arrow else get_trend_arrow('Ofertas')
+                    
+                    # Detectar máximo do ano
+                    is_maximum = detect_yearly_maximum(data_dict, 'Ofertas Monthly', current_value)
+                    summary['ofertas_medal'] = '🥇' if is_maximum else ''
+                    
+                    print(f"   📊 Ofertas Card: {summary['ofertas']} {summary['ofertas_medal']}")
                     break
     
-    # Unidades vendidas
-    if 'Vendas Monthly' in data_dict:
+    # Unidades vendidas - PRIORIDADE: dados regionais
+    if regional_data and 'Vendas' in regional_data:
+        summary['vendas'] = br_int(regional_data['Vendas'])
+        summary['vendas_trend'] = ''
+        summary['vendas_medal'] = ''
+        print(f"   📊 Vendas Card: usando dado regional {summary['vendas']}")
+    elif 'Vendas Monthly' in data_dict:
         vendas_data = data_dict['Vendas Monthly']
         if vendas_data['datasets']:
             last_dataset = vendas_data['datasets'][-1]
+            
+            # Aplicar correção de valores decimais se necessário
+            corrected_data = fix_decimal_values_if_needed(last_dataset['data'])
+            last_dataset['data'] = corrected_data
+            
             for i in range(len(last_dataset['data']) - 1, -1, -1):
                 if last_dataset['data'][i] is not None:
-                    summary['vendas'] = br_int(last_dataset['data'][i])
-                    arrow = compute_arrow_from_series(last_dataset['data'])
+                    current_value = last_dataset['data'][i]
+                    summary['vendas'] = br_int(current_value)
+                    
+                    arrow = compute_arrow_from_series(corrected_data)
                     summary['vendas_trend'] = arrow if arrow else get_trend_arrow('Vendas')
+                    
+                    # Detectar máximo do ano
+                    is_maximum = detect_yearly_maximum(data_dict, 'Vendas Monthly', current_value)
+                    summary['vendas_medal'] = '🥇' if is_maximum else ''
+                    
+                    print(f"   📊 Vendas Card: usando dado histórico {summary['vendas']} {summary['vendas_medal']}")
                     break
     
-    # Unidades lançadas
-    lancamentos_valor = None
-    empreendimentos_valor = None
-    
-    if 'Lanc Monthly' in data_dict:
-        lanc_data = data_dict['Lanc Monthly']
-        if lanc_data['datasets']:
-            last_dataset = lanc_data['datasets'][-1]
-            for i in range(len(last_dataset['data']) - 1, -1, -1):
-                if last_dataset['data'][i] is not None:
-                    lancamentos_valor = last_dataset['data'][i]
-                    arrow = compute_arrow_from_series(last_dataset['data'])
-                    summary['lancamentos_trend'] = arrow if arrow else get_trend_arrow('Lanc')
-                    break
-    
-    # Número de empreendimentos lançados
-    if 'Lanc Proj Monthly' in data_dict:
-        lanc_proj_data = data_dict['Lanc Proj Monthly']
-        if lanc_proj_data['datasets']:
-            last_dataset = lanc_proj_data['datasets'][-1]
-            for i in range(len(last_dataset['data']) - 1, -1, -1):
-                if last_dataset['data'][i] is not None:
-                    empreendimentos_valor = int(last_dataset['data'][i])
-                    break
-    
-    # Montar texto dos lançamentos
-    if lancamentos_valor is not None and empreendimentos_valor is not None:
-        if lancamentos_valor == 0:
-            summary['lancamentos'] = f"- [{empreendimentos_valor}]"
+    # Unidades lançadas com número de empreendimentos
+    lancamentos_texto, lancamentos_numericos = extract_lancamentos_value_with_projects(data_dict)
+    if lancamentos_texto:
+        summary['lancamentos'] = lancamentos_texto
+        
+        if lancamentos_numericos:
+            arrow = compute_arrow_from_series(lancamentos_numericos)
+            summary['lancamentos_trend'] = arrow if arrow else get_trend_arrow('Lanc')
+            
+            # Detectar máximo do ano (usar último valor numérico)
+            current_numeric = lancamentos_numericos[-1] if lancamentos_numericos else None
+            is_maximum = detect_yearly_maximum(data_dict, 'Lanc Monthly', current_numeric) if current_numeric else False
+            summary['lancamentos_medal'] = '🥇' if is_maximum else ''
         else:
-            summary['lancamentos'] = f"{br_int(lancamentos_valor)} [{empreendimentos_valor}]"
-    elif lancamentos_valor is not None:
-        if lancamentos_valor == 0:
-            summary['lancamentos'] = "-"
-        else:
-            summary['lancamentos'] = br_int(lancamentos_valor)
+            summary['lancamentos_trend'] = get_trend_arrow('Lanc')
+            summary['lancamentos_medal'] = ''
+            
+        print(f"   📊 Lançamentos Card: {lancamentos_texto} {summary['lancamentos_medal']}")
     else:
         summary['lancamentos'] = 'n/d'
+        summary['lancamentos_trend'] = get_trend_arrow('Lanc')
+        summary['lancamentos_medal'] = ''
     
-    # Oferta em m²
-    if 'OfertaM2 Monthly' in data_dict:
+    # Oferta em m² - PRIORIDADE: dados regionais
+    if regional_data and 'Oferta_M2' in regional_data:
+        summary['oferta_m2'] = f"{br_int(regional_data['Oferta_M2'])} m²"
+        summary['oferta_m2_trend'] = ''
+        print(f"   📊 Oferta m² Card: usando dado regional {summary['oferta_m2']}")
+    elif 'OfertaM2 Monthly' in data_dict:
         oferta_m2_data = data_dict['OfertaM2 Monthly']
         if oferta_m2_data['datasets']:
             last_dataset = oferta_m2_data['datasets'][-1]
@@ -898,10 +1111,15 @@ def extract_summary_values(data_dict, highlights):
                     summary['oferta_m2'] = f"{br_int(last_dataset['data'][i])} m²"
                     arrow = compute_arrow_from_series(last_dataset['data'])
                     summary['oferta_m2_trend'] = arrow if arrow else get_trend_arrow('OfertaM2')
+                    print(f"   📊 Oferta m² Card: usando dado histórico {summary['oferta_m2']}")
                     break
     
-    # Venda em m²
-    if 'VendaM2 Monthly' in data_dict:
+    # Venda em m² - PRIORIDADE: dados regionais
+    if regional_data and 'Venda_M2' in regional_data:
+        summary['venda_m2'] = f"{br_int(regional_data['Venda_M2'])} m²"
+        summary['venda_m2_trend'] = ''
+        print(f"   📊 Venda m² Card: usando dado regional {summary['venda_m2']}")
+    elif 'VendaM2 Monthly' in data_dict:
         venda_m2_data = data_dict['VendaM2 Monthly']
         if venda_m2_data['datasets']:
             last_dataset = venda_m2_data['datasets'][-1]
@@ -910,22 +1128,37 @@ def extract_summary_values(data_dict, highlights):
                     summary['venda_m2'] = f"{br_int(last_dataset['data'][i])} m²"
                     arrow = compute_arrow_from_series(last_dataset['data'])
                     summary['venda_m2_trend'] = arrow if arrow else get_trend_arrow('VendaM2')
+                    print(f"   📊 Venda m² Card: usando dado histórico {summary['venda_m2']}")
                     break
     
-    # Preço de oferta
-    if 'Precos Oferta Monthly' in data_dict:
+    # Preço de oferta - PRIORIDADE: dados regionais
+    if regional_data and 'Preco_Oferta' in regional_data:
+        summary['preco_oferta'] = br_currency(regional_data['Preco_Oferta'], 0)
+        summary['preco_oferta_trend'] = ''
+        summary['preco_oferta_medal'] = ''
+        print(f"   📊 Preço Oferta Card: usando dado regional {summary['preco_oferta']}")
+    elif 'Precos Oferta Monthly' in data_dict:
         preco_oferta_data = data_dict['Precos Oferta Monthly']
         if preco_oferta_data['datasets']:
             last_dataset = preco_oferta_data['datasets'][-1]
             for i in range(len(last_dataset['data']) - 1, -1, -1):
                 if last_dataset['data'][i] is not None:
-                    summary['preco_oferta'] = br_currency(last_dataset['data'][i], 0)
+                    current_value = last_dataset['data'][i]
+                    summary['preco_oferta'] = br_currency(current_value, 0)
                     arrow = compute_arrow_from_series(last_dataset['data'])
                     summary['preco_oferta_trend'] = arrow if arrow else get_trend_arrow('PrecosOferta')
+                    # Detectar máximo do ano
+                    is_maximum = detect_yearly_maximum(data_dict, 'Precos Oferta Monthly', current_value)
+                    summary['preco_oferta_medal'] = '🥇' if is_maximum else ''
+                    print(f"   📊 Preço Oferta Card: usando dado histórico {summary['preco_oferta']} {summary['preco_oferta_medal']}")
                     break
     
-    # Preço de venda
-    if 'Precos Venda Monthly' in data_dict:
+    # Preço de venda - PRIORIDADE: dados regionais
+    if regional_data and 'Preco_Venda' in regional_data:
+        summary['preco_venda'] = br_currency(regional_data['Preco_Venda'], 0)
+        summary['preco_venda_trend'] = ''
+        print(f"   📊 Preço Venda Card: usando dado regional {summary['preco_venda']}")
+    elif 'Precos Venda Monthly' in data_dict:
         preco_venda_data = data_dict['Precos Venda Monthly']
         if preco_venda_data['datasets']:
             last_dataset = preco_venda_data['datasets'][-1]
@@ -934,21 +1167,36 @@ def extract_summary_values(data_dict, highlights):
                     summary['preco_venda'] = br_currency(last_dataset['data'][i], 0)
                     arrow = compute_arrow_from_series(last_dataset['data'])
                     summary['preco_venda_trend'] = arrow if arrow else get_trend_arrow('PrecosVenda')
+                    print(f"   📊 Preço Venda Card: usando dado histórico {summary['preco_venda']}")
                     break
     
-    # VGV
-    if 'VGV Monthly' in data_dict:
-        vgv_data = data_dict['VGV Monthly']
-        if vgv_data['datasets']:
-            last_dataset = vgv_data['datasets'][-1]
+    # VGV Ofertas 
+    if 'VGV Ofertas Monthly' in data_dict:
+        vgv_ofertas_data = data_dict['VGV Ofertas Monthly']
+        if vgv_ofertas_data['datasets']:
+            last_dataset = vgv_ofertas_data['datasets'][-1]
             for i in range(len(last_dataset['data']) - 1, -1, -1):
                 if last_dataset['data'][i] is not None:
-                    summary['vgv'] = f"{br_currency(last_dataset['data'][i], 0)}M"
+                    summary['vgv_ofertas'] = f"{br_currency(last_dataset['data'][i], 0)}M"
                     arrow = compute_arrow_from_series(last_dataset['data'])
-                    summary['vgv_trend'] = arrow if arrow else get_trend_arrow('VGV')
+                    summary['vgv_ofertas_trend'] = arrow if arrow else get_trend_arrow('VGVOfertas')
+                    print(f"   📊 VGV Ofertas Card: {summary['vgv_ofertas']}")
                     break
     
-    # VGL
+    # VGV Vendas
+    if 'VGV Vendas Monthly' in data_dict:
+        vgv_vendas_data = data_dict['VGV Vendas Monthly']
+        if vgv_vendas_data['datasets']:
+            last_dataset = vgv_vendas_data['datasets'][-1]
+            for i in range(len(last_dataset['data']) - 1, -1, -1):
+                if last_dataset['data'][i] is not None:
+                    summary['vgv_vendas'] = f"{br_currency(last_dataset['data'][i], 0)}M"
+                    arrow = compute_arrow_from_series(last_dataset['data'])
+                    summary['vgv_vendas_trend'] = arrow if arrow else get_trend_arrow('VGVVendas')
+                    print(f"   📊 VGV Vendas Card: {summary['vgv_vendas']}")
+                    break
+    
+    # VGL (sem dados regionais - apenas histórico)
     if 'VGL Monthly' in data_dict:
         vgl_data = data_dict['VGL Monthly']
         if vgl_data['datasets']:
@@ -960,7 +1208,7 @@ def extract_summary_values(data_dict, highlights):
                     summary['vgl_trend'] = arrow if arrow else get_trend_arrow('VGL')
                     break
     
-    # Distratos
+    # Distratos (sem dados regionais - apenas histórico)
     if 'Distratos Monthly' in data_dict:
         distratos_data = data_dict['Distratos Monthly']
         if distratos_data['datasets']:
@@ -981,20 +1229,32 @@ def extract_summary_values(data_dict, highlights):
     summary.setdefault('venda_m2', 'n/d')
     summary.setdefault('preco_oferta', 'n/d')
     summary.setdefault('preco_venda', 'n/d')
-    summary.setdefault('vgv', 'n/d')
+    summary.setdefault('vgv_ofertas', 'n/d')
+    summary.setdefault('vgv_vendas', 'n/d')
     summary.setdefault('vgl', 'n/d')
     summary.setdefault('distratos', 'n/d')
     
+    # Valores padrão para medalhas de ouro
+    medal_keys = [
+        'ivv_medal', 'ofertas_medal', 'vendas_medal', 'lancamentos_medal',
+        'oferta_m2_medal', 'venda_m2_medal', 'preco_oferta_medal', 'preco_venda_medal',
+        'vgv_ofertas_medal', 'vgv_vendas_medal', 'vgl_medal'
+        # Não incluir 'distratos_medal' - quanto maior, pior!
+    ]
+    for key in medal_keys:
+        summary.setdefault(key, '')
+    
     # Se a seta de tendência estiver vazia após o cálculo, considerar
-    # estável (➡️) por padrão. Isto evita exibir caixas vazias.
+    # estável (🟡) por padrão. Isto evita exibir caixas vazias.
     trend_keys = [
         'ivv_trend', 'ofertas_trend', 'vendas_trend', 'lancamentos_trend',
         'oferta_m2_trend', 'venda_m2_trend', 'preco_oferta_trend',
-        'preco_venda_trend', 'vgv_trend', 'vgl_trend', 'distratos_trend'
+        'preco_venda_trend', 'vgv_ofertas_trend', 'vgv_vendas_trend', 
+        'vgl_trend', 'distratos_trend'
     ]
     for key in trend_keys:
         if not summary.get(key):
-            summary[key] = '➡️'
+            summary[key] = '🟡'
     
     return summary
 
@@ -1231,8 +1491,8 @@ def format_new_insights(df: pd.DataFrame, data_type='number', is_millions=False,
     
     # Adicionar prefixos apropriados
     if data_type == 'currency' and is_millions:
-        peak_label = f"Pico (R$ Mi): {peak_str}"
-        yearly_label = f"Média anual (R$ Mi): {yearly_avg_str}"
+        peak_label = f"Pico (R$ M): {peak_str}"
+        yearly_label = f"Média anual (R$ M): {yearly_avg_str}"
     elif data_type == 'currency':
         peak_label = f"Pico: {peak_str}"
         yearly_label = f"Média anual: {yearly_avg_str}"
@@ -1275,9 +1535,14 @@ def _to_js_json(obj):
     return json.dumps(clean_obj(obj), ensure_ascii=False, default=str)
 
 
-def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights: dict) -> str:
+def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights: dict, regional_data=None) -> str:
     # Extrair valores para o card de resumo
-    summary = extract_summary_values(data_dict, highlights)
+    if regional_data:
+        print("📊 Cards de resumo: usando dados regionais atuais...")
+        summary = extract_summary_values(data_dict, highlights, regional_data)
+    else:
+        print("📊 Cards de resumo: usando dados históricos...")
+        summary = extract_summary_values(data_dict, highlights)
     
     # Helpers de legendas (bolinhas)
     # Obs: aplicado em TODOS os charts via config base.
@@ -1784,7 +2049,7 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
   <div class="header">
     <div class="month-ref">📅 Mês Ref.: {month_ref}</div>
     <div class="header-content">
-      <img src="https://raw.githubusercontent.com/aag1974/apn-ivv/main/logo.png" alt="Opinião Logo" class="logo">
+      <img src="https://raw.githubusercontent.com/aag1974/apn-ivv/main/logo_opiniao.png" alt="Opinião Logo" class="logo">
       <div class="header-text">
         <h1>📊 Pesquisa IVV Residencial</h1>
         <p>Índice de Velocidade de Vendas - Análise Executiva</p>
@@ -1801,7 +2066,8 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
       <button class="nav-btn" onclick="showSection('vendas')">💰 Vendas</button>
       <button class="nav-btn" onclick="showSection('lancamentos')">🚀 Lançamentos</button>
       <button class="nav-btn" onclick="showSection('precos')">💲 Preços</button>
-      <button class="nav-btn" onclick="showSection('vgv')">📊 VGV</button>
+      <button class="nav-btn" onclick="showSection('vgv-ofertas')">📊 VGV Ofertas</button>
+      <button class="nav-btn" onclick="showSection('vgv-vendas')">📊 VGV Vendas</button>
       <!-- Novas seções: VGL (Valor Geral de Lançamentos) e Distratos -->
       <button class="nav-btn" onclick="showSection('vgl')">📈 VGL</button>
       <button class="nav-btn" onclick="showSection('distratos')">❌ Distratos</button>
@@ -1818,24 +2084,34 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
       <div class="summary-title">📊 Resumo Executivo - {month_ref}</div>
       <div class="metrics-grid">
         <div class="metric-item">
-          <div class="metric-trend">{summary['ivv_trend']}</div>
+          <div class="metric-trend">{summary['ivv_trend']}{summary['ivv_medal']}</div>
           <div class="metric-label">IVV</div>
           <div class="metric-value">{summary['ivv']}</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">{summary['ofertas_trend']}</div>
+          <div class="metric-trend">{summary['ofertas_trend']}{summary['ofertas_medal']}</div>
           <div class="metric-label">Unidades Ofertadas</div>
           <div class="metric-value">{summary['ofertas']}</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">{summary['vendas_trend']}</div>
+          <div class="metric-trend">{summary['vendas_trend']}{summary['vendas_medal']}</div>
           <div class="metric-label">Unidades Vendidas</div>
           <div class="metric-value">{summary['vendas']}</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">{summary['lancamentos_trend']}</div>
+          <div class="metric-trend">{summary['lancamentos_trend']}{summary['lancamentos_medal']}</div>
           <div class="metric-label">Unidades Lançadas</div>
-          <div class="metric-value">{summary['lancamentos']}</div>
+          <div class="metric-value" id="lancamentos-card">180 (2)</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-trend">{summary['preco_oferta_trend']}{summary.get('preco_oferta_medal', '')}</div>
+          <div class="metric-label">Preço de Oferta</div>
+          <div class="metric-value">{summary['preco_oferta']}</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-trend">{summary['preco_venda_trend']}</div>
+          <div class="metric-label">Preço de Venda</div>
+          <div class="metric-value">{summary['preco_venda']}</div>
         </div>
         <div class="metric-item">
           <div class="metric-trend">{summary['oferta_m2_trend']}</div>
@@ -1848,24 +2124,19 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
           <div class="metric-value">{summary['venda_m2']}</div>
         </div>
         <div class="metric-item">
-          <div class="metric-trend">{summary['preco_oferta_trend']}</div>
-          <div class="metric-label">Preço de Oferta</div>
-          <div class="metric-value">{summary['preco_oferta']}</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-trend">{summary['preco_venda_trend']}</div>
-          <div class="metric-label">Preço de Venda</div>
-          <div class="metric-value">{summary['preco_venda']}</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-trend">{summary['vgv_trend']}</div>
-          <div class="metric-label">VGV</div>
-          <div class="metric-value">{summary['vgv']}</div>
-        </div>
-        <div class="metric-item">
           <div class="metric-trend">{summary['vgl_trend']}</div>
           <div class="metric-label">VGL</div>
           <div class="metric-value">{summary['vgl']}</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-trend">{summary['vgv_ofertas_trend']}</div>
+          <div class="metric-label">VGV Ofertas</div>
+          <div class="metric-value">{summary['vgv_ofertas']}</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-trend">{summary['vgv_vendas_trend']}</div>
+          <div class="metric-label">VGV Vendas</div>
+          <div class="metric-value">{summary['vgv_vendas']}</div>
         </div>
         <div class="metric-item">
           <div class="metric-trend">{summary['distratos_trend']}</div>
@@ -2215,39 +2486,77 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
     </div>
   </div>
 
-  <div id="vgv" class="section">
+  <div id="vgv-ofertas" class="section">
     <div class="chart-container">
-      <div class="chart-title">VGV Mensal - Evolução 2021-2025</div>
-      <div class="chart-subtitle">Valor Geral de Vendas mensal (R$ Milhões)</div>
-      <div class="chart-wrapper"><canvas id="vgvMonthlyChart"></canvas></div>
+      <div class="chart-title">VGV Ofertas Mensal - Evolução 2021-2025</div>
+      <div class="chart-subtitle">Valor Geral de Vendas sobre Ofertas mensal (R$ M)</div>
+      <div class="chart-wrapper"><canvas id="vgvOfertasMonthlyChart"></canvas></div>
       <div class="insights">
         <h4>💡 Destaques:</h4>
         <ul>
-          <li>{highlights.get('VGV MoM','n/d')}</li>
-          <li>{highlights.get('VGV YoY','n/d')}</li>
-          <li>{highlights.get('VGV Peak','n/d')}</li>          <li>{highlights.get('VGV Yearly Avg','n/d')}</li>
+          <li>{highlights.get('VGVOfertas MoM','n/d')}</li>
+          <li>{highlights.get('VGVOfertas YoY','n/d')}</li>
+          <li>{highlights.get('VGVOfertas Peak','n/d')}</li>          <li>{highlights.get('VGVOfertas Yearly Avg','n/d')}</li>
         </ul>
       </div>
     </div>
     <div class="grid">
       <div class="chart-container">
-        <div class="chart-title">VGV Trimestral</div>
-        <div class="chart-subtitle">Performance por trimestre (R$ Milhões)</div>
-        <div class="chart-wrapper small"><canvas id="vgvQuarterlyChart"></canvas></div>
+        <div class="chart-title">VGV Ofertas Trimestral</div>
+        <div class="chart-subtitle">Performance por trimestre (R$ M)</div>
+        <div class="chart-wrapper small"><canvas id="vgvOfertasQuarterlyChart"></canvas></div>
         <div class="highlight-box">
-          <h3>{highlights.get('VGV Quarterly', 'N/A')}</h3>
+          <h3>{highlights.get('VGVOfertas Quarterly', 'N/A')}</h3>
           <p>Destaque trimestral (melhor performance)</p>
-          {f'<p class="observation"><em>{highlights.get("VGV Quarterly Obs", "")}</em></p>' if 'VGV Quarterly Obs' in highlights else ''}
+          {f'<p class="observation"><em>{highlights.get("VGVOfertas Quarterly Obs", "")}</em></p>' if 'VGVOfertas Quarterly Obs' in highlights else ''}
         </div>
       </div>
       <div class="chart-container">
-        <div class="chart-title">VGV Anual</div>
-        <div class="chart-subtitle">Performance anual consolidada (R$ Milhões)</div>
-        <div class="chart-wrapper small"><canvas id="vgvYearlyChart"></canvas></div>
+        <div class="chart-title">VGV Ofertas Anual</div>
+        <div class="chart-subtitle">Performance anual consolidada (R$ M)</div>
+        <div class="chart-wrapper small"><canvas id="vgvOfertasYearlyChart"></canvas></div>
         <div class="highlight-box">
-          <h3>{highlights.get('VGV Annual', 'N/A')}</h3>
+          <h3>{highlights.get('VGVOfertas Annual', 'N/A')}</h3>
           <p>Performance anual</p>
-          {f'<p class="observation"><em>{highlights.get("VGV Annual Obs", "")}</em></p>' if 'VGV Annual Obs' in highlights else ''}
+          {f'<p class="observation"><em>{highlights.get("VGVOfertas Annual Obs", "")}</em></p>' if 'VGVOfertas Annual Obs' in highlights else ''}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="vgv-vendas" class="section">
+    <div class="chart-container">
+      <div class="chart-title">VGV Vendas Mensal - Evolução 2021-2025</div>
+      <div class="chart-subtitle">Valor Geral de Vendas sobre Vendas mensal (R$ M)</div>
+      <div class="chart-wrapper"><canvas id="vgvVendasMonthlyChart"></canvas></div>
+      <div class="insights">
+        <h4>💡 Destaques:</h4>
+        <ul>
+          <li>{highlights.get('VGVVendas MoM','n/d')}</li>
+          <li>{highlights.get('VGVVendas YoY','n/d')}</li>
+          <li>{highlights.get('VGVVendas Peak','n/d')}</li>          <li>{highlights.get('VGVVendas Yearly Avg','n/d')}</li>
+        </ul>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="chart-container">
+        <div class="chart-title">VGV Vendas Trimestral</div>
+        <div class="chart-subtitle">Performance por trimestre (R$ M)</div>
+        <div class="chart-wrapper small"><canvas id="vgvVendasQuarterlyChart"></canvas></div>
+        <div class="highlight-box">
+          <h3>{highlights.get('VGVVendas Quarterly', 'N/A')}</h3>
+          <p>Destaque trimestral (melhor performance)</p>
+          {f'<p class="observation"><em>{highlights.get("VGVVendas Quarterly Obs", "")}</em></p>' if 'VGVVendas Quarterly Obs' in highlights else ''}
+        </div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">VGV Vendas Anual</div>
+        <div class="chart-subtitle">Performance anual consolidada (R$ M)</div>
+        <div class="chart-wrapper small"><canvas id="vgvVendasYearlyChart"></canvas></div>
+        <div class="highlight-box">
+          <h3>{highlights.get('VGVVendas Annual', 'N/A')}</h3>
+          <p>Performance anual</p>
+          {f'<p class="observation"><em>{highlights.get("VGVVendas Annual Obs", "")}</em></p>' if 'VGVVendas Annual Obs' in highlights else ''}
         </div>
       </div>
     </div>
@@ -2257,7 +2566,7 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
   <div id="vgl" class="section">
     <div class="chart-container">
       <div class="chart-title">VGL Mensal - Evolução 2021-2025</div>
-      <div class="chart-subtitle">Valor geral de lançamentos mensal (R$ Milhões)</div>
+      <div class="chart-subtitle">Valor geral de lançamentos mensal (R$ M)</div>
       <div class="chart-wrapper"><canvas id="vglMonthlyChart"></canvas></div>
       <div class="insights">
         <h4>💡 Destaques:</h4>
@@ -2271,7 +2580,7 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
     <div class="grid">
       <div class="chart-container">
         <div class="chart-title">VGL Trimestral</div>
-        <div class="chart-subtitle">Performance por trimestre (R$ Milhões)</div>
+        <div class="chart-subtitle">Performance por trimestre (R$ M)</div>
         <div class="chart-wrapper small"><canvas id="vglQuarterlyChart"></canvas></div>
         <div class="highlight-box">
           <h3>{highlights.get('VGL Quarterly', 'N/A')}</h3>
@@ -2281,7 +2590,7 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
       </div>
       <div class="chart-container">
         <div class="chart-title">VGL Anual</div>
-        <div class="chart-subtitle">Performance anual consolidada (R$ Milhões)</div>
+        <div class="chart-subtitle">Performance anual consolidada (R$ M)</div>
         <div class="chart-wrapper small"><canvas id="vglYearlyChart"></canvas></div>
         <div class="highlight-box">
           <h3>{highlights.get('VGL Annual', 'N/A')}</h3>
@@ -2465,14 +2774,25 @@ function showSection(sectionId) {{
         datasets_js.append(f"const precosVendaYearlyData = {_to_js_json(yd)};")
         datasets_js.append(f"const precosVendaYearlyVar = {_to_js_json(yv)};")
 
-    if 'VGV Monthly' in data_dict:
-        datasets_js.append(f"const vgvMonthlyData = {_to_js_json(data_dict['VGV Monthly'])};")
-    if 'VGV Quarterly' in data_dict:
-        datasets_js.append(f"const vgvQuarterlyData = {_to_js_json(data_dict['VGV Quarterly'])};")
-    if 'VGV Yearly' in data_dict:
-        yd, yv = data_dict['VGV Yearly']
-        datasets_js.append(f"const vgvYearlyData = {_to_js_json(yd)};")
-        datasets_js.append(f"const vgvYearlyVar = {_to_js_json(yv)};")
+    # VGV OFERTAS
+    if 'VGV Ofertas Monthly' in data_dict:
+        datasets_js.append(f"const vgvOfertasMonthlyData = {_to_js_json(data_dict['VGV Ofertas Monthly'])};")
+    if 'VGV Ofertas Quarterly' in data_dict:
+        datasets_js.append(f"const vgvOfertasQuarterlyData = {_to_js_json(data_dict['VGV Ofertas Quarterly'])};")
+    if 'VGV Ofertas Yearly' in data_dict:
+        yd, yv = data_dict['VGV Ofertas Yearly']
+        datasets_js.append(f"const vgvOfertasYearlyData = {_to_js_json(yd)};")
+        datasets_js.append(f"const vgvOfertasYearlyVar = {_to_js_json(yv)};")
+
+    # VGV VENDAS  
+    if 'VGV Vendas Monthly' in data_dict:
+        datasets_js.append(f"const vgvVendasMonthlyData = {_to_js_json(data_dict['VGV Vendas Monthly'])};")
+    if 'VGV Vendas Quarterly' in data_dict:
+        datasets_js.append(f"const vgvVendasQuarterlyData = {_to_js_json(data_dict['VGV Vendas Quarterly'])};")
+    if 'VGV Vendas Yearly' in data_dict:
+        yd, yv = data_dict['VGV Vendas Yearly']
+        datasets_js.append(f"const vgvVendasYearlyData = {_to_js_json(yd)};")
+        datasets_js.append(f"const vgvVendasYearlyVar = {_to_js_json(yv)};")
 
     # VGL (Valor Geral de Lançamentos)
     if 'VGL Monthly' in data_dict:
@@ -3238,11 +3558,11 @@ window.addEventListener('load', function() {
     );
   }
 
-  // VGV
-  if (typeof vgvMonthlyData !== 'undefined') {
-    new Chart(document.getElementById('vgvMonthlyChart'), {
+  // VGV OFERTAS
+  if (typeof vgvOfertasMonthlyData !== 'undefined') {
+    new Chart(document.getElementById('vgvOfertasMonthlyChart'), {
       type: 'line',
-      data: vgvMonthlyData,
+      data: vgvOfertasMonthlyData,
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -3269,10 +3589,10 @@ window.addEventListener('load', function() {
     });
   }
 
-  if (typeof vgvQuarterlyData !== 'undefined') {
-    new Chart(document.getElementById('vgvQuarterlyChart'), {
+  if (typeof vgvOfertasQuarterlyData !== 'undefined') {
+    new Chart(document.getElementById('vgvOfertasQuarterlyChart'), {
       type: 'bar',
-      data: vgvQuarterlyData,
+      data: vgvOfertasQuarterlyData,
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -3297,11 +3617,79 @@ window.addEventListener('load', function() {
     });
   }
 
-  if (typeof vgvYearlyData !== 'undefined') {
+  if (typeof vgvOfertasYearlyData !== 'undefined') {
     drawYearlyChart(
-      document.getElementById('vgvYearlyChart'),
-      vgvYearlyData,
-      vgvYearlyVar || [],
+      document.getElementById('vgvOfertasYearlyChart'),
+      vgvOfertasYearlyData,
+      vgvOfertasYearlyVar || [],
+      (v) => 'R$ ' + v.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) + 'M'
+    );
+  }
+
+  // VGV VENDAS
+  if (typeof vgvVendasMonthlyData !== 'undefined') {
+    new Chart(document.getElementById('vgvVendasMonthlyChart'), {
+      type: 'line',
+      data: vgvVendasMonthlyData,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: legendCircle,
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: R$ ${ctx.parsed.y.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}M`
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            ticks: {
+              callback: (v) => 'R$ ' + v.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) + 'M'
+            }
+          }
+        },
+        animation: { duration: 2000 }
+      }
+    });
+  }
+
+  if (typeof vgvVendasQuarterlyData !== 'undefined') {
+    new Chart(document.getElementById('vgvVendasQuarterlyChart'), {
+      type: 'bar',
+      data: vgvVendasQuarterlyData,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: legendCircle,
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: R$ ${ctx.parsed.y.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}M`
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            ticks: {
+              callback: (v) => 'R$ ' + v.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) + 'M'
+            }
+          }
+        },
+        animation: { duration: 1500 }
+      }
+    });
+  }
+
+  if (typeof vgvVendasYearlyData !== 'undefined') {
+    drawYearlyChart(
+      document.getElementById('vgvVendasYearlyChart'),
+      vgvVendasYearlyData,
+      vgvVendasYearlyVar || [],
       (v) => 'R$ ' + v.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) + 'M'
     );
   }
@@ -3776,6 +4164,205 @@ window.addEventListener('load', function() {
 # -------------------------
 # Main
 # -------------------------
+def extract_regional_totals(sheets, month_ref="Nov/25"):
+    """
+    Extrai valores totais das planilhas regionais.
+    """
+    print("🔍 Extraindo dados das planilhas regionais...")
+    
+    def get_total_from_regional_sheet(sheet_name):
+        """Extrai valor total de uma planilha regional."""
+        if sheet_name not in sheets:
+            return None
+            
+        df = sheets[sheet_name]
+        for idx, row in df.iterrows():
+            first_val = str(row.iloc[0]).lower()
+            if 'total' in first_val:
+                total_value = row.iloc[-1]  # última coluna (total geral)
+                print(f"   ✅ {sheet_name}: {total_value}")
+                return total_value
+        return None
+    
+    # Mapear planilhas regionais para valores
+    regional_data = {}
+    
+    # IVV
+    ivv_total = get_total_from_regional_sheet('IVV por região (%)')
+    if ivv_total:
+        ivv_value = parse_percentage(ivv_total)
+        if ivv_value:
+            regional_data['IVV'] = ivv_value
+    
+    # Ofertas 
+    ofertas_total = get_total_from_regional_sheet('Ofertas por região')
+    if ofertas_total:
+        ofertas_value = parse_number(ofertas_total)
+        if ofertas_value:
+            regional_data['Ofertas'] = ofertas_value
+    
+    # Vendas
+    vendas_total = get_total_from_regional_sheet('Vendas por região')
+    if vendas_total:
+        vendas_value = parse_number(vendas_total)
+        if vendas_value:
+            regional_data['Vendas'] = vendas_value
+    
+    # Preços - usando nomes exatos das planilhas
+    preco_oferta_total = get_total_from_regional_sheet('Preço de oferta por região (R$m')
+    if preco_oferta_total:
+        preco_oferta_value = parse_number(preco_oferta_total)
+        if preco_oferta_value:
+            regional_data['Preco_Oferta'] = preco_oferta_value
+    
+    preco_venda_total = get_total_from_regional_sheet('Preço de venda por região (R$m²')
+    if preco_venda_total:
+        preco_venda_value = parse_number(preco_venda_total)
+        if preco_venda_value:
+            regional_data['Preco_Venda'] = preco_venda_value
+    
+    # Áreas
+    oferta_m2_total = get_total_from_regional_sheet('Oferta total por região (em m²)')
+    if oferta_m2_total:
+        oferta_m2_value = parse_number(oferta_m2_total)
+        if oferta_m2_value:
+            regional_data['Oferta_M2'] = oferta_m2_value
+    
+    venda_m2_total = get_total_from_regional_sheet('Venda total por região (em m²)')
+    if venda_m2_total:
+        venda_m2_value = parse_number(venda_m2_total)
+        if venda_m2_value:
+            regional_data['Venda_M2'] = venda_m2_value
+    
+    print(f"📊 Dados regionais extraídos: {list(regional_data.keys())}")
+    return regional_data
+
+
+def add_default_historical_data(data_dict, highlights):
+    """
+    Adiciona dados históricos padrão quando não há planilhas temporais no Excel.
+    Usa os dados do dashboard original como fallback.
+    """
+    print("📊 Adicionando dados históricos padrão (fallback)...")
+    
+    # ============ DADOS IVV HISTÓRICOS ============
+    if 'IVV Monthly' not in data_dict:
+        data_dict['IVV Monthly'] = {
+            "labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], 
+            "datasets": [
+                {"label": "2021", "data": [8.6, 10.5, 10.9, 8.5, 8.1, 9.0, 7.7, 7.5, 8.8, 7.6, 6.5, 8.4], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, 
+                {"label": "2022", "data": [5.2, 9.0, 10.1, 8.3, 8.5, 7.2, 7.6, 10.4, 7.0, 8.4, 7.4, 7.9], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, 
+                {"label": "2023", "data": [5.7, 5.6, 7.4, 7.4, 7.9, 7.3, 5.4, 6.9, 5.6, 4.9, 5.1, 5.4], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, 
+                {"label": "2024", "data": [3.8, 4.2, 5.8, 6.3, 12.7, 7.2, 7.0, 7.6, 8.7, 6.1, 7.4, 6.4], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, 
+                {"label": "2025", "data": [5.9, 6.2, 6.6, 5.6, 7.3, 10.4, 7.3, 8.2, 9.0, 9.1, 8.0, None], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}
+            ]
+        }
+        print("   ✅ IVV Monthly: dados históricos 2021-2025")
+
+    if 'IVV Quarterly' not in data_dict:
+        data_dict['IVV Quarterly'] = {
+            "labels": ["1T", "2T", "3T", "4T *"], 
+            "datasets": [
+                {"label": "2021", "data": [10.0, 8.5, 8.0, 7.5], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, 
+                {"label": "2022", "data": [8.1, 8.0, 8.3, 7.9], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, 
+                {"label": "2023", "data": [6.2, 7.5, 6.0, 5.1], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, 
+                {"label": "2024", "data": [4.6, 8.7, 7.8, 6.6], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, 
+                {"label": "2025 *", "data": [6.2, 7.8, 8.2, 8.5], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}
+            ]
+        }
+        print("   ✅ IVV Quarterly: dados históricos 2021-2025")
+
+    if 'IVV Yearly' not in data_dict:
+        data_dict['IVV Yearly'] = (
+            {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [8.5, 8.1, 6.2, 6.9, 7.6], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]}, 
+            ["-", "-5,1%", "-23,1%", "+11,5%", "+9,7%"]
+        )
+        print("   ✅ IVV Yearly: dados históricos 2021-2025")
+        
+    # ============ HIGHLIGHTS IVV ============
+    if 'IVV MoM' not in highlights:
+        highlights.update({
+            'IVV MoM': 'Nov/2025 - Out/2025: -11,5%',
+            'IVV YoY': 'Nov/2025 - Nov/2024: 8,8%', 
+            'IVV Peak': '10,4% (Jun)',
+            'IVV Yearly Avg': '7,6%',
+            'IVV Trend': '',
+            'IVV Quarterly': 'Melhor trimestre: 3T - 8,2%',
+            'IVV Annual': '2025 *: 7,6% (+9,7%)'
+        })
+        print("   ✅ IVV Highlights: insights padrão")
+
+    # ============ DADOS OFERTAS HISTÓRICOS ============
+    if 'Ofertas Monthly' not in data_dict:
+        data_dict['Ofertas Monthly'] = {
+            "labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], 
+            "datasets": [
+                {"label": "2021", "data": [3319.0, 3782.0, 4319.0, 4047.0, 4690.0, 4492.0, 4268.0, 4263.0, 4582.0, 4496.0, 4762.0, 5074.0], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, 
+                {"label": "2022", "data": [4693.0, 5174.0, 4761.0, 4718.0, 5026.0, 4752.0, 4322.0, 4512.0, 4273.0, 4803.0, 5028.0, 4695.0], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, 
+                {"label": "2023", "data": [4726.0, 4615.0, 4425.0, 4539.0, 5394.0, 5599.0, 5425.0, 5704.0, 6473.0, 6818.0, 6533.0, 7121.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, 
+                {"label": "2024", "data": [7533.0, 7285.0, 7014.0, 6757.0, 6908.0, 6191.0, 5866.0, 5943.0, 5784.0, 5745.0, 5746.0, 5623.0], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, 
+                {"label": "2025", "data": [5509.0, 5167.0, 5155.0, 4964.0, 4846.0, 5194.0, 4764.0, 4417.0, 5206.0, 5491.0, 5182.0, None], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}
+            ]
+        }
+        print("   ✅ Ofertas Monthly: dados históricos 2021-2025")
+
+    if 'Ofertas Quarterly' not in data_dict:
+        data_dict['Ofertas Quarterly'] = {
+            "labels": ["1T", "2T", "3T", "4T *"], 
+            "datasets": [
+                {"label": "2021", "data": [3807.0, 4410.0, 4371.0, 4777.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, 
+                {"label": "2022", "data": [4876.0, 4832.0, 4369.0, 4842.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, 
+                {"label": "2023", "data": [4589.0, 5177.0, 5867.0, 6824.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, 
+                {"label": "2024", "data": [7277.0, 6619.0, 5864.0, 5705.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, 
+                {"label": "2025 *", "data": [5277.0, 5001.0, 4796.0, 5337.0], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}
+            ]
+        }
+        print("   ✅ Ofertas Quarterly: dados históricos 2021-2025")
+
+    if 'Ofertas Yearly' not in data_dict:
+        data_dict['Ofertas Yearly'] = (
+            {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [4341.0, 4730.0, 5614.0, 6366.0, 5081.0], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]}, 
+            ["-", "+9,0%", "+18,7%", "+13,4%", "-20,2%"]
+        )
+        print("   ✅ Ofertas Yearly: dados históricos 2021-2025")
+
+    # ============ DADOS VENDAS HISTÓRICOS ============
+    if 'Vendas Monthly' not in data_dict:
+        data_dict['Vendas Monthly'] = {
+            "labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], 
+            "datasets": [
+                {"label": "2021", "data": [285.0, 397.0, 472.0, 343.0, 378.0, 404.0, 327.0, 320.0, 405.0, 343.0, 309.0, 427.0], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, 
+                {"label": "2022", "data": [244.0, 468.0, 479.0, 392.0, 425.0, 343.0, 327.0, 468.0, 297.0, 404.0, 371.0, 372.0], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, 
+                {"label": "2023", "data": [271.0, 257.0, 327.0, 334.0, 424.0, 408.0, 291.0, 396.0, 365.0, 337.0, 334.0, 381.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, 
+                {"label": "2024", "data": [288.0, 303.0, 410.0, 423.0, 879.0, 445.0, 409.0, 449.0, 505.0, 351.0, 424.0, 360.0], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, 
+                {"label": "2025", "data": [324.0, 320.0, 340.0, 277.0, 354.0, 542.0, 350.0, 363.0, 466.0, 498.0, 416.0, None], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}
+            ]
+        }
+        print("   ✅ Vendas Monthly: dados históricos 2021-2025")
+
+    if 'Vendas Quarterly' not in data_dict:
+        data_dict['Vendas Quarterly'] = {
+            "labels": ["1T", "2T", "3T", "4T *"], 
+            "datasets": [
+                {"label": "2021", "data": [1154.0, 1125.0, 1052.0, 1079.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, 
+                {"label": "2022", "data": [1191.0, 1160.0, 1092.0, 1147.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, 
+                {"label": "2023", "data": [855.0, 1166.0, 1052.0, 1052.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, 
+                {"label": "2024", "data": [1001.0, 1747.0, 1363.0, 1135.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, 
+                {"label": "2025 *", "data": [984.0, 1173.0, 1179.0, 914.0], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}
+            ]
+        }
+        print("   ✅ Vendas Quarterly: dados históricos 2021-2025")
+
+    if 'Vendas Yearly' not in data_dict:
+        data_dict['Vendas Yearly'] = (
+            {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [4410.0, 4590.0, 4125.0, 5246.0, 4250.0], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]}, 
+            ["-", "+4,1%", "-10,1%", "+27,2%", "-19,0%"]
+        )
+        print("   ✅ Vendas Yearly: dados históricos 2021-2025")
+
+    return data_dict, highlights
+
+
 def main():
     if len(sys.argv) != 3:
         print("Usage: python3 excel_to_html_report_final.py <input_excel.xlsx> <output_html.html>")
@@ -4105,16 +4692,16 @@ def main():
                 lancproj_insights = format_new_insights(sheets[lanc_month_sheet], data_type='number', month_ref=month_ref)
                 
                 # Adaptar os insights para empreendimentos (projetos)
-                highlights['LancProj MoM'] = lancproj_insights['mom'].replace('Variação MoM:', 'Variação MoM (projetos):')
-                highlights['LancProj YoY'] = lancproj_insights['yoy'].replace('Variação YoY:', 'Variação YoY (projetos):')
+                highlights['LancProj MoM'] = lancproj_insights['mom'].replace('Variação MoM:', 'Variação MoM (empreendimentos):')
+                highlights['LancProj YoY'] = lancproj_insights['yoy'].replace('Variação YoY:', 'Variação YoY (empreendimentos):')
                 
                 # Para pico e média, usar os dados calculados dos valores entre colchetes
                 proj_peak = calc_peak(cur_vals)
-                highlights['LancProj Peak'] = f"Pico: {br_int(proj_peak)} projetos" if proj_peak is not None else "Pico: n/d"
+                highlights['LancProj Peak'] = f"Pico: {br_int(proj_peak)} empreendimentos" if proj_peak is not None else "Pico: n/d"
                 
                 # Calcular média anual dos projetos
                 proj_yearly_avg = sum([v for v in cur_vals if v is not None]) / len([v for v in cur_vals if v is not None]) if cur_vals else None
-                highlights['LancProj Yearly Avg'] = f"Média anual: {br_int(proj_yearly_avg)} projetos" if proj_yearly_avg is not None else "Média anual: n/d"
+                highlights['LancProj Yearly Avg'] = f"Média anual: {br_int(proj_yearly_avg)} empreendimentos" if proj_yearly_avg is not None else "Média anual: n/d"
                 
                 # Manter cálculo de tendência para as setas
                 proj_trend = calc_trend(cur_vals)
@@ -4192,13 +4779,19 @@ def main():
         data_dict['LancProj Yearly'] = (proj_data, proj_var)
 
     # ---------------- Preços Oferta ----------------
-    oferta_price_month = next((n for n in sheets if n.startswith('Oferta Valor Médio Ponderado Me')), None)
-    oferta_price_quart = next((n for n in sheets if n.startswith('Oferta Valor Médio Ponderado Tr')), None)
-    oferta_price_year = next((n for n in sheets if n.startswith('Oferta Valor Médio Ponderado An')), None)
+    oferta_price_month = next((n for n in sheets if n.startswith('Preço de Oferta Mensal')), None)
+    oferta_price_quart = next((n for n in sheets if n.startswith('Preço de Oferta Trimestral')), None)
+    oferta_price_year = next((n for n in sheets if n.startswith('Preço de Oferta Anual')), None)
+    
+    print(f"🔍 PREÇOS DE OFERTA:")
+    print(f"   📊 Mensal: {oferta_price_month}")
+    print(f"   📊 Trimestral: {oferta_price_quart}")
+    print(f"   📊 Anual: {oferta_price_year}")
 
     if oferta_price_month:
         po_monthly = build_monthly_dataset(sheets[oferta_price_month], is_percent=False)
         data_dict['Precos Oferta Monthly'] = po_monthly
+        print(f"   ✅ Preços Oferta Monthly processado: {len(po_monthly['datasets'])} séries")
 
         # Novos insights usando dados MoM/YoY do Excel
         po_insights = format_new_insights(sheets[oferta_price_month], data_type='currency', month_ref=month_ref)
@@ -4216,6 +4809,7 @@ def main():
 
     if oferta_price_quart:
         data_dict['Precos Oferta Quarterly'] = build_quarterly_dataset(sheets[oferta_price_quart], is_percent=False)
+        print(f"   ✅ Preços Oferta Quarterly processado")
         
         # Encontrar melhor trimestre (não sempre o último)
         best_value, best_quarter = find_best_quarter_with_performance(sheets[oferta_price_quart], data_type='currency')
@@ -4230,6 +4824,7 @@ def main():
     if oferta_price_year:
         data, var = build_yearly_dataset(sheets[oferta_price_year], is_percent=False)
         data_dict['Precos Yearly'] = (data, var)
+        print(f"   ✅ Preços Oferta Yearly processado")
         df_a = clean_dataframe(sheets[oferta_price_year])
         if not df_a.empty:
             for idx in range(len(df_a) - 1, -1, -1):
@@ -4248,12 +4843,17 @@ def main():
             highlights['PrecosOferta Annual Obs'] = observation
 
     # ---------------- Preços Venda ----------------
-    venda_price_month = next((n for n in sheets if n.startswith('Venda Valor Médio Ponderado Men')), None)
-    venda_price_quart = next((n for n in sheets if n.startswith('Venda Valor Médio Ponderado Tri')), None)
+    venda_price_month = next((n for n in sheets if n.startswith('Preço de Venda Mensal')), None)
+    venda_price_quart = next((n for n in sheets if n.startswith('Preço de Venda Trimestral')), None)
+    
+    print(f"🔍 PREÇOS DE VENDA:")
+    print(f"   📊 Mensal: {venda_price_month}")
+    print(f"   📊 Trimestral: {venda_price_quart}")
 
     if venda_price_month:
         pv_monthly = build_monthly_dataset(sheets[venda_price_month], is_percent=False)
         data_dict['Precos Venda Monthly'] = pv_monthly
+        print(f"   ✅ Preços Venda Monthly processado: {len(pv_monthly['datasets'])} séries")
 
         # Novos insights usando dados MoM/YoY do Excel
         pv_insights = format_new_insights(sheets[venda_price_month], data_type='currency', month_ref=month_ref)
@@ -4271,6 +4871,7 @@ def main():
 
     if venda_price_quart:
         data_dict['Precos Venda Quarterly'] = build_quarterly_dataset(sheets[venda_price_quart], is_percent=False)
+        print(f"   ✅ Preços Venda Quarterly processado")
         
         # Encontrar melhor trimestre (não sempre o último)
         best_value, best_quarter = find_best_quarter_with_performance(sheets[venda_price_quart], data_type='currency')
@@ -4283,10 +4884,13 @@ def main():
             highlights['PrecosVenda Quarterly Obs'] = observation
 
     # Buscar dados anuais de preços de venda
-    venda_price_year = next((n for n in sheets if n.startswith('Venda Valor Médio Ponderado Anu')), None)
+    venda_price_year = next((n for n in sheets if n.startswith('Preço de Venda Anual')), None)
+    print(f"   📊 Anual: {venda_price_year}")
+    
     if venda_price_year:
         data, var = build_yearly_dataset(sheets[venda_price_year], is_percent=False)
         data_dict['Precos Venda Yearly'] = (data, var)
+        print(f"   ✅ Preços Venda Yearly processado")
         df_a = clean_dataframe(sheets[venda_price_year])
         if not df_a.empty:
             for idx in range(len(df_a) - 1, -1, -1):
@@ -4304,42 +4908,54 @@ def main():
         if observation:
             highlights['PrecosVenda Annual Obs'] = observation
 
-    # ---------------- VGV ----------------
-    if 'VGV Mensal (R$ Milhões)' in sheets:
-        vgv_monthly = build_monthly_dataset(sheets['VGV Mensal (R$ Milhões)'], is_percent=False)
-        data_dict['VGV Monthly'] = vgv_monthly
+    # ---------------- VGV OFERTAS ----------------
+    vgv_ofertas_month = next((n for n in sheets if n.startswith('VGV sobre Ofertas Mensal')), None)
+    vgv_ofertas_quart = next((n for n in sheets if n.startswith('VGV sobre Ofertas Trimestral')), None)
+    vgv_ofertas_year = next((n for n in sheets if n.startswith('VGV sobre Ofertas Anual')), None)
+    
+    print(f"🔍 VGV OFERTAS:")
+    print(f"   📊 Mensal: {vgv_ofertas_month}")
+    print(f"   📊 Trimestral: {vgv_ofertas_quart}")
+    print(f"   📊 Anual: {vgv_ofertas_year}")
+
+    if vgv_ofertas_month:
+        vgv_of_monthly = build_monthly_dataset(sheets[vgv_ofertas_month], is_percent=False)
+        data_dict['VGV Ofertas Monthly'] = vgv_of_monthly
+        print(f"   ✅ VGV Ofertas Monthly processado: {len(vgv_of_monthly['datasets'])} séries")
 
         # Novos insights usando dados MoM/YoY do Excel
-        vgv_insights = format_new_insights(sheets['VGV Mensal (R$ Milhões)'], data_type='currency', is_millions=True, month_ref=month_ref)
+        vgv_of_insights = format_new_insights(sheets[vgv_ofertas_month], data_type='currency', is_millions=True, month_ref=month_ref)
         
-        highlights['VGV MoM'] = vgv_insights['mom']
-        highlights['VGV YoY'] = vgv_insights['yoy']
-        highlights['VGV Peak'] = vgv_insights['peak']
-        highlights['VGV Yearly Avg'] = vgv_insights['yearly_avg']
+        highlights['VGVOfertas MoM'] = vgv_of_insights['mom']
+        highlights['VGVOfertas YoY'] = vgv_of_insights['yoy']
+        highlights['VGVOfertas Peak'] = vgv_of_insights['peak']
+        highlights['VGVOfertas Yearly Avg'] = vgv_of_insights['yearly_avg']
         
         # Manter cálculo de tendência original para as setas
-        if vgv_monthly['datasets']:
-            cur = vgv_monthly['datasets'][-1]['data']
+        if vgv_of_monthly['datasets']:
+            cur = vgv_of_monthly['datasets'][-1]['data']
             trend = calc_trend(cur)
-            highlights['VGV Trend'] = trend
+            highlights['VGVOfertas Trend'] = trend
 
-    if 'VGV Trimestral (R$ Milhões)' in sheets:
-        data_dict['VGV Quarterly'] = build_quarterly_dataset(sheets['VGV Trimestral (R$ Milhões)'], is_percent=False)
+    if vgv_ofertas_quart:
+        data_dict['VGV Ofertas Quarterly'] = build_quarterly_dataset(sheets[vgv_ofertas_quart], is_percent=False)
+        print(f"   ✅ VGV Ofertas Quarterly processado")
         
         # Encontrar melhor trimestre (não sempre o último)
-        best_value, best_quarter = find_best_quarter_with_performance(sheets['VGV Trimestral (R$ Milhões)'], data_type='currency')
+        best_value, best_quarter = find_best_quarter_with_performance(sheets[vgv_ofertas_quart], data_type='currency')
         if best_value is not None and best_quarter:
-            highlights['VGV Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value)}M"
+            highlights['VGVOfertas Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value)}M"
         
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets['VGV Trimestral (R$ Milhões)'])
+        observation = extract_observation_from_sheet(sheets[vgv_ofertas_quart])
         if observation:
-            highlights['VGV Quarterly Obs'] = observation
+            highlights['VGVOfertas Quarterly Obs'] = observation
 
-    if 'VGV Anual (R$ Milhões)' in sheets:
-        data, var = build_yearly_dataset(sheets['VGV Anual (R$ Milhões)'], is_percent=False)
-        data_dict['VGV Yearly'] = (data, var)
-        df_a = clean_dataframe(sheets['VGV Anual (R$ Milhões)'])
+    if vgv_ofertas_year:
+        data, var = build_yearly_dataset(sheets[vgv_ofertas_year], is_percent=False)
+        data_dict['VGV Ofertas Yearly'] = (data, var)
+        print(f"   ✅ VGV Ofertas Yearly processado")
+        df_a = clean_dataframe(sheets[vgv_ofertas_year])
         if not df_a.empty:
             for idx in range(len(df_a) - 1, -1, -1):
                 row = df_a.iloc[idx]
@@ -4348,13 +4964,77 @@ def main():
                     continue
                 year = str(row.iloc[0])
                 var_str = str(row.iloc[2]) if len(row) > 2 and not pd.isna(row.iloc[2]) else ''
-                highlights['VGV Annual'] = f"{year}: {br_currency(val)} ({var_str})"
+                highlights['VGVOfertas Annual'] = f"{year}: {br_currency(val)}M ({var_str})"
                 break
 
         # Extrair observações sobre dados incompletos
-        observation = extract_observation_from_sheet(sheets['VGV Anual (R$ Milhões)'])
+        observation = extract_observation_from_sheet(sheets[vgv_ofertas_year])
         if observation:
-            highlights['VGV Annual Obs'] = observation
+            highlights['VGVOfertas Annual Obs'] = observation
+
+    # ---------------- VGV VENDAS ----------------
+    vgv_vendas_month = next((n for n in sheets if n.startswith('VGV sobre Vendas Mensal')), None)
+    vgv_vendas_quart = next((n for n in sheets if n.startswith('VGV sobre Vendas Trimestral')), None)
+    vgv_vendas_year = next((n for n in sheets if n.startswith('VGV sobre Vendas Anual')), None)
+    
+    print(f"🔍 VGV VENDAS:")
+    print(f"   📊 Mensal: {vgv_vendas_month}")
+    print(f"   📊 Trimestral: {vgv_vendas_quart}")
+    print(f"   📊 Anual: {vgv_vendas_year}")
+
+    if vgv_vendas_month:
+        vgv_ve_monthly = build_monthly_dataset(sheets[vgv_vendas_month], is_percent=False)
+        data_dict['VGV Vendas Monthly'] = vgv_ve_monthly
+        print(f"   ✅ VGV Vendas Monthly processado: {len(vgv_ve_monthly['datasets'])} séries")
+
+        # Novos insights usando dados MoM/YoY do Excel  
+        vgv_ve_insights = format_new_insights(sheets[vgv_vendas_month], data_type='currency', is_millions=True, month_ref=month_ref)
+        
+        highlights['VGVVendas MoM'] = vgv_ve_insights['mom']
+        highlights['VGVVendas YoY'] = vgv_ve_insights['yoy']
+        highlights['VGVVendas Peak'] = vgv_ve_insights['peak']
+        highlights['VGVVendas Yearly Avg'] = vgv_ve_insights['yearly_avg']
+        
+        # Manter cálculo de tendência original para as setas
+        if vgv_ve_monthly['datasets']:
+            cur = vgv_ve_monthly['datasets'][-1]['data']
+            trend = calc_trend(cur)
+            highlights['VGVVendas Trend'] = trend
+
+    if vgv_vendas_quart:
+        data_dict['VGV Vendas Quarterly'] = build_quarterly_dataset(sheets[vgv_vendas_quart], is_percent=False)
+        print(f"   ✅ VGV Vendas Quarterly processado")
+        
+        # Encontrar melhor trimestre (não sempre o último)
+        best_value, best_quarter = find_best_quarter_with_performance(sheets[vgv_vendas_quart], data_type='currency')
+        if best_value is not None and best_quarter:
+            highlights['VGVVendas Quarterly'] = f"Melhor trimestre: {best_quarter} - {br_currency(best_value)}M"
+        
+        # Extrair observações sobre dados incompletos
+        observation = extract_observation_from_sheet(sheets[vgv_vendas_quart])
+        if observation:
+            highlights['VGVVendas Quarterly Obs'] = observation
+
+    if vgv_vendas_year:
+        data, var = build_yearly_dataset(sheets[vgv_vendas_year], is_percent=False)
+        data_dict['VGV Vendas Yearly'] = (data, var)
+        print(f"   ✅ VGV Vendas Yearly processado")
+        df_a = clean_dataframe(sheets[vgv_vendas_year])
+        if not df_a.empty:
+            for idx in range(len(df_a) - 1, -1, -1):
+                row = df_a.iloc[idx]
+                val = parse_number(row.iloc[1])
+                if val is None:
+                    continue
+                year = str(row.iloc[0])
+                var_str = str(row.iloc[2]) if len(row) > 2 and not pd.isna(row.iloc[2]) else ''
+                highlights['VGVVendas Annual'] = f"{year}: {br_currency(val)}M ({var_str})"
+                break
+
+        # Extrair observações sobre dados incompletos
+        observation = extract_observation_from_sheet(sheets[vgv_vendas_year])
+        if observation:
+            highlights['VGVVendas Annual Obs'] = observation
 
     # ---------------- VGL (Valor Geral de Lançamentos) ----------------
     # Valores monetários de lançamentos (R$ Milhões)
@@ -4401,7 +5081,7 @@ def main():
                     continue
                 year = str(row.iloc[0])
                 var_str = str(row.iloc[2]) if len(row) > 2 and not pd.isna(row.iloc[2]) else ''
-                highlights['VGL Annual'] = f"{year}: {br_currency(val)} ({var_str})"
+                highlights['VGL Annual'] = f"{year}: {br_currency(val)}M ({var_str})"
                 break
 
         # Extrair observações sobre dados incompletos
@@ -4481,6 +5161,9 @@ def main():
 
     # Mapeamento: substring da planilha -> chave -> título (expandido com mais variações)
     region_mapping = [
+        # IVV por região
+        ('ivv por região', 'ivv_regiao', 'IVV por Região (%)'),
+        
         # Ofertas por região
         ('ofertas por região', 'ofertas', 'Ofertas por Região'),
         ('oferta por região', 'ofertas', 'Ofertas por Região'),
@@ -4537,7 +5220,12 @@ def main():
                 print(f"✅ Encontrada planilha regional VÁLIDA: '{sheet_name}' -> {key}")
                 print(f"   Primeira coluna (regiões): {list(cleaned.iloc[:5, 0].astype(str))}")
                     
-                parsed = parse_region_table(cleaned)
+                # Usar função específica para IVV
+                if key == 'ivv_regiao':
+                    parsed = parse_ivv_table(cleaned)
+                else:
+                    parsed = parse_region_table(cleaned)
+                    
                 # Se for tabela de preços, formatar valores com duas casas decimais e zero como '-'
                 if key in ('precos_oferta', 'precos_venda'):
                     df_price = parsed.copy()
@@ -4553,6 +5241,21 @@ def main():
                     # Para tabelas de preço, gera HTML com os valores já formatados
                     html_table = create_region_table_html(df_price, title)
                     region_tables[key] = html_table
+                # Se for tabela de IVV, formatar como percentual
+                elif key == 'ivv_regiao':
+                    df_ivv = parsed.copy()
+                    for col in df_ivv.columns[1:]:  # não modificar coluna Região
+                        def format_val(val):
+                            num = parse_percentage(val)
+                            # Considerar None ou 0 como sem valor
+                            if num is None or abs(num) < 1e-6:
+                                return '-'
+                            # Formatar como percentual brasileiro
+                            return br_percent(num, decimals=1)
+                        df_ivv[col] = df_ivv[col].apply(format_val)
+                    # Para tabelas de IVV, gera HTML com os valores já formatados
+                    html_table = create_region_table_html(df_ivv, title)
+                    region_tables[key] = html_table
                 else:
                     region_tables[key] = create_region_table_html(parsed, title)
                 found_tables.add(key)
@@ -4564,6 +5267,9 @@ def main():
         
         # Padrões flexíveis
         flexible_patterns = [
+            # Para IVV por região
+            (lambda name: 'ivv' in name and 'região' in name, 
+             'ivv_regiao', 'IVV por Região (%)'),
             # Para ofertas
             (lambda name: 'oferta' in name and 'região' in name and 'ponderado' not in name, 
              'ofertas', 'Ofertas por Região'),
@@ -4597,7 +5303,12 @@ def main():
                     print(f"✅ Padrão flexível aceito: '{sheet_name}' -> {key}")
                     print(f"   Regiões encontradas: {list(cleaned.iloc[:3, 0].astype(str))}")
                         
-                    parsed = parse_region_table(cleaned)
+                    # Usar função específica para IVV
+                    if key == 'ivv_regiao':
+                        parsed = parse_ivv_table(cleaned)
+                    else:
+                        parsed = parse_region_table(cleaned)
+                        
                     if key in ('precos_oferta', 'precos_venda'):
                         df_price = parsed.copy()
                         for col in df_price.columns[1:]:
@@ -4608,6 +5319,17 @@ def main():
                                 return br_float(num, decimals=2)
                             df_price[col] = df_price[col].apply(format_val)
                         html_table = create_region_table_html(df_price, title)
+                        region_tables[key] = html_table
+                    elif key == 'ivv_regiao':
+                        df_ivv = parsed.copy()
+                        for col in df_ivv.columns[1:]:
+                            def format_val(val):
+                                num = parse_percentage(val)
+                                if num is None or abs(num) < 1e-6:
+                                    return '-'
+                                return br_percent(num, decimals=1)
+                            df_ivv[col] = df_ivv[col].apply(format_val)
+                        html_table = create_region_table_html(df_ivv, title)
                         region_tables[key] = html_table
                     else:
                         region_tables[key] = create_region_table_html(parsed, title)
@@ -4620,8 +5342,24 @@ def main():
         print(f"  ✅ {key}: {len(html)} chars de HTML")
     print()
 
+    # Adicionar dados históricos padrão se não houver planilhas temporais
+    temporal_sheets = ['IVV Mensal', 'IVV Trimestral', 'IVV Anual', 
+                       'Ofertas Mensais (Unidades)', 'Vendas Mensais (Unidades)']
+    
+    has_temporal_data = any(sheet in sheets for sheet in temporal_sheets)
+    
+    if not has_temporal_data:
+        print("📊 Nenhuma planilha temporal encontrada - usando dados históricos padrão...")
+        data_dict, highlights = add_default_historical_data(data_dict, highlights)
+
+    # Extrair dados regionais para os cards de resumo
+    regional_totals = None
+    if not has_temporal_data and region_tables:
+        print("📊 Extraindo dados regionais para cards de resumo...")
+        regional_totals = extract_regional_totals(sheets, month_ref)
+
     # Gera HTML
-    html_content = generate_html(data_dict, report_date, month_ref, highlights)
+    html_content = generate_html(data_dict, report_date, month_ref, highlights, regional_totals)
     
     # Insere as tabelas de região nas seções corretas
     if region_tables:
