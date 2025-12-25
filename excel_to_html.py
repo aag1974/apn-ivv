@@ -1759,6 +1759,29 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
     @media (max-width: 768px) {{
       .grid {{ grid-template-columns: 1fr; }}
       .header h1 {{ font-size: 2em; }}
+      
+      /* 📱 HEADER MOBILE - TÍTULO ABAIXO DA LOGO */
+      .header-content {{ 
+        flex-direction: column; 
+        align-items: center; 
+        text-align: center;
+        gap: 20px; 
+        padding: 0 20px; 
+      }}
+      .header-text {{ 
+        text-align: center; 
+        width: 100%;
+      }}
+      .logo {{ 
+        height: 80px; 
+        margin: 0; /* Remove margin para centralizar */
+      }}
+      .month-ref {{
+        position: static; /* Remove positioning absoluto */
+        margin: 10px auto 20px auto; /* Centraliza */
+        display: inline-block;
+      }}
+      
       .chart-container {{ padding: 20px; }}
       .nav-buttons {{ gap: 10px; }}
       .nav-btn {{ 
@@ -1830,7 +1853,11 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
       }}
       .logo {{ 
         height: 70px; 
-        margin-right: 10px; 
+        margin: 0; /* Remove margin para centralizar */
+      }}
+      .month-ref {{
+        font-size: 12px;
+        padding: 6px 12px;
       }}
       .summary-card {{ 
         padding: 20px; 

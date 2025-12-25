@@ -49,6 +49,29 @@
     @media (max-width: 768px) {
       .grid { grid-template-columns: 1fr; }
       .header h1 { font-size: 2em; }
+      
+      /* 📱 HEADER MOBILE - TÍTULO ABAIXO DA LOGO */
+      .header-content { 
+        flex-direction: column; 
+        align-items: center; 
+        text-align: center;
+        gap: 20px; 
+        padding: 0 20px; 
+      }
+      .header-text { 
+        text-align: center; 
+        width: 100%;
+      }
+      .logo { 
+        height: 80px; 
+        margin: 0; /* Remove margin para centralizar */
+      }
+      .month-ref {
+        position: static; /* Remove positioning absoluto */
+        margin: 10px auto 20px auto; /* Centraliza */
+        display: inline-block;
+      }
+      
       .chart-container { padding: 20px; }
       .nav-buttons { gap: 10px; }
       .nav-btn { 
@@ -120,7 +143,11 @@
       }
       .logo { 
         height: 70px; 
-        margin-right: 10px; 
+        margin: 0; /* Remove margin para centralizar */
+      }
+      .month-ref {
+        font-size: 12px;
+        padding: 6px 12px;
       }
       .summary-card { 
         padding: 20px; 
@@ -505,7 +532,7 @@
       <div class="header-text">
         <h1>📊 Pesquisa IVV Residencial</h1>
         <p>Índice de Velocidade de Vendas - Análise Executiva</p>
-        <small>Relatório gerado em: 25/12/2025 19:46</small>
+        <small>Relatório gerado em: 25/12/2025 19:54</small>
       </div>
     </div>
   </div>
