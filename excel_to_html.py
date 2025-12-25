@@ -2988,6 +2988,48 @@ const legendCircle = {
   }
 };
 
+// ========== FUNÇÃO PARA TOOLTIPS AUTOMÁTICOS ==========
+function activateLatestTooltip(chart, chartType = 'line') {
+  // Aguardar um momento para o gráfico ser renderizado completamente
+  setTimeout(() => {
+    try {
+      const datasets = chart.data.datasets;
+      const labels = chart.data.labels;
+      
+      if (!datasets || !labels || labels.length === 0) return;
+      
+      // Encontrar o último dataset (série mais recente)
+      const lastDataset = datasets[datasets.length - 1];
+      if (!lastDataset || !lastDataset.data) return;
+      
+      // Encontrar o último ponto com dados (não null/undefined)
+      let lastPointIndex = -1;
+      for (let i = lastDataset.data.length - 1; i >= 0; i--) {
+        if (lastDataset.data[i] !== null && lastDataset.data[i] !== undefined) {
+          lastPointIndex = i;
+          break;
+        }
+      }
+      
+      if (lastPointIndex >= 0) {
+        // Ativar tooltip no último ponto com dados
+        const activeElements = [{
+          datasetIndex: datasets.length - 1, // última série
+          index: lastPointIndex // último ponto com dados
+        }];
+        
+        chart.setActiveElements(activeElements);
+        chart.tooltip.setActiveElements(activeElements, {x: 0, y: 0});
+        chart.update('none'); // Update sem animação
+        
+        console.log(`📊 Tooltip automático ativado: Dataset ${datasets.length - 1}, Ponto ${lastPointIndex} (${labels[lastPointIndex]})`);
+      }
+    } catch (error) {
+      console.warn('⚠️ Erro ao ativar tooltip automático:', error);
+    }
+  }, 500); // Aguardar 500ms para garantir renderização
+}
+
 function drawYearlyChart(ctx, data, variations, labelFormatter) {
   // Calcular valores min/max
   const values = data.datasets[0].data.filter(v => v !== null && v !== undefined);
@@ -3104,7 +3146,7 @@ window.addEventListener('load', function() {
     const minVal = Math.floor(Math.min(...values) - 0.5);
     const maxVal = Math.ceil(Math.max(...values) + 0.5);
     
-    new Chart(document.getElementById('ivvMonthlyChart'), {
+    const ivvChart = new Chart(document.getElementById('ivvMonthlyChart'), {
       type: 'line',
       data: ivvMonthlyData,
       options: {
@@ -3133,6 +3175,9 @@ window.addEventListener('load', function() {
         animation: { duration: 2000, easing: 'easeInOutQuart' }
       }
     });
+    
+    // 🎯 TOOLTIP AUTOMÁTICO NO PONTO MAIS RECENTE
+    activateLatestTooltip(ivvChart, 'line');
   }
 
   if (typeof ivvQuarterlyData !== 'undefined') {
@@ -3141,7 +3186,7 @@ window.addEventListener('load', function() {
     const minVal = Math.floor(Math.min(...values) - 0.5);
     const maxVal = Math.ceil(Math.max(...values) + 0.5);
     
-    new Chart(document.getElementById('ivvQuarterlyChart'), {
+    const ivvQuarterlyChart = new Chart(document.getElementById('ivvQuarterlyChart'), {
       type: 'bar',
       data: ivvQuarterlyData,
       options: {
@@ -3168,6 +3213,9 @@ window.addEventListener('load', function() {
         animation: { duration: 1500 }
       }
     });
+    
+    // 🎯 TOOLTIP AUTOMÁTICO NA BARRA MAIS RECENTE
+    activateLatestTooltip(ivvQuarterlyChart, 'bar');
   }
 
   if (typeof ivvYearlyData !== 'undefined') {
@@ -4382,6 +4430,80 @@ window.addEventListener('load', function() {
     });
     
     console.log('🎨 Sistema de colorização de insights ativado!');
+  </script>
+
+  <!-- 🎯 TOOLTIPS AUTOMÁTICOS PARA MODO APRESENTAÇÃO -->
+  <script>
+    // Aguardar carregamento completo e ativar tooltips nos pontos mais recentes
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        console.log('🎯 Ativando tooltips automáticos para modo apresentação...');
+        
+        // Lista de IDs dos gráficos mensais (linha) e trimestrais (barra) para tooltip automático
+        const monthlyCharts = [
+          'ivvMonthlyChart', 'ofertasMonthlyChart', 'vendasMonthlyChart',
+          'ofertaM2MonthlyChart', 'vendaM2MonthlyChart', 
+          'lancMonthlyChart', 'lancProjMonthlyChart', // IDs corretos de lançamentos
+          'precosOfertaMonthlyChart', 'precosVendaMonthlyChart', 
+          'vgvOfertasMonthlyChart', 'vgvVendasMonthlyChart', 'vglMonthlyChart',
+          'distratosMonthlyChart'
+        ];
+        
+        const quarterlyCharts = [
+          'ivvQuarterlyChart', 'ofertasQuarterlyChart', 'vendasQuarterlyChart',
+          'ofertaM2QuarterlyChart', 'vendaM2QuarterlyChart', 
+          'lancQuarterlyChart', 'lancProjQuarterlyChart', // IDs corretos de lançamentos
+          'precosOfertaQuarterlyChart', 'precosVendaQuarterlyChart',
+          'vgvOfertasQuarterlyChart', 'vgvVendasQuarterlyChart', 'vglQuarterlyChart',
+          'distratosQuarterlyChart'
+        ];
+        
+        // NOVO: Gráficos anuais (barras) também precisam de tooltips automáticos
+        const yearlyCharts = [
+          'ivvYearlyChart', 'ofertasYearlyChart', 'vendasYearlyChart',
+          'ofertaM2YearlyChart', 'vendaM2YearlyChart',
+          'lancYearlyChart', 'lancProjYearlyChart',
+          'precosOfertaYearlyChart', 'precosVendaYearlyChart',
+          'vgvOfertasYearlyChart', 'vgvVendasYearlyChart', 'vglYearlyChart',
+          'distratosYearlyChart'
+        ];
+        
+        let activatedCount = 0;
+        
+        // Ativar tooltips em gráficos mensais (linha)
+        monthlyCharts.forEach(chartId => {
+          const element = document.getElementById(chartId);
+          if (element && Chart.getChart(element)) {
+            const chart = Chart.getChart(element);
+            activateLatestTooltip(chart, 'line');
+            activatedCount++;
+          }
+        });
+        
+        // Ativar tooltips em gráficos trimestrais (barra)
+        quarterlyCharts.forEach(chartId => {
+          const element = document.getElementById(chartId);
+          if (element && Chart.getChart(element)) {
+            const chart = Chart.getChart(element);
+            activateLatestTooltip(chart, 'bar');
+            activatedCount++;
+          }
+        });
+        
+        // Ativar tooltips em gráficos anuais (barra)
+        yearlyCharts.forEach(chartId => {
+          const element = document.getElementById(chartId);
+          if (element && Chart.getChart(element)) {
+            const chart = Chart.getChart(element);
+            activateLatestTooltip(chart, 'bar');
+            activatedCount++;
+          }
+        });
+        
+        console.log(`✅ Tooltips automáticos ativados em ${activatedCount} gráficos!`);
+        console.log('🎯 Dashboard pronto para apresentação!');
+      }, 3000); // Aguardar 3s para garantir que todos os gráficos foram criados
+    });
   </script>
 
 </body>
