@@ -438,19 +438,21 @@ def parse_ivv_table(df: pd.DataFrame) -> pd.DataFrame:
     return df_sorted
 
 
-def parse_region_table(df: pd.DataFrame) -> pd.DataFrame:
+def parse_region_table(df: pd.DataFrame, table_type: str = 'ofertas') -> pd.DataFrame:
     """
     Prepara tabela de regiões para ordenação e exibição.
 
     A planilha original possui uma linha de cabeçalho com nomes de colunas
     (Região, 1 qto, 2 qtos, 3 qtos, 4+ qtos, Total).
-    Internamente, a coluna "Total" é padronizada como "Preço Médio".
+    
+    Para ofertas/vendas: última coluna é "Total"
+    Para preços: última coluna é "Preço Médio"
 
     A função:
     - Remove linhas vazias
-    - Padroniza nomes das colunas
+    - Padroniza nomes das colunas baseado no tipo de tabela
     - Converte valores numéricos considerando formatação brasileira
-    - Ordena as regiões por Preço Médio (descendente)
+    - Ordena as regiões por coluna final (descendente)
     - Mantém linhas de totais (ex: "Total", "Total Geral") sempre no final
     """
 
@@ -462,8 +464,18 @@ def parse_region_table(df: pd.DataFrame) -> pd.DataFrame:
     # Manter somente as 6 primeiras colunas
     df_region = df_region.iloc[:, :6]
 
-    # Padronizar nomes das colunas
-    expected_cols = ['Região', '1 qto', '2 qtos', '3 qtos', '4+ qtos', 'Preço Médio']
+    # Padronizar nomes das colunas baseado no tipo de tabela
+    if table_type in ['precos_oferta', 'precos_venda']:
+        # Tabelas de preços: última coluna é "Preço Médio"
+        expected_cols = ['Região', '1 qto', '2 qtos', '3 qtos', '4+ qtos', 'Preço Médio']
+        sort_column = 'Preço Médio'
+        total_label = 'Preço Médio'  # Renomear "Total Geral" para "Preço Médio"
+    else:
+        # Tabelas de ofertas/vendas: última coluna é "Total"
+        expected_cols = ['Região', '1 qto', '2 qtos', '3 qtos', '4+ qtos', 'Total']
+        sort_column = 'Total'
+        total_label = 'Total'  # Renomear "Total Geral" para "Total"
+    
     df_region.columns = expected_cols
 
     # Remover linha de cabeçalho duplicada, se existir
@@ -477,34 +489,34 @@ def parse_region_table(df: pd.DataFrame) -> pd.DataFrame:
     # Remover linhas sem região
     df_region = df_region[df_region['Região'].notna()].copy()
 
-    # Renomear "Total Geral" para "Preço Médio" nas tabelas de preços
-    df_region['Região'] = df_region['Região'].astype(str).str.replace('Total Geral', 'Preço Médio', regex=False)
+    # Renomear "Total Geral" para o label apropriado conforme tipo de tabela
+    df_region['Região'] = df_region['Região'].astype(str).str.replace('Total Geral', total_label, regex=False)
 
     # Conversão numérica para ordenação
     def to_float(val: any) -> float:
         v = parse_number(val)
         return v if v is not None else 0.0
 
-    # Coluna auxiliar numérica a partir de Preço Médio
-    df_region['PrecoMedio_num'] = df_region['Preço Médio'].apply(to_float)
+    # Coluna auxiliar numérica a partir da coluna de ordenação
+    df_region[f'{sort_column}_num'] = df_region[sort_column].apply(to_float)
 
-    # Identificar linhas de total (qualquer ocorrência de "total" no nome da região)
+    # Identificar linhas de total (qualquer ocorrência de "total" ou "preço médio" no nome da região)
     regiao_norm = df_region['Região'].astype(str).str.strip().str.lower()
-    mask_total = regiao_norm.str.contains('total')
+    mask_total = regiao_norm.str.contains('total|preço médio|preco medio', regex=True)
 
     total_rows = df_region.loc[mask_total].copy()
     df_region_no_total = df_region.loc[~mask_total].copy()
 
-    # Ordenar regiões pelo Preço Médio (decrescente)
+    # Ordenar regiões pela coluna de ordenação (decrescente)
     df_region_no_total = df_region_no_total.sort_values(
-        by='PrecoMedio_num', ascending=False
+        by=f'{sort_column}_num', ascending=False
     )
 
     # Concatenar mantendo totais no final
     df_sorted = pd.concat([df_region_no_total, total_rows], ignore_index=True)
 
     # Remover coluna auxiliar
-    df_sorted = df_sorted.drop(columns=['PrecoMedio_num'])
+    df_sorted = df_sorted.drop(columns=[f'{sort_column}_num'])
 
     return df_sorted
 
@@ -2238,7 +2250,7 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
   <div class="header">
     <div class="month-ref">📅 Mês Ref.: {month_ref}</div>
     <div class="header-content">
-      <img src="https://raw.githubusercontent.com/aag1974/apn-ivv/main/logo_opiniao.png" alt="Opinião Logo" class="logo">
+      <img src="https://raw.githubusercontent.com/aag1974/apn-ivv/main/logo.png" alt="Opinião Logo" class="logo">
       <div class="header-text">
         <h1>📊 Pesquisa IVV Residencial</h1>
         <p>Índice de Velocidade de Vendas - Análise Executiva</p>
@@ -5602,7 +5614,7 @@ def main():
                 if key == 'ivv_regiao':
                     parsed = parse_ivv_table(cleaned)
                 else:
-                    parsed = parse_region_table(cleaned)
+                    parsed = parse_region_table(cleaned, key)
                     
                 # Se for tabela de preços, formatar valores com duas casas decimais e zero como '-'
                 if key in ('precos_oferta', 'precos_venda'):
@@ -5685,7 +5697,7 @@ def main():
                     if key == 'ivv_regiao':
                         parsed = parse_ivv_table(cleaned)
                     else:
-                        parsed = parse_region_table(cleaned)
+                        parsed = parse_region_table(cleaned, key)
                         
                     if key in ('precos_oferta', 'precos_venda'):
                         df_price = parsed.copy()
