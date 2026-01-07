@@ -2690,7 +2690,7 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
   <div id="vgv-ofertas" class="section">
     <div class="chart-container">
       <div class="chart-title">VGV Ofertas Mensal - Evolução 2021-2025</div>
-      <div class="chart-subtitle">Valor Geral de Vendas sobre Ofertas mensal (R$ M)</div>
+      <div class="chart-subtitle">Valor Geral de Vendas sobre Ofertas mensal (R$ Milhões)</div>
       <div class="chart-wrapper"><canvas id="vgvOfertasMonthlyChart"></canvas></div>
       <div class="insights">
         <h4>💡 Destaques:</h4>
@@ -2704,7 +2704,7 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
     <div class="grid">
       <div class="chart-container">
         <div class="chart-title">VGV Ofertas Trimestral</div>
-        <div class="chart-subtitle">Performance por trimestre (R$ M)</div>
+        <div class="chart-subtitle">Performance por trimestre (R$ Milhões)</div>
         <div class="chart-wrapper small"><canvas id="vgvOfertasQuarterlyChart"></canvas></div>
         <div class="highlight-box">
           <h3>{highlights.get('VGVOfertas Quarterly', 'N/A')}</h3>
@@ -2714,7 +2714,7 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
       </div>
       <div class="chart-container">
         <div class="chart-title">VGV Ofertas Anual</div>
-        <div class="chart-subtitle">Performance anual consolidada (R$ M)</div>
+        <div class="chart-subtitle">Performance anual consolidada (R$ Milhões)</div>
         <div class="chart-wrapper small"><canvas id="vgvOfertasYearlyChart"></canvas></div>
         <div class="highlight-box">
           <h3>{highlights.get('VGVOfertas Annual', 'N/A')}</h3>
@@ -2728,7 +2728,7 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
   <div id="vgv-vendas" class="section">
     <div class="chart-container">
       <div class="chart-title">VGV Vendas Mensal - Evolução 2021-2025</div>
-      <div class="chart-subtitle">Valor Geral de Vendas sobre Vendas mensal (R$ M)</div>
+      <div class="chart-subtitle">Valor Geral de Vendas sobre Vendas mensal (R$ Milhões)</div>
       <div class="chart-wrapper"><canvas id="vgvVendasMonthlyChart"></canvas></div>
       <div class="insights">
         <h4>💡 Destaques:</h4>
@@ -2742,7 +2742,7 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
     <div class="grid">
       <div class="chart-container">
         <div class="chart-title">VGV Vendas Trimestral</div>
-        <div class="chart-subtitle">Performance por trimestre (R$ M)</div>
+        <div class="chart-subtitle">Performance por trimestre (R$ Milhões)</div>
         <div class="chart-wrapper small"><canvas id="vgvVendasQuarterlyChart"></canvas></div>
         <div class="highlight-box">
           <h3>{highlights.get('VGVVendas Quarterly', 'N/A')}</h3>
@@ -2752,7 +2752,7 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
       </div>
       <div class="chart-container">
         <div class="chart-title">VGV Vendas Anual</div>
-        <div class="chart-subtitle">Performance anual consolidada (R$ M)</div>
+        <div class="chart-subtitle">Performance anual consolidada (R$ Milhões)</div>
         <div class="chart-wrapper small"><canvas id="vgvVendasYearlyChart"></canvas></div>
         <div class="highlight-box">
           <h3>{highlights.get('VGVVendas Annual', 'N/A')}</h3>
@@ -2767,7 +2767,7 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
   <div id="vgl" class="section">
     <div class="chart-container">
       <div class="chart-title">VGL Mensal - Evolução 2021-2025</div>
-      <div class="chart-subtitle">Valor geral de lançamentos mensal (R$ M)</div>
+      <div class="chart-subtitle">Valor geral de lançamentos mensal (R$ Milhões)</div>
       <div class="chart-wrapper"><canvas id="vglMonthlyChart"></canvas></div>
       <div class="insights">
         <h4>💡 Destaques:</h4>
@@ -2781,7 +2781,7 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
     <div class="grid">
       <div class="chart-container">
         <div class="chart-title">VGL Trimestral</div>
-        <div class="chart-subtitle">Performance por trimestre (R$ M)</div>
+        <div class="chart-subtitle">Performance por trimestre (R$ Milhões)</div>
         <div class="chart-wrapper small"><canvas id="vglQuarterlyChart"></canvas></div>
         <div class="highlight-box">
           <h3>{highlights.get('VGL Quarterly', 'N/A')}</h3>
@@ -2791,7 +2791,7 @@ def generate_html(data_dict: dict, report_date: str, month_ref: str, highlights:
       </div>
       <div class="chart-container">
         <div class="chart-title">VGL Anual</div>
-        <div class="chart-subtitle">Performance anual consolidada (R$ M)</div>
+        <div class="chart-subtitle">Performance anual consolidada (R$ Milhões)</div>
         <div class="chart-wrapper small"><canvas id="vglYearlyChart"></canvas></div>
         <div class="highlight-box">
           <h3>{highlights.get('VGL Annual', 'N/A')}</h3>

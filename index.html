@@ -532,7 +532,7 @@
       <div class="header-text">
         <h1>📊 Pesquisa IVV Residencial</h1>
         <p>Índice de Velocidade de Vendas - Análise Executiva</p>
-        <small>Relatório gerado em: 26/12/2025 07:53</small>
+        <small>Relatório gerado em: 07/01/2026 15:53</small>
       </div>
     </div>
   </div>
@@ -1111,7 +1111,7 @@
   <div id="vgv-ofertas" class="section">
     <div class="chart-container">
       <div class="chart-title">VGV Ofertas Mensal - Evolução 2021-2025</div>
-      <div class="chart-subtitle">Valor Geral de Vendas sobre Ofertas mensal (R$ M)</div>
+      <div class="chart-subtitle">Valor Geral de Vendas sobre Ofertas mensal (R$ Milhões)</div>
       <div class="chart-wrapper"><canvas id="vgvOfertasMonthlyChart"></canvas></div>
       <div class="insights">
         <h4>💡 Destaques:</h4>
@@ -1125,7 +1125,7 @@
     <div class="grid">
       <div class="chart-container">
         <div class="chart-title">VGV Ofertas Trimestral</div>
-        <div class="chart-subtitle">Performance por trimestre (R$ M)</div>
+        <div class="chart-subtitle">Performance por trimestre (R$ Milhões)</div>
         <div class="chart-wrapper small"><canvas id="vgvOfertasQuarterlyChart"></canvas></div>
         <div class="highlight-box">
           <h3>Melhor trimestre: 2T - R$ 7.536M</h3>
@@ -1135,7 +1135,7 @@
       </div>
       <div class="chart-container">
         <div class="chart-title">VGV Ofertas Anual</div>
-        <div class="chart-subtitle">Performance anual consolidada (R$ M)</div>
+        <div class="chart-subtitle">Performance anual consolidada (R$ Milhões)</div>
         <div class="chart-wrapper small"><canvas id="vgvOfertasYearlyChart"></canvas></div>
         <div class="highlight-box">
           <h3>2025 *: R$ 7.316M (+5,3%)</h3>
@@ -1149,7 +1149,7 @@
   <div id="vgv-vendas" class="section">
     <div class="chart-container">
       <div class="chart-title">VGV Vendas Mensal - Evolução 2021-2025</div>
-      <div class="chart-subtitle">Valor Geral de Vendas sobre Vendas mensal (R$ M)</div>
+      <div class="chart-subtitle">Valor Geral de Vendas sobre Vendas mensal (R$ Milhões)</div>
       <div class="chart-wrapper"><canvas id="vgvVendasMonthlyChart"></canvas></div>
       <div class="insights">
         <h4>💡 Destaques:</h4>
@@ -1163,7 +1163,7 @@
     <div class="grid">
       <div class="chart-container">
         <div class="chart-title">VGV Vendas Trimestral</div>
-        <div class="chart-subtitle">Performance por trimestre (R$ M)</div>
+        <div class="chart-subtitle">Performance por trimestre (R$ Milhões)</div>
         <div class="chart-wrapper small"><canvas id="vgvVendasQuarterlyChart"></canvas></div>
         <div class="highlight-box">
           <h3>Melhor trimestre: 2T - R$ 1.183M</h3>
@@ -1173,7 +1173,7 @@
       </div>
       <div class="chart-container">
         <div class="chart-title">VGV Vendas Anual</div>
-        <div class="chart-subtitle">Performance anual consolidada (R$ M)</div>
+        <div class="chart-subtitle">Performance anual consolidada (R$ Milhões)</div>
         <div class="chart-wrapper small"><canvas id="vgvVendasYearlyChart"></canvas></div>
         <div class="highlight-box">
           <h3>2025 *: R$ 4.145M (+3,1%)</h3>
@@ -1188,7 +1188,7 @@
   <div id="vgl" class="section">
     <div class="chart-container">
       <div class="chart-title">VGL Mensal - Evolução 2021-2025</div>
-      <div class="chart-subtitle">Valor geral de lançamentos mensal (R$ M)</div>
+      <div class="chart-subtitle">Valor geral de lançamentos mensal (R$ Milhões)</div>
       <div class="chart-wrapper"><canvas id="vglMonthlyChart"></canvas></div>
       <div class="insights">
         <h4>💡 Destaques:</h4>
@@ -1202,7 +1202,7 @@
     <div class="grid">
       <div class="chart-container">
         <div class="chart-title">VGL Trimestral</div>
-        <div class="chart-subtitle">Performance por trimestre (R$ M)</div>
+        <div class="chart-subtitle">Performance por trimestre (R$ Milhões)</div>
         <div class="chart-wrapper small"><canvas id="vglQuarterlyChart"></canvas></div>
         <div class="highlight-box">
           <h3>Melhor trimestre: 3T - R$ 1.380M</h3>
@@ -1212,7 +1212,7 @@
       </div>
       <div class="chart-container">
         <div class="chart-title">VGL Anual</div>
-        <div class="chart-subtitle">Performance anual consolidada (R$ M)</div>
+        <div class="chart-subtitle">Performance anual consolidada (R$ Milhões)</div>
         <div class="chart-wrapper small"><canvas id="vglYearlyChart"></canvas></div>
         <div class="highlight-box">
           <h3>2025 *: R$ 2.974M (+18,0%)</h3>
@@ -1332,9 +1332,9 @@ function showSection(sectionId) {
   const lancQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [1913.0, 1146.0, 520.0, 1282.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [754.0, 1072.0, 513.0, 932.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [667.0, 1986.0, 1592.0, 1564.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [526.0, 910.0, 548.0, 369.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [177.0, 607.0, 437.0, 519.0], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
   const lancYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [4861.0, 3271.0, 5809.0, 2353.0, 1740.0], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
   const lancYearlyVar = ["-", "-32,7%", "+77,6%", "-59,5%", "-26,1%"];
-  const lancProjMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [3.0, 4.0, 3.0, 2.0, 6.0, 2.0, 1.0, 3.0, 3.0, 8.0, 3.0, 2.0], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [null, 4.0, 2.0, 5.0, 2.0, 1.0, 1.0, 3.0, null, 3.0, 1.0, 1.0], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [2.0, 2.0, 2.0, 4.0, 5.0, 1.0, 1.0, 4.0, 2.0, 6.0, null, 3.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [0.0, null, 1.0, 2.0, 3.0, 3.0, 1.0, 1.0, 3.0, 1.0, 3.0, null], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [1.0, null, 1.0, 1.0, 1.0, 4.0, 3.0, null, 5.0, 1.0, 2.0, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
-  const lancProjQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [10.0, 10.0, 7.0, 13.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [6.0, 8.0, 4.0, 5.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [6.0, 10.0, 7.0, 9.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [1.0, 8.0, 5.0, 4.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [2.0, 6.0, 8.0, 3.0], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
-  const lancProjYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [40.0, 23.0, 32.0, 18.0, 19.0], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
+  const lancProjMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [3.0, 4.0, 3.0, 2.0, 6.0, 2.0, 1.0, 3.0, 3.0, 8.0, 3.0, 2.0], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [null, 4.0, 2.0, 5.0, 3.0, 1.0, 1.0, 3.0, null, 3.0, 1.0, 1.0], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [2.0, 2.0, 2.0, 4.0, 5.0, 1.0, 1.0, 4.0, 2.0, 6.0, null, 3.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [1.0, null, 1.0, 2.0, 3.0, 3.0, 1.0, 1.0, 3.0, 1.0, 3.0, null], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [1.0, null, 1.0, 1.0, 1.0, 4.0, 3.0, null, 5.0, 1.0, 2.0, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
+  const lancProjQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [10.0, 10.0, 7.0, 13.0], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [6.0, 9.0, 4.0, 5.0], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [6.0, 10.0, 7.0, 9.0], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [2.0, 8.0, 5.0, 4.0], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [2.0, 6.0, 8.0, 3.0], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
+  const lancProjYearlyData = {"labels": ["2021", "2022", "2023", "2024", "2025 *"], "datasets": [{"label": "Valor", "data": [40.0, 24.0, 32.0, 19.0, 19.0], "backgroundColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderColor": ["#e74c3c", "#f39c12", "#9b59b6", "#3498db", "#27ae60"], "borderWidth": 1, "pointStyle": "circle"}]};
   const lancProjYearlyVar = ["-", "-32,7%", "+77,6%", "-59,5%", "-26,1%"];
   const precosOfertaMonthlyData = {"labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "datasets": [{"label": "2021", "data": [10653.99, 10225.1, 9777.49, 9978.39, 10151.1, 10278.28, 10272.69, 10767.22, 10748.44, 11690.89, 11467.53, 11387.28], "borderColor": "#e74c3c", "backgroundColor": "rgba(231, 76, 60, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2022", "data": [11565.08, 11689.47, 11703.49, 12085.85, 11909.77, 12202.24, 12705.77, 12808.19, 12832.52, 13096.8, 12716.95, 13085.96], "borderColor": "#f39c12", "backgroundColor": "rgba(243, 156, 18, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2023", "data": [12888.35, 12736.58, 13001.12, 13027.63, 12525.64, 12963.9, 12738.99, 13660.92, 12628.09, 12906.53, 12964.07, 12699.0], "borderColor": "#9b59b6", "backgroundColor": "rgba(155, 89, 182, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2024", "data": [12466.25, 12533.79, 12656.19, 12730.81, 12684.01, 13510.6, 13668.6, 13665.8, 13733.35, 13747.78, 13991.32, 13890.92], "borderColor": "#3498db", "backgroundColor": "rgba(52, 152, 219, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle"}, {"label": "2025", "data": [14098.31, 14149.45, 14215.4, 14530.82, 14846.53, 14941.14, 15268.11, 15489.37, 15724.96, 15330.71, 15611.48, null], "borderColor": "#27ae60", "backgroundColor": "rgba(39, 174, 96, 0.10)", "borderWidth": 2, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "pointStyle": "circle", "borderDash": [6, 4]}]};
   const precosOfertaQuarterlyData = {"labels": ["1T", "2T", "3T", "4T *"], "datasets": [{"label": "2021", "data": [10203.55, 10144.24, 10605.91, 11508.82], "backgroundColor": "rgba(231, 76, 60, 0.80)", "borderColor": "#e74c3c", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2022", "data": [11654.19, 12063.56, 12782.37, 12962.9], "backgroundColor": "rgba(243, 156, 18, 0.80)", "borderColor": "#f39c12", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2023", "data": [12874.3, 12829.7, 13005.88, 12854.62], "backgroundColor": "rgba(155, 89, 182, 0.80)", "borderColor": "#9b59b6", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2024", "data": [12550.25, 12963.38, 13689.09, 13879.14], "backgroundColor": "rgba(52, 152, 219, 0.80)", "borderColor": "#3498db", "borderWidth": 2, "pointStyle": "circle"}, {"label": "2025 *", "data": [14153.34, 14775.13, 15495.17, 15466.96], "backgroundColor": "rgba(39, 174, 96, 0.80)", "borderColor": "#27ae60", "borderWidth": 2, "pointStyle": "circle"}]};
